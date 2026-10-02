@@ -9,7 +9,7 @@ class Heap;
 class MessageQueue
 {
 public:
-    using Element = s64;
+    typedef s64 Element;
 
     enum class BlockType
     {
@@ -27,7 +27,7 @@ public:
     Element peek(BlockType block_type) const;
     bool jam(Element message, BlockType block_type);
 
-    static constexpr Element cNullElement = 0;
+    static const Element cNullElement = 0;
 
 private:
     nn::os::BlockingQueue mMessageQueueInner;

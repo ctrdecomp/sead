@@ -13,7 +13,7 @@ class StreamSrc;
 class PrintOutput
 {
 public:
-    virtual ~PrintOutput() = default;
+    virtual ~PrintOutput(){ }
     virtual void write(const char* string, s32 size) = 0;
     void writeLineBreak();
     PrintFormatter& operator<<(PrintFormatter& formatter);
@@ -23,8 +23,8 @@ class StringPrintOutput : public PrintOutput
 {
 public:
     explicit StringPrintOutput(BufferedSafeString* buffer);
-    ~StringPrintOutput() override = default;
-    void write(const char* string, s32 size) override;
+    virtual ~StringPrintOutput(){ }
+    virtual void write(const char* string, s32 size);
 
 protected:
     BufferedSafeString* mBuffer;
@@ -35,8 +35,8 @@ class StringCutOffPrintOutput : public PrintOutput
 {
 public:
     explicit StringCutOffPrintOutput(BufferedSafeString* buffer);
-    ~StringCutOffPrintOutput() override = default;
-    void write(const char* string, s32 size) override;
+    virtual ~StringCutOffPrintOutput() { }
+    virtual void write(const char* string, s32 size);
 
 protected:
     BufferedSafeString* mBuffer;
@@ -47,8 +47,8 @@ class StreamPrintOutput : public PrintOutput
 {
 public:
     explicit StreamPrintOutput(StreamSrc* src);
-    ~StreamPrintOutput() override;
-    void write(const char* string, s32 size) override;
+    virtual ~StreamPrintOutput();
+    virtual void write(const char* string, s32 size);
 
 protected:
     StreamSrc* mSrc;
@@ -58,8 +58,8 @@ class BufferingPrintOutput : public PrintOutput
 {
 public:
     BufferingPrintOutput(char* buffer, u32 buffer_size);
-    ~BufferingPrintOutput() override;
-    void write(const char* string, s32 size) override;
+    virtual ~BufferingPrintOutput();
+    virtual void write(const char* string, s32 size);
 
 protected:
     BufferMultiByteNullTerminatedTextWriteStreamSrc mSrc;

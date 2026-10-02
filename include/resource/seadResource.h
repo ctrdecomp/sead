@@ -29,8 +29,7 @@ class DirectResource : public Resource
 
 public:
     DirectResource();
-    ~DirectResource() override;
-
+    virtual ~DirectResource();
     virtual s32 getLoadDataAlignment() const { return 4; }
 
     void create(u8* buffer, u32 bufferSize, u32 allocSize, bool allocated, Heap* heap);
@@ -39,12 +38,14 @@ public:
     u32 getRawSize() const { return mRawSize; }
     u32 getBufferSize() const { return mBufferSize; }
 
-    static constexpr size_t cLoadDataAlignment = 4;
+    static const size_t cLoadDataAlignment = 4;
 
 protected:
-    virtual void doCreate_([[maybe_unused]] u8* buffer, [[maybe_unused]] u32 bufferSize,
-                           [[maybe_unused]] Heap* heap)
+    virtual void doCreate_(u8* buffer, u32 bufferSize, Heap* heap)
     {
+        SEAD_UNUSED(buffer);
+        SEAD_UNUSED(bufferSize);
+        SEAD_UNUSED(heap);
     }
     u8* mRawData = 0;
     u32 mRawSize = 0;
@@ -62,9 +63,11 @@ public:
     void create(sead::ReadStream* stream, u32 size, sead::Heap* heap);
 
 protected:
-    virtual void doCreate_([[maybe_unused]] ReadStream* stream, [[maybe_unused]] u32 size,
-                           [[maybe_unused]] Heap* heap)
+    virtual void doCreate_(ReadStream* stream, u32 bufferSize, Heap* heap)
     {
+        SEAD_UNUSED(stream);
+        SEAD_UNUSED(bufferSize);
+        SEAD_UNUSED(heap);
     }
 };
 
@@ -94,12 +97,11 @@ class DirectResourceFactoryBase : public ResourceFactory
 public:
     DirectResourceFactoryBase() : ResourceFactory() {}
 
-    ~DirectResourceFactoryBase() override {}
+    virtual ~DirectResourceFactoryBase(){}
 
-    Resource* create(const ResourceMgr::CreateArg& createArg) override;
-    Resource* tryCreate(const ResourceMgr::LoadArg& loadArg) override;
-    Resource* tryCreateWithDecomp(const ResourceMgr::LoadArg& loadArg,
-                                  Decompressor* decompressor) override;
+    virtual Resource* create(const ResourceMgr::CreateArg& createArg);
+    virtual Resource* tryCreate(const ResourceMgr::LoadArg& loadArg);
+    virtual Resource* tryCreateWithDecomp(const ResourceMgr::LoadArg& loadArg, Decompressor* decompressor);
     virtual DirectResource* newResource_(Heap* heap, s32 alignment) = 0;
 };
 
@@ -110,9 +112,9 @@ class DirectResourceFactory : public DirectResourceFactoryBase
 public:
     DirectResourceFactory() : DirectResourceFactoryBase() {}
 
-    ~DirectResourceFactory() override {}
+    virtual ~DirectResourceFactory() {}
 
-    DirectResource* newResource_(Heap* heap, s32 alignment) override
+    DirectResource* newResource_(Heap* heap, s32 alignment)
     {
         return new (heap, alignment) T;
     }
@@ -124,12 +126,10 @@ class IndirectResourceFactoryBase : public ResourceFactory
 public:
     IndirectResourceFactoryBase() : ResourceFactory() {}
 
-    ~IndirectResourceFactoryBase() override {}
-
-    Resource* create(const ResourceMgr::CreateArg& createArg) override;
-    Resource* tryCreate(const ResourceMgr::LoadArg& loadArg) override;
-    Resource* tryCreateWithDecomp(const ResourceMgr::LoadArg& loadArg,
-                                  Decompressor* decompressor) override;
+    virtual ~IndirectResourceFactoryBase(){}
+    virtual Resource* create(const ResourceMgr::CreateArg& createArg);
+    virtual Resource* tryCreate(const ResourceMgr::LoadArg& loadArg);
+    virtual Resource* tryCreateWithDecomp(const ResourceMgr::LoadArg& loadArg, Decompressor* decompressor);
     virtual IndirectResource* newResource_(Heap* heap, s32 alignment) = 0;
 };
 

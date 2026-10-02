@@ -29,31 +29,31 @@ public:
     void freeHead();
     void freeTail();
 
-    void destroy() override;
-    size_t adjust() override;
-    void* tryAlloc(size_t size, s32 alignment) override;
-    void free(void* ptr) override;
-    void* resizeFront(void* p_void, size_t size) override;
-    void* resizeBack(void* p_void, size_t size) override;
-    void freeAll() override;
-    uintptr_t getStartAddress() const override;
-    uintptr_t getEndAddress() const override;
-    size_t getSize() const override;
-    size_t getFreeSize() const override;
-    size_t getMaxAllocatableSize(int alignment) const override;
-    bool isInclude(const void* p_void) const override;
-    bool isEmpty() const override;
-    bool isFreeable() const override;
-    bool isResizable() const override;
-    bool isAdjustable() const override;
-    void dump() const override;
-    void dumpYAML(WriteStream& stream, int i) const override;
-    void genInformation_(hostio::Context* context) override;
+    virtual void destroy();
+    virtual size_t adjust();
+    virtual void* tryAlloc(size_t size, s32 alignment);
+    virtual void free(void* ptr);
+    virtual void* resizeFront(void* p_void, size_t size);
+    virtual void* resizeBack(void* p_void, size_t size);
+    virtual void freeAll();
+    virtual uintptr_t getStartAddress() const;
+    virtual uintptr_t getEndAddress() const;
+    virtual size_t getSize() const;
+    virtual size_t getFreeSize() const;
+    virtual size_t getMaxAllocatableSize(int alignment) const;
+    virtual bool isInclude(const void* p_void) const;
+    virtual bool isEmpty() const;
+    virtual bool isFreeable() const;
+    virtual bool isResizable() const;
+    virtual bool isAdjustable() const;
+    virtual void dump() const;
+    virtual void dumpYAML(WriteStream& stream, int i) const;
+    virtual void genInformation_(hostio::Context* context);
 
 protected:
     FrameHeap(const SafeString& name, Heap* parent, void* address, size_t size,
               HeapDirection direction, bool);
-    ~FrameHeap() override;
+    virtual ~FrameHeap() override;
 
     void initialize_();
     void* getAreaStart_() const;

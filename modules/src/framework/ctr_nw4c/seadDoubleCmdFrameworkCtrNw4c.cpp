@@ -50,7 +50,6 @@ void DoubleCmdGameFrameworkCtrNw4c::initializeGraphicsSystem(Heap* heap, const V
     {
         {
             ExpHeap* gfxHeap = ExpHeap::create(mGameArg.cmdMemSize, "sead::DefaultGfxMemoryMgrCtr", heap);
-            ScopedCurrentHeapSetter chs(gfxHeap);
 
             GfxMemoryMgrCtr* mem = new(gfxHeap) DefaultGfxMemoryMgrCtr();
             mem->setInitialize(true);
@@ -64,6 +63,7 @@ void DoubleCmdGameFrameworkCtrNw4c::initializeGraphicsSystem(Heap* heap, const V
         initNngx_(mGameArg.mMemoryMgrCtr);
         mGameArg.mMemoryMgrCtr->setInitialize(false);
     }
+
     for(s32 disp = 0; disp < 2; disp++)
     {
         mDoubleBuf[disp] = createCmdlist_(mGameArg.cmdBufSize, mGameArg.cmdBufRequest);
@@ -75,9 +75,10 @@ void DoubleCmdGameFrameworkCtrNw4c::initializeGraphicsSystem(Heap* heap, const V
         nngxSetCmdlistCallback(cmdlistCallback);
         nngxEnableCmdlistCallback(-1);
     }
+
     nngxBindCmdlist(mDoubleBuf[0]);
     createDisplayBuffers_(mDoubleBufferTop, 2, NN_GX_DISPLAY0, mGameArg.format, mGameArg.widthTop, mGameArg.heightTop, NN_GX_MEM_FCRAM);
-    createDisplayBuffers_(mDoubleBufferTop, 2, NN_GX_DISPLAY1, mGameArg.format, mGameArg.widthBtm, mGameArg.heightBtm, NN_GX_MEM_FCRAM);
+    createDisplayBuffers_(mDoubleBufferBtm, 2, NN_GX_DISPLAY1, mGameArg.format, mGameArg.widthBtm, mGameArg.heightBtm, NN_GX_MEM_FCRAM);
     nngxActiveDisplay(NN_GX_DISPLAY1);
 
     for(int disp = 0; disp < 2; disp++)
@@ -102,12 +103,7 @@ void DoubleCmdGameFrameworkCtrNw4c::initializeGraphicsSystem(Heap* heap, const V
         mTopFrameBuffer->bind();
     }
 
-    {
-        Graphics* graphics = new (heap) GraphicsCtr();
-
-        GraphicsCtr::setInstance(graphics);
-    }
-
+    Graphics::setInstance(new (heap) GraphicsCtr());
     Graphics::instance()->initialize(heap);
 
     SEAD_ASSERT_GL();
@@ -165,7 +161,6 @@ void DoubleCmdGameFrameworkCtrNw4c::procFrame_()
 
         presentTop_();
     }
-
     pGraphics->unlockDrawContext();
 
     if (mProcessMeterBar != 0) 
@@ -358,15 +353,10 @@ void DoubleCmdGameFrameworkCtrNw4c::doScreenShotImpl_(char const* shot)
 {
     FileDeviceMgr* fMgr = FileDeviceMgr::instance();
     FixedSafeString<264> str;
+
     {
         str.copy(shot);
-    }
-
-    {
         str.append("_top.bmp");
-    }
-
-    {
         FileHandle topHandle;
         fMgr->open(&topHandle, str, FileDevice::cFileOpenFlag_WriteOnly, 0);
         if(!topHandle.isOpened())
@@ -378,14 +368,10 @@ void DoubleCmdGameFrameworkCtrNw4c::doScreenShotImpl_(char const* shot)
         nngxGetDisplaybufferParameteri(NN_GX_DISPLAYBUFFER_ADDRESS, &param);
         saveScreenShotToFileHandle_(&topHandle, &param, mGameArg.widthTop, mGameArg.heightTop, mGameArg.format);
     }
-        {
-            str.copy(shot);
-        }
 
-        {
-            str.append("_btm.bmp");
-        }
     {
+        str.copy(shot);
+        str.append("_btm.bmp");
         FileHandle btmHandle;
         fMgr->open(&btmHandle, str, FileDevice::cFileOpenFlag_WriteOnly, 0);
         if(!btmHandle.isOpened())

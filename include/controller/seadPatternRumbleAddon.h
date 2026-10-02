@@ -10,9 +10,9 @@ class PatternRumbleAddon : public ControllerAddon
 
 public:
     explicit PatternRumbleAddon(Controller* controller);
-    ~PatternRumbleAddon() override = default;
+    virtual ~PatternRumbleAddon() { }
 
-    bool calc() override;
+    virtual bool calc();
 
 protected:
     virtual void startRumbleImpl_() = 0;
@@ -28,8 +28,5 @@ protected:
     u32 mPatternIdx;
     u32 mPatternDuration;
 };
-#ifdef cafe
-static_assert(sizeof(PatternRumbleAddon) == 0x20, "sead::PatternRumbleAddon size mismatch");
-#endif  // cafe
 
 }  // namespace sead

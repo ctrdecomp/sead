@@ -17,7 +17,7 @@ template <typename T>
 class RingBuffer
 {
 public:
-    RingBuffer() = default;
+    RingBuffer(){ }
     RingBuffer(s32 capacity, T* buffer) { setBuffer(capacity, buffer); }
     template <s32 N>
     explicit RingBuffer(T (&array)[N]) : RingBuffer(N, array)
@@ -293,7 +293,7 @@ public:
             return item;
         }
         SEAD_ASSERT_MSG(false, "no element");
-        return {};
+        return T();
     }
 
     void remove(s32 index)
@@ -333,13 +333,13 @@ class FixedRingBuffer : public RingBuffer<T>
 public:
     FixedRingBuffer() { RingBuffer<T>::setBuffer(N, mData); }
 
-    void allocBuffer(s32 capacity, s32 alignment) = delete;
-    void allocBuffer(s32 capacity, Heap* heap, s32 alignment) = delete;
-    bool tryAllocBuffer(s32 capacity, s32 alignment) = delete;
-    bool tryAllocBuffer(s32 capacity, Heap* heap, s32 alignment) = delete;
-    void allocBufferAssert(s32 size, Heap* heap, s32 alignment) = delete;
-    void freeBuffer() = delete;
-    void setBuffer(s32 capacity, T* bufferptr) = delete;
+    void allocBuffer(s32 capacity, s32 alignment){ }
+    void allocBuffer(s32 capacity, Heap* heap, s32 alignment){ }
+    bool tryAllocBuffer(s32 capacity, s32 alignment){ return false; }
+    bool tryAllocBuffer(s32 capacity, Heap* heap, s32 alignment) { return false; }
+    void allocBufferAssert(s32 size, Heap* heap, s32 alignment){ }
+    void freeBuffer(){}
+    void setBuffer(s32 capacity, T* bufferptr){}
 
 private:
     T mData[N];

@@ -25,6 +25,7 @@ public:
         ~CreateArg()
         {
         }
+        
         s32 widthTop;
         s32 heightTop;
         s32 widthBtm;

@@ -22,38 +22,37 @@ template <typename T, bool AutoDestruct = false>
 class StorageFor
 {
 public:
-    constexpr StorageFor()
+    StorageFor()
     {
     }
 
     explicit StorageFor(InitializeTag) { constructDefault(); }
 
-    template <typename... Args>
-    explicit StorageFor(InitializeTag, Args&&... args)
-    {
-        construct(std::forward<Args>(args)...);
-    }
-
-    explicit StorageFor(ZeroInitializeTag) : mStorage{} { constructDefault(); }
-
-    template <typename... Args>
-    explicit StorageFor(ZeroInitializeTag, Args&&... args) : mStorage{}
-    {
-        construct(std::forward<Args>(args)...);
-    }
+    explicit StorageFor(ZeroInitializeTag) { constructDefault(); }
 
     T* constructDefault() { return new (storage()) T; }
 
-    template <typename... Args>
-    T* construct(Args&&... args)
+    template <typename A1>
+    T* construct(const A1& a1)
     {
-        return new (storage()) T(std::forward<Args>(args)...);
+        return new (storage()) T(a1);
+    }
+
+    template <typename A1, typename A2>
+    T* construct(const A1& a1, const A2& a2)
+    {
+        return new (storage()) T(a1, a2);
     }
 
     ~StorageFor()
     {
-        if constexpr (AutoDestruct)
+#if defined(__cplusplus) && __cplusplus >= 201103L
+        if (AutoDestruct)
             destruct();
+#else
+        if (AutoDestruct)
+            destruct();
+#endif
     }
 
     /// @warning It is undefined behavior to call this if no object has been constructed.
@@ -84,6 +83,10 @@ public:
     const void* storage() const { return mStorage; }
 
 private:
-    alignas(T) u8 mStorage[sizeof(T)];
+    union StorageUnion
+    {
+        u8 bytes[sizeof(T)];
+        T value;
+    } mStorage;
 };
 }  // namespace sead

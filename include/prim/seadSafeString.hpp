@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <type_traits>
 
 #include <prim/seadMemUtil.h>
 #ifndef SEAD_PRIM_SAFE_STRING_H_
@@ -635,19 +634,16 @@ inline s32 BufferedSafeStringBase<T>::chop(s32 chop_num)
 {
     s32 length = this->calcLength();
     T* buffer = getMutableStringTop_();
-    const auto fail = [=] {
-        SEAD_ASSERT_MSG(false, "chop_num(%d) out of range[0, %d]", chop_num, length);
-    };
 
     if (chop_num < 0)
     {
-        fail();
+        SEAD_ASSERT_MSG(false, "chop_num(%d) out of range[0, %d]", chop_num, length);
         return 0;
     }
 
     if (chop_num > length)
     {
-        fail();
+        SEAD_ASSERT_MSG(false, "chop_num(%d) out of range[0, %d]", chop_num, length);
         chop_num = length;
     }
 
@@ -724,16 +720,21 @@ inline s32 BufferedSafeStringBase<T>::rstrip(const T* characters)
 
     T* buffer = getMutableStringTop_();
     s32 new_length = length;
-    const auto should_strip = [characters, buffer](s32 idx) {
-        for (auto it = characters; *it; ++it)
+    while (new_length >= 1)
+    {
+        bool should_strip = false;
+        for (const T* it = characters; *it; ++it)
         {
-            if (buffer[idx] == *it)
-                return true;
+            if (buffer[new_length - 1] == *it)
+            {
+                should_strip = true;
+                break;
+            }
         }
-        return false;
-    };
-    while (new_length >= 1 && should_strip(new_length - 1))
+        if (!should_strip)
+            break;
         --new_length;
+    }
 
     if (length <= new_length)
         return 0;
@@ -937,20 +938,18 @@ template <typename T>
 inline s32 BufferedSafeStringBase<T>::convertFromMultiByteString(const SafeStringBase<char>& str,
                                                                  s32 str_length)
 {
-    if constexpr (std::is_same<char, T>())
+    if (sizeof(T) == sizeof(char))
         return copy(str, str_length);
-    else
-        return convertFromOtherType_(str, str_length);
+    return convertFromOtherType_(str, str_length);
 }
 
 template <typename T>
 inline s32 BufferedSafeStringBase<T>::convertFromWideCharString(const SafeStringBase<char16>& str,
                                                                 s32 str_length)
 {
-    if constexpr (std::is_same<char16, T>())
+    if (sizeof(T) == sizeof(char16))
         return copy(str, str_length);
-    else
-        return convertFromOtherType_(str, str_length);
+    return convertFromOtherType_(str, str_length);
 }
 
 }  // namespace sead

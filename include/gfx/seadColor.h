@@ -39,6 +39,14 @@ public:
     // This should actually be called setGammaCorrection...
     void setGammaCollection(const Color4u8& value, f32 gamma);
 
+    void set(u8 r, u8 g, u8 b, u8 a)
+    {
+        this->r = r;
+        this->g = g;
+        this->b = b;
+        this->a = a;
+    }
+
     Color4u8& operator+=(const Color4u8& rhs);
     Color4u8& operator-=(const Color4u8& rhs);
     Color4u8& operator*=(const Color4u8& rhs);

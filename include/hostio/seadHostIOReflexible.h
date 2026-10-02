@@ -16,19 +16,16 @@ class GenEvent;
 class Reflexible : public NodeEventListener
 {
 public:
-    enum class NodeClassType
+    enum NodeClassType
     {
-        /// sead::hostio::Reflexible
-        Reflexible = 0,
-        /// sead::hostio::Node
-        Node = 1,
-        /// Other classes
-        Other = 2,
+        cReflexible = 0,
+        cNode = 1,
+        cOther = 2,
     };
 
-    virtual NodeClassType getNodeClassType() const { return NodeClassType::Reflexible; }
+    virtual NodeClassType getNodeClassType() const { return NodeClassType::cReflexible; }
 
-    enum class AllocFlg
+    enum AllocFlg
     {
         Name = 1u << 0u,
         Meta = 1u << 1u,
@@ -64,7 +61,7 @@ public:
     void setNodeMetaCopyString(const SafeString& meta, Heap* heap);
 
 protected:
-    void disposeHostIO() override
+    virtual void disposeHostIO()
     {
         disposeHostIOImpl_();
         NodeEventListener::disposeHostIO();

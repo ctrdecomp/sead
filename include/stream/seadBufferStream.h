@@ -11,11 +11,11 @@ public:
     BufferReadStreamSrc(StreamSrc* src, void* buffer, u32 buffer_size);
     virtual ~BufferReadStreamSrc();
 
-    u32 read(void* data, u32 size) override;
-    u32 write(const void* data, u32 size) override;
-    u32 skip(s32 offset) override;
-    void rewind() override;
-    bool isEOF() override;
+    virtual u32 read(void* data, u32 size);
+    virtual u32 write(const void* data, u32 size);
+    virtual u32 skip(s32 offset);
+    virtual void rewind();
+    virtual bool isEOF();
 
 private:
     StreamSrc* mSrc;
@@ -29,7 +29,7 @@ class BufferReadStream : public ReadStream
 {
 public:
     BufferReadStream(ReadStream* stream, const void* buffer, u32 buffer_size);
-    ~BufferReadStream() override;
+    virtual ~BufferReadStream();
 
 private:
     BufferReadStreamSrc mSrc;
@@ -41,12 +41,12 @@ public:
     BufferWriteStreamSrc(StreamSrc* src, void* buffer, u32 buffer_size);
     virtual ~BufferWriteStreamSrc();
 
-    u32 read(void* data, u32 size) override;
-    u32 write(const void* data, u32 size) override;
-    u32 skip(s32 offset) override;
-    void rewind() override;
-    bool isEOF() override { return mSrc->isEOF(); }
-    bool flush() override;
+    virtual u32 read(void* data, u32 size);
+    virtual u32 write(const void* data, u32 size);
+    virtual u32 skip(s32 offset);
+    virtual void rewind();
+    virtual bool isEOF() { return mSrc->isEOF(); }
+    virtual bool flush();
 
 private:
     StreamSrc* mSrc;
@@ -59,7 +59,7 @@ class BufferWriteStream : public WriteStream
 {
 public:
     BufferWriteStream(WriteStream* stream, void* buffer, u32 buffer_size);
-    ~BufferWriteStream() override;
+    virtual ~BufferWriteStream();
 
 private:
     BufferWriteStreamSrc mSrc;
@@ -69,15 +69,15 @@ class BufferMultiByteTextWriteStreamSrc : public BufferWriteStreamSrc
 {
 public:
     BufferMultiByteTextWriteStreamSrc(StreamSrc* src, void* buffer, u32 buffer_size);
-    ~BufferMultiByteTextWriteStreamSrc() override = default;
-    u32 write(const void* data, u32 size) override;
+    virtual ~BufferMultiByteTextWriteStreamSrc(){ }
+    virtual u32 write(const void* data, u32 size);
 };
 
 class BufferMultiByteTextWriteStream : public WriteStream
 {
 public:
     BufferMultiByteTextWriteStream(WriteStream* stream, void* buffer, u32 buffer_size);
-    ~BufferMultiByteTextWriteStream() override;
+    virtual ~BufferMultiByteTextWriteStream();
 
 private:
     BufferMultiByteTextWriteStreamSrc mSrc;
@@ -86,7 +86,7 @@ private:
 class BufferMultiByteNullTerminatedTextWriteStreamSrc : public BufferMultiByteTextWriteStreamSrc
 {
 public:
-    ~BufferMultiByteNullTerminatedTextWriteStreamSrc() override = default;
-    bool flush() override;
+    virtual ~BufferMultiByteNullTerminatedTextWriteStreamSrc(){}
+    virtual bool flush();
 };
 }  // namespace sead

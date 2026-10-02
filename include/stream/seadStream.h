@@ -21,7 +21,7 @@ public:
     Stream();
     Stream(StreamSrc* src, Modes mode);
     Stream(StreamSrc* src, StreamFormat* format);
-    virtual ~Stream() = default;
+    virtual ~Stream(){ }
 
     void skip(u32 bytes);
     void skip(u32 blockSize, u32 count);
@@ -79,7 +79,7 @@ private:
 class WriteStream : public ReadStream
 {
 public:
-    ~WriteStream() override
+    virtual ~WriteStream()
     {
         if (mSrc)
             flush();

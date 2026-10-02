@@ -4,8 +4,6 @@
 // to make it easier to use sead containers with the C++ standard library (e.g. with <algorithm>).
 
 #include <iterator>
-#include <type_traits>
-#include <utility>
 #include "basis/seadTypes.h"
 
 namespace sead
@@ -21,11 +19,11 @@ public:
     public:
         // LegacyIterator
 
-        using difference_type = s32;
-        using value_type = std::remove_reference_t<decltype(std::declval<T>()[0])>;
-        using pointer = value_type*;
-        using reference = value_type&;
-        using iterator_category = std::random_access_iterator_tag;
+        typedef s32 difference_type;
+        typedef typename T::value_type value_type;
+        typedef value_type* pointer;
+        typedef value_type& reference;
+        typedef std::random_access_iterator_tag iterator_category;
 
         Iterator(T* container, s32 idx) : mIdx(idx), mContainer(container) {}
 
@@ -79,13 +77,13 @@ public:
 
         friend Iterator operator+(Iterator it, difference_type n)
         {
-            auto result = it;
+            Iterator result = it;
             return result += n;
         }
 
         friend Iterator operator+(difference_type n, Iterator it)
         {
-            auto result = it;
+            Iterator result = it;
             return result += n;
         }
 
@@ -97,7 +95,7 @@ public:
 
         friend Iterator operator-(Iterator it, difference_type n)
         {
-            auto result = it;
+            Iterator result = it;
             return result -= n;
         }
 
@@ -111,7 +109,7 @@ public:
         friend bool operator>=(Iterator a, Iterator b) { return a.mIdx >= b.mIdx; }
 
     private:
-        auto& container() const { return *mContainer; }
+        T& container() const { return *mContainer; }
 
         s32 mIdx;
         T* mContainer;
@@ -119,8 +117,8 @@ public:
 
     explicit ContainerWrapper(T& container) : mContainer(&container) {}
 
-    auto begin() const { return Iterator(mContainer, 0); }
-    auto end() const { return Iterator(mContainer, mContainer->size()); }
+    Iterator begin() const { return Iterator(mContainer, 0); }
+    Iterator end() const { return Iterator(mContainer, mContainer->size()); }
 
 private:
     T* mContainer;
@@ -128,7 +126,7 @@ private:
 }  // namespace detail
 
 template <typename T>
-auto stdIterator(T& container)
+detail::ContainerWrapper<T> stdIterator(T& container)
 {
     return detail::ContainerWrapper<T>(container);
 }

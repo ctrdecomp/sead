@@ -10,22 +10,24 @@ class ExpHeap : public Heap
 {
     SEAD_RTTI_OVERRIDE(ExpHeap, Heap)
 public:
-    enum class AllocMode
+    enum AllocMode
     {
         FirstFit = 0,
         BestFit = 1,
     };
 
-    enum class FindFreeBlockMode
+    enum FindFreeBlockMode
     {
         Auto = 0,
         FromFreeList = 1,
         ByIteratingMemBlock = 2,
     };
 
-    // FIXME: incomplete
-    enum class FindMode
+    enum FindMode
     {
+        cFirstFit = 0,
+        cBestFit,
+        cMaxSize
     };
 
     static ExpHeap* create(size_t size, const SafeString& name, Heap* parent,
@@ -86,7 +88,7 @@ public:
 protected:
     ExpHeap(const SafeString& name, Heap* parent, void* address, size_t size,
             HeapDirection direction, bool);
-    ~ExpHeap() override;
+    virtual ~ExpHeap();
 
     static void doCreate(ExpHeap*, Heap*);
 

@@ -25,7 +25,7 @@ public:
             this->mKey = buffer;
         }
 
-        void erase_() override;
+        virtual void erase_();
 
         Value& value() { return mValue; }
         const Value& value() const { return mValue; }

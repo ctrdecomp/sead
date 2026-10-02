@@ -10,7 +10,10 @@ namespace sead {
 template <typename T>
 class OffsetList : public ListImpl {
 public:
-    OffsetList() : mOffset(-1) {};
+    OffsetList(): 
+        mOffset(-1) 
+    {
+    }
 
     void initOffset(s32 offset) { mOffset = offset; }
 
@@ -99,15 +102,15 @@ public:
     class constIterator
     {
     public:
-        constIterator(const T* ptr, s32 offset)
-            : mPtr(ptr)
-            , mOffset(offset)
+        constIterator(const T* ptr, s32 offset): 
+            mPtr(ptr), 
+            mOffset(offset)
         {
         }
 
-        constIterator(const iterator& it)
-            : mPtr(it.mPtr)
-            , mOffset(it.mOffset)
+        constIterator(const iterator& it): 
+            mPtr(it.mPtr), 
+            mOffset(it.mOffset)
         {
         }
 

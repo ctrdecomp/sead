@@ -13,8 +13,8 @@ template <s32 N, typename Enum, typename Storage = std::underlying_type_t<Enum>>
 class TypedLongBitFlag
 {
 public:
-    using Word = Storage;
-    using RawWord = std::conditional_t<(sizeof(Storage) > 4), u64, u32>;
+    typedef Storage Word;
+    typedef typename Conditional<(sizeof(Storage) > 4), u64, u32>::type RawWord;
 
     void makeAllZero() { mStorage.fill(0); }
     void makeAllOne() { mStorage.fill(~Word(0)); }

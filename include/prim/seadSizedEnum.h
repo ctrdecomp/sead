@@ -12,10 +12,10 @@ struct SizedEnum
     static_assert(std::is_enum<Enum>());
     static_assert(!std::is_enum<Storage>());
 
-    constexpr SizedEnum() = default;
-    constexpr SizedEnum(Enum value) { *this = value; }
-    constexpr operator Enum() const { return static_cast<Enum>(mValue); }
-    constexpr SizedEnum& operator=(Enum value)
+    explicit SizedEnum(){ }
+    explicit SizedEnum(Enum value) { *this = value; }
+    operator Enum() const { return static_cast<Enum>(mValue); }
+    SizedEnum& operator=(Enum value)
     {
         mValue = static_cast<Storage>(value);
         return *this;

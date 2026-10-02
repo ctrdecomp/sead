@@ -14,7 +14,7 @@ class MainFileDevice : public FileDevice
 
 public:
     explicit MainFileDevice(Heap* heap);
-    ~MainFileDevice() override;
+    virtual ~MainFileDevice();
 
     virtual void traceFilePath(const SafeString& path) const;
     virtual void traceDirectoryPath(const SafeString& path) const;
@@ -41,7 +41,7 @@ protected:
     }
 
     virtual bool doWrite_(u32* bytesWritten, FileHandle* handle, const u8* inBuffer,
-                  u32 bytesToWrite) override
+        u32 bytesToWrite)
     {
         return mFileDevice->tryWrite(bytesWritten, handle, inBuffer, bytesToWrite);
     }

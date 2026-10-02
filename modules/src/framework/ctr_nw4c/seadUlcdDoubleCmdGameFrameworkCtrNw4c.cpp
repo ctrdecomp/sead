@@ -45,19 +45,23 @@ MethodTreeMgr* UlcdDoubleCmdGameFrameworkCtrNw4c::createMethodTreeMgr_(Heap* hea
 void UlcdDoubleCmdGameFrameworkCtrNw4c::procDraw_()
 {
     mDrawMeter.measureBegin();
-    UlcdMethodTreeMgr* method = DynamicCast<UlcdMethodTreeMgr>(getMethodTreeMgr());
-    clearFrameBuffers_(12);
-    mTopFrameBuffer->bind();
-    method->drawLeft();
-    presentLeft_();
+    {
+        UlcdMethodTreeMgr* method = DynamicCast<UlcdMethodTreeMgr>(getMethodTreeMgr());
 
-    clearFrameBuffers_(15);
-    mBtmFrameBuffer->bind();
-    method->drawRight();
-    presentRight_();
+        // Left Screen
+        clearFrameBuffers_(12);
+        mTopFrameBuffer->bind();
+        method->drawLeft();
+        presentLeft_();
 
-    mTopFrameBuffer->bind();
+        // Eight Screen
+        clearFrameBuffers_(15);
+        mBtmFrameBuffer->bind();
+        method->drawRight();
+        presentRight_();
 
+        mTopFrameBuffer->bind();
+    }
     mDrawMeter.measureEnd();
 }
 
@@ -71,7 +75,7 @@ void UlcdDoubleCmdGameFrameworkCtrNw4c::swapBuffer_()
     nngxBindCmdlist(mDoubleBuf[mDoubleDispBufList]);
 
     s32 param;
-    nngxGetCmdlistParameteri(0x201, &param);
+    nngxGetCmdlistParameteri(NN_GX_CMDLIST_IS_RUNNING, &param);
 
     if (param)
         nngxWaitCmdlistDone();
@@ -79,16 +83,16 @@ void UlcdDoubleCmdGameFrameworkCtrNw4c::swapBuffer_()
     nngxStopCmdlist();
     nngxClearCmdlist();
 
-    mFrameBufferNo[0] = (mFrameBufferNo[0] + 2) % 3;
+    s32 buffer = (mFrameBufferNo[0] + 2) % 3;
 
     nngxActiveDisplay(NN_GX_DISPLAY0);
-    nngxBindDisplaybuffer(mDoubleBufferTop[0]);
+    nngxBindDisplaybuffer(mDoubleBufferTop[buffer]);
 
     nngxActiveDisplay(NN_GX_DISPLAY0_RIGHT);
-    nngxBindDisplaybuffer(mDisplayBufferRight[0]);
+    nngxBindDisplaybuffer(mDisplayBufferRight[buffer]);
 
     nngxActiveDisplay(NN_GX_DISPLAY1);
-    nngxBindDisplaybuffer(mDoubleBufferBtm[0]);
+    nngxBindDisplaybuffer(mDoubleBufferBtm[buffer]);
 
 #ifdef SEAD_DEBUG
     if(mException != nullptr)
@@ -113,25 +117,20 @@ void UlcdDoubleCmdGameFrameworkCtrNw4c::doScreenShotImpl_(char const* shot)
 {
     FileDeviceMgr* fMgr = FileDeviceMgr::instance();
     FixedSafeString<264> str;
+
     {
         str.copy(shot);
-    }
-
-    {
         str.append("_right.bmp");
-    }
-
-    {
-        FileHandle topHandle;
-        fMgr->open(&topHandle, str, FileDevice::cFileOpenFlag_WriteOnly, 0);
-        if(!topHandle.isOpened())
+        FileHandle rightHandle;
+        fMgr->open(&rightHandle, str, FileDevice::cFileOpenFlag_WriteOnly, 0);
+        if(!rightHandle.isOpened())
         {
             SEAD_WARNING("Can't open file handle(%s). Can't save screen-shot.\n", shot);
         }
         nngxBindDisplaybuffer(mDisplayBufferRight[0]);
         GLint param;
         nngxGetDisplaybufferParameteri(NN_GX_DISPLAYBUFFER_ADDRESS, &param);
-        saveScreenShotToFileHandle_(&topHandle, &param, mGameArg.widthTop, mGameArg.heightTop, mGameArg.format);
+        saveScreenShotToFileHandle_(&rightHandle, &param, mGameArg.widthTop, mGameArg.heightTop, mGameArg.format);
     }
 }
 

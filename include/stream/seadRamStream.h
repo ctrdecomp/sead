@@ -9,18 +9,18 @@ class RamStreamSrc : public StreamSrc
 {
 public:
     RamStreamSrc(void* buffer, u32 bufferSize);
-    ~RamStreamSrc() override;
+    virtual ~RamStreamSrc();
 
-    u32 read(void* data, u32 size) override;
-    u32 write(const void* data, u32 size) override;
-    u32 skip(s32 offset) override;
-    void rewind() override { mCurrentPos = 0; }
-    bool isEOF() override { return mCurrentPos >= mBufferSize; }
+    virtual u32 read(void* data, u32 size);
+    virtual u32 write(const void* data, u32 size);
+    virtual u32 skip(s32 offset);
+    virtual void rewind() { mCurrentPos = 0; }
+    virtual bool isEOF() { return mCurrentPos >= mBufferSize; }
 
 private:
-    u8* mBuffer = nullptr;
-    u32 mBufferSize = 0;
-    u32 mCurrentPos = 0;
+    u8* mBuffer;
+    u32 mBufferSize;
+    u32 mCurrentPos;
 };
 
 class RamReadStream : public ReadStream
@@ -28,7 +28,7 @@ class RamReadStream : public ReadStream
 public:
     RamReadStream(const void* buffer, u32 buffer_size, Stream::Modes mode);
     RamReadStream(const void* buffer, u32 buffer_size, StreamFormat* format);
-    ~RamReadStream() override;
+    virtual ~RamReadStream();
 
 private:
     RamStreamSrc mSrc;
@@ -39,7 +39,7 @@ class RamWriteStream : public WriteStream
 public:
     RamWriteStream(void* buffer, u32 buffer_size, Stream::Modes mode);
     RamWriteStream(void* buffer, u32 buffer_size, StreamFormat* format);
-    ~RamWriteStream() override;
+    virtual ~RamWriteStream();
 
 private:
     RamStreamSrc mSrc;

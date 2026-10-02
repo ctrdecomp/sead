@@ -8,22 +8,13 @@ template <typename T>
 class ScopedLock
 {
 public:
-    explicit ScopedLock(T* lock) : mLocked(lock) { mLocked->lock(); }
+    explicit ScopedLock(T* lock) : mEngaged(true), mLocked(lock) { mLocked->lock(); }
 
-    ScopedLock(const ScopedLock& other) = delete;
-    ScopedLock& operator=(const ScopedLock& other) = delete;
+private:
+    ScopedLock(const ScopedLock& other);
+    ScopedLock& operator=(const ScopedLock& other);
 
-    ScopedLock(ScopedLock&& other) noexcept { *this = std::move(other); }
-    ScopedLock& operator=(ScopedLock&& other) noexcept
-    {
-        if (this == &other)
-            return *this;
-
-        mLocked = other.mLocked;
-        mEngaged = std::exchange(other.mEngaged, false);
-        return *this;
-    }
-
+public:
     virtual ~ScopedLock()
     {
         if (mEngaged)
@@ -31,21 +22,21 @@ public:
     }
 
 protected:
-    bool mEngaged = true;
+    bool mEngaged;
     T* mLocked;
 };
 
 template <typename T>
-[[nodiscard]] inline ScopedLock<T> makeScopedLock(T& lock)
+inline ScopedLock<T> makeScopedLock(T& lock)
 {
-    return ScopedLock<T>{&lock};
+    return ScopedLock<T>(&lock);
 }
 
 template <typename T>
 class ConditionalScopedLock
 {
 public:
-    ConditionalScopedLock(T* lock, bool do_lock)
+    ConditionalScopedLock(T* lock, bool do_lock) : mEngaged(true), mLocked(NULL)
     {
         if (!do_lock)
             return;
@@ -53,21 +44,11 @@ public:
         mLocked->lock();
     }
 
-    ConditionalScopedLock(const ConditionalScopedLock& other)
+    ConditionalScopedLock(const ConditionalScopedLock& other) : mEngaged(false), mLocked(NULL)
     {
     }
     ConditionalScopedLock& operator=(const ConditionalScopedLock& other)
     {
-    }
-
-    ConditionalScopedLock(ConditionalScopedLock&& other) noexcept { *this = std::move(other); }
-    ConditionalScopedLock& operator=(ConditionalScopedLock&& other) noexcept
-    {
-        if (this == &other)
-            return *this;
-
-        mLocked = other.mLocked;
-        mEngaged = std::exchange(other.mEngaged, false);
         return *this;
     }
 
@@ -78,12 +59,12 @@ public:
     }
 
 protected:
-    bool mEngaged = true;
-    T* mLocked = nullptr;
+    bool mEngaged;
+    T* mLocked;
 };
 
 template <typename T>
-[[nodiscard]] inline ConditionalScopedLock<T> makeScopedLock(T& lock, bool do_lock)
+inline ConditionalScopedLock<T> makeScopedLock(T& lock, bool do_lock)
 {
     return ConditionalScopedLock<T>(&lock, do_lock);
 }

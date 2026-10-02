@@ -9,11 +9,11 @@ template <typename T>
 class Matrix34CalcCommon
 {
 public:
-    using Base = typename Policies<T>::Mtx34Base;
-    using Mtx33 = typename Policies<T>::Mtx33Base;
+    typedef typename Policies<T>::Mtx34Base Base;
+    typedef typename Policies<T>::Mtx33Base Mtx33;
 
-    using Quat = typename Policies<T>::QuatBase;
-    using Vec3 = typename Policies<T>::Vec3Base;
+    typedef typename Policies<T>::QuatBase Quat;
+    typedef typename Policies<T>::Vec3Base Vec3;
 
 public:
     static void multiply(Base& o, const Base& a, const Base& b);
@@ -34,12 +34,12 @@ template <typename T>
 class Matrix44CalcCommon
 {
 public:
-    using Base = typename Policies<T>::Mtx44Base;
-    using Mtx33 = typename Policies<T>::Mtx33Base;
-    using Mtx34 = typename Policies<T>::Mtx34Base;
+    typedef typename Policies<T>::Mtx44Base Base;
+    typedef typename Policies<T>::Mtx33Base Mtx33;
+    typedef typename Policies<T>::Mtx34Base Mtx34;
 
-    using Vec3 = typename Policies<T>::Vec3Base;
-    using Vec4 = typename Policies<T>::Vec4Base;
+    typedef typename Policies<T>::Vec3Base Vec3;
+    typedef typename Policies<T>::Vec4Base Vec4;
 
 public:
     static void copy(Base& o, const Base& n);

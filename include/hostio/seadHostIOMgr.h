@@ -41,9 +41,9 @@ public:
     HostIOMgr(const TaskConstructArg& arg);
     HostIOMgr();
 
-    void prepare() override;
-    void exit() override;
-    void calc() override;
+    virtual void prepare();
+    virtual void exit();
+    virtual void calc();
 
     HostIORoot* getSeadRoot()
     {

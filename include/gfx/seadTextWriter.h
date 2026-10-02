@@ -14,13 +14,13 @@ class FontBase;
 class TextWriter
 {
 public:
-    explicit TextWriter(DrawContext* context);
-    TextWriter(DrawContext* context, const Viewport* viewport);
+    explicit TextWriter();
+    TextWriter(const Viewport* viewport);
     virtual ~TextWriter();
 
     FontBase* getDefaultFont();
     static void setDefaultFont(FontBase* font);
-    static void setupGraphics(DrawContext* context);
+    static void setupGraphics();
     void getCursorFromTopLeft(Vector2f* pos) const;
     void setCursorFromTopLeft(const Vector2f& pos);
     void setScaleFromFontSize(const Vector2f& fontSize);
@@ -28,7 +28,7 @@ public:
     void setProjectionAndCamera(const Projection* projection, const Camera* camera);
     void setLineSpaceFromLineHeight(float lineHeight);
     void setFormatBuffer(char16_t*, int);
-    void setDrawContext(DrawContext* context);
+    void setDrawContext();
     void beginDraw();
     void endDraw();
     void printf(const char16_t* format, ...);

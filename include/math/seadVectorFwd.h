@@ -16,16 +16,16 @@ struct Vector3;
 template <typename T>
 struct Vector4;
 
-using Vector2i = Vector2<s32>;
-using Vector2u = Vector2<u32>;
-using Vector2f = Vector2<f32>;
+typedef Vector2<s32> Vector2i;
+typedef Vector2<u32> Vector2u;
+typedef Vector2<f32> Vector2f;
 
-using Vector3i = Vector3<s32>;
-using Vector3u = Vector3<u32>;
-using Vector3f = Vector3<f32>;
+typedef Vector3<s32> Vector3i;
+typedef Vector3<u32> Vector3u;
+typedef Vector3<f32> Vector3f;
 
-using Vector4i = Vector4<s32>;
-using Vector4u = Vector4<u32>;
-using Vector4f = Vector4<f32>;
+typedef Vector4<s32> Vector4i;
+typedef Vector4<u32> Vector4u;
+typedef Vector4<f32> Vector4f;
 
 }  // namespace sead

@@ -10,13 +10,13 @@ namespace hostio
 class Node : public Reflexible
 {
 public:
-    NodeClassType getNodeClassType() const override { return Reflexible::NodeClassType::Node; }
+    NodeClassType getNodeClassType() const override { return Reflexible::NodeClassType::cNode; }
 
 #ifdef SEAD_DEBUG
 public:
     Node();
     Node(Heap* heap, IDisposer::HeapNullOption heap_null_option);
-    ~Node() override { disposeHostIOImpl_(); }
+    virtual ~Node() { disposeHostIOImpl_(); }
 
     void appendChild(Node* node);
     void insertAfterSelf(Node* node);
@@ -31,13 +31,13 @@ public:
 
     bool isAppended() const;
 
-    Reflexible* searchNode(const SafeString& name) override;
-    void calcURL(BufferedSafeString* url) const override { calcURLImpl_(url, true); }
+    virtual Reflexible* searchNode(const SafeString& name);
+    virtual void calcURL(BufferedSafeString* url) const { calcURLImpl_(url, true); }
 
 protected:
-    void genChildNode(Context* context) override;
-    bool isHaveChild() const override { return mTreeNode.child() != nullptr; }
-    void disposeHostIO() override
+    virtual void genChildNode(Context* context);
+    virtual bool isHaveChild() const { return mTreeNode.child() != nullptr; }
+    virtual void disposeHostIO()
     {
         disposeHostIOImpl_();
         Reflexible::disposeHostIO();

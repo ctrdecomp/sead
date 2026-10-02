@@ -214,8 +214,10 @@ void GameFramework::waitStartDisplayLoop_()
     for(;;)
     {
         Graphics::instance()->lockDrawContext();
-        getTaskMgr()->beforeCalc();
-        getTaskMgr()->afterCalc();
+        {
+            getTaskMgr()->beforeCalc();
+            getTaskMgr()->afterCalc();
+        }
         Graphics::instance()->unlockDrawContext();
 
         if (getTaskMgr()->getRootTask() || mDisplayState != DisplayState::cHide)

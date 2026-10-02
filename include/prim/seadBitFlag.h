@@ -86,7 +86,7 @@ public:
     /// Popcount.
     int countOnBit() const
     {
-        if constexpr (sizeof(T) <= 4)
+        if (sizeof(T) <= sizeof(u32))
             return BitFlagUtil::countOnBit(mBits);
         else
             return BitFlagUtil::countOnBit64(mBits);
@@ -94,21 +94,21 @@ public:
     /// Count trailing zeroes.
     int countContinuousOffBitFromRight() const
     {
-        if constexpr (sizeof(T) <= 4)
+        if (sizeof(T) <= sizeof(u32))
             return BitFlagUtil::countContinuousOffBitFromRight(mBits);
         else
             return BitFlagUtil::countContinuousOffBitFromRight64(mBits);
     }
     int countRightOnBit(int bit) const
     {
-        if constexpr (sizeof(T) <= 4)
+        if (sizeof(T) <= sizeof(u32))
             return BitFlagUtil::countRightOnBit(mBits, bit);
         else
             return BitFlagUtil::countRightOnBit64(mBits, bit);
     }
     int findOnBitFromRight(int num) const
     {
-        if constexpr (sizeof(T) <= 4)
+        if (sizeof(T) <= sizeof(u32))
             return BitFlagUtil::findOnBitFromRight(mBits, num);
         else
             return BitFlagUtil::findOnBitFromRight64(mBits, num);

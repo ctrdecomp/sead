@@ -8,7 +8,7 @@ namespace sead
 class INamable
 {
 public:
-    INamable() = default;
+    INamable(){ }
     explicit INamable(const SafeString& name) : mINamableName(name) {}
 
     const SafeString& getName() const { return mINamableName; }

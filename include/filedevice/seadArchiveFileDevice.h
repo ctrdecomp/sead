@@ -8,7 +8,9 @@ class ArchiveRes;
 class ArchiveFileDevice : public FileDevice{
     SEAD_RTTI_OVERRIDE(ArchiveFileDevice, FileDevice)
 public:
-    explicit ArchiveFileDevice(ArchiveRes* archive_res) : FileDevice("arc"), mArchive(archive_res)
+    explicit ArchiveFileDevice(ArchiveRes* archive_res): 
+        FileDevice("arc"), 
+        mArchive(archive_res)
     {
     }
     virtual ~ArchiveFileDevice()

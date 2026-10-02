@@ -9,7 +9,7 @@ struct BaseVec2
 {
     union
     {
-        struct
+        union
         {
             T x;
             T y;
@@ -23,7 +23,7 @@ struct BaseVec3
 {
     union
     {
-        struct
+        union
         {
             T x;
             T y;
@@ -38,7 +38,7 @@ struct BaseVec4
 {
     union
     {
-        struct
+        union
         {
             T x;
             T y;

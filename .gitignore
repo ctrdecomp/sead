@@ -53,4 +53,7 @@ include/framework/win/*
 include/gfx/gl/*
 modules/src/controller/win/*
 modules/src/framework/win/*
+docs/ctr/*
 lib/glad/*
+lib/CtrSDK/*
+lib/Nw4cEngine/*

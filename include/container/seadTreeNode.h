@@ -35,7 +35,7 @@ template <typename T>
 class TTreeNode : public TreeNode
 {
 public:
-    TTreeNode() = default;
+    TTreeNode(){}
     explicit TTreeNode(T data) : mData(data) {}
 
     T& value() { return mData; }

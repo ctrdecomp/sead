@@ -2,7 +2,7 @@
 
 #include <basis/seadTypes.h>
 
-#if defined(SEAD_TARGET_DEBUG)
+#if defined(SEAD_DEBUG)
 #define SEAD_WARNING(format, ...)                                                                  \
     do                                                                                             \
     {                                                                                              \
@@ -18,10 +18,12 @@
             sead::system::Warning(nullptr, 0, format, ##__VA_ARGS__);                              \
         }                                                                                          \
     } while (0)
-#endif // SEAD_TARGET_DEBUG
+#endif // SEAD_DEBUG
 
-namespace sead { 
-namespace system {
+namespace sead 
+{ 
+namespace system 
+{
 
 void Warning(const char* pos, s32 line, const char* format, ...);
 void SetWarningEnable(bool enable);

@@ -9,10 +9,10 @@ template <typename T>
 class Vector2CalcCommon
 {
 public:
-    using Base = typename Policies<T>::Vec2Base;
+    typedef typename Policies<T>::Vec2Base Base;
 
 public:
-    static void add(const Base& o, const Base& a, const Base& b)
+    static void add(const Base& o, const Base& a, const Base& b);
     static T squaredLength(const Base& v);
     static T length(const Base& v);
 };
@@ -22,7 +22,7 @@ template <typename T>
 class Vector3CalcCommon
 {
 public:
-    using Base = typename Policies<T>::Vec3Base;
+    typedef typename Policies<T>::Vec3Base Base;
 
 public:
     static void cross(Base& o, const Base& a, const Base& b);

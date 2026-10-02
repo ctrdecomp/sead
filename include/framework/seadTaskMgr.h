@@ -74,8 +74,8 @@ public:
     void initHostIO();
 
 #if defined(SEAD_DEBUG)
-    void listenPropertyEvent(const hostio::PropertyEvent* ev) override;
-    void genMessage(hostio::Context* context) override;
+    virtual void listenPropertyEvent(const hostio::PropertyEvent* ev);
+    virtual void genMessage(hostio::Context* context);
 #endif // SEAD_DEBUG
 
     TaskBase* createTaskSync(const TaskBase::CreateArg& arg);

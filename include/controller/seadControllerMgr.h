@@ -42,10 +42,10 @@ public:
 public:
     ControllerMgr();
     explicit ControllerMgr(const TaskConstructArg& arg);
-    ~ControllerMgr() override = default;
+    virtual ~ControllerMgr(){ }
 
-    void prepare() override;
-    void calc() override;
+    virtual void prepare();
+    virtual void calc();
 
     void initialize(s32 controller_max, Heap* heap);
     void finalize();

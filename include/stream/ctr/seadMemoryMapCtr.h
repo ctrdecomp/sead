@@ -62,14 +62,13 @@ public:
     {
     }
 
-
-
     bool open(SafeString const& path);
     bool load(SafeString const& path, Heap* heap);
     void close();
     void unload();
     bool searchFunction(BufferedSafeString* out, s32* result, u32 address);
 
+protected:
     static bool isControlChar_(char c){ return c == ' '; }
 private:
     Stream mMemoryStream;

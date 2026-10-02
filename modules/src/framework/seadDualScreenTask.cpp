@@ -1,7 +1,3 @@
-// Filename: seadDualScreenTask.cpp
-//
-// Project: StandardEAD C++ Library for CTR
-
 #include "framework/seadDualScreenTask.h"
 #include "framework/seadDualScreenMethodTreeMgr.h"
 #include "framework/seadFramework.h"

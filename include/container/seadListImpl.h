@@ -31,7 +31,10 @@ private:
 
 class ListImpl {
 public:
-    inline ListImpl() : mStartEnd(), mCount(0) {
+    inline ListImpl() : 
+        mStartEnd(), 
+        mCount(0) 
+    {
         mStartEnd.mNext = &mStartEnd;
         mStartEnd.mPrev = &mStartEnd;
     }

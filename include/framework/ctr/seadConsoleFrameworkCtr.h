@@ -14,6 +14,7 @@ public:
 
     ConsoleFrameworkCtr();
     virtual ~ConsoleFrameworkCtr();
+protected:
     virtual void runImpl_();
     virtual MethodTreeMgr* createMethodTreeMgr_(Heap* heap);
 };

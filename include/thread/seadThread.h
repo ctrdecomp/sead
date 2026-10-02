@@ -23,8 +23,8 @@ namespace sead
 class Heap;
 class Thread;
 
-using ThreadList = TList<Thread*>;
-using ThreadListNode = TListNode<Thread*>;
+typedef TList<Thread*> ThreadList;
+typedef TListNode<Thread*> ThreadListNode;
 
 class Thread : public IDisposer, public INamable, public hostio::Reflexible
 {
@@ -116,7 +116,8 @@ protected:
     s32 mPriority;
 };
 
-class ThreadMgr : public hostio::Node{
+class ThreadMgr : public hostio::Node
+{
 public:
     ThreadMgr();
     virtual ~ThreadMgr();

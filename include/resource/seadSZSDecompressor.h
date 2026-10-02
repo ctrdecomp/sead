@@ -25,7 +25,7 @@ public:
 
         void initialize(void* dst);
 
-        __attribute__((always_inline)) bool doCopy(u32 n)
+        inline bool doCopy(u32 n)
         {
             if (u32(this->destCount) < n)
             {

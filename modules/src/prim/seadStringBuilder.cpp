@@ -428,23 +428,26 @@ template s32 StringBuilder::append(char c, s32 n);
 template s32 WStringBuilder::append(char16 c, s32 n);
 
 template <typename T>
+static void failChop_(s32 chop_num, s32 length)
+{
+    SEAD_ASSERT_MSG(false, "chop_num(%d) out of range[0, %d]", chop_num, length);
+}
+
+template <typename T>
 s32 StringBuilderBase<T>::chop(s32 chop_num)
 {
     s32 length = this->calcLength();
     T* buffer = getMutableStringTop_();
-    const auto fail = [=] {
-        SEAD_ASSERT_MSG(false, "chop_num(%d) out of range[0, %d]", chop_num, length);
-    };
 
     if (chop_num < 0)
     {
-        fail();
+        failChop_<T>(chop_num, length);
         return 0;
     }
 
     if (chop_num > length)
     {
-        fail();
+        failChop_<T>(chop_num, length);
         length = mLength;
         chop_num = mLength;
     }
@@ -525,6 +528,17 @@ template s32 StringBuilder::chopUnprintableAsciiChar();
 template s32 WStringBuilder::chopUnprintableAsciiChar();
 
 template <typename T>
+static bool shouldStripChar_(const T* characters, const T* buffer, s32 idx)
+{
+    for (const T* it = characters; *it; ++it)
+    {
+        if (buffer[idx] == *it)
+            return true;
+    }
+    return false;
+}
+
+template <typename T>
 s32 StringBuilderBase<T>::rstrip(const T* characters)
 {
     const s32 length = this->calcLength();
@@ -533,15 +547,7 @@ s32 StringBuilderBase<T>::rstrip(const T* characters)
 
     T* buffer = mBuffer;
     s32 new_length = length;
-    const auto should_strip = [characters, buffer](s32 idx) {
-        for (auto it = characters; *it; ++it)
-        {
-            if (buffer[idx] == *it)
-                return true;
-        }
-        return false;
-    };
-    while (new_length >= 1 && should_strip(new_length - 1))
+    while (new_length >= 1 && shouldStripChar_(characters, buffer, new_length - 1))
         --new_length;
 
     if (length <= new_length)
@@ -668,12 +674,12 @@ s32 StringBuilderBase<T>::replaceCharList(const SafeStringBase<T>& old_chars,
     {
         // Nintendo's code just uses the same format string for both T = char and T = char16_t,
         // which is undefined behavior and produces annoying format warnings, so let's fix it...
-        if constexpr (std::is_same<T, char>())
+        if (sizeof(T) == sizeof(char))
         {
             SEAD_ASSERT_MSG(false, "old_chars(%s).length is not equal to new_chars(%s).length.",
                             old_chars.cstr(), new_chars.cstr());
         }
-        else if constexpr (std::is_same<T, char16>())
+        else
         {
             // There is no standard format specifier for char16_t strings :/
             SEAD_ASSERT_MSG(false, "old_chars(%p).length is not equal to new_chars(%p).length.",
@@ -747,7 +753,7 @@ s32 StringBuilderBase<T>::convertFromOtherType_(const OtherType* src, s32 src_si
 template <typename T>
 s32 StringBuilderBase<T>::convertFromMultiByteString(const char* str, s32 str_length)
 {
-    if constexpr (std::is_same<char, T>())
+    if (sizeof(T) == sizeof(char))
         return copy(str, str_length);
     else
         return convertFromOtherType_(str, str_length);
@@ -756,7 +762,7 @@ s32 StringBuilderBase<T>::convertFromMultiByteString(const char* str, s32 str_le
 template <typename T>
 s32 StringBuilderBase<T>::convertFromWideCharString(const char16* str, s32 str_length)
 {
-    if constexpr (std::is_same<char16, T>())
+    if (sizeof(T) == sizeof(char16))
         return copy(str, str_length);
     else
         return convertFromOtherType_(str, str_length);

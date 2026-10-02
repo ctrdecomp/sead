@@ -13,7 +13,7 @@ template <s32 N>
 class LongBitFlag
 {
 public:
-    using Word = u32;
+    typedef u32 Word;
 
     void makeAllZero() { mStorage.fill(0); }
     void makeAllOne() { mStorage.fill(~Word(0)); }
@@ -38,8 +38,8 @@ public:
     static Word makeMask(int bit) { return 1u << (bit % BitsPerWord); }
 
 protected:
-    static constexpr s32 BitsPerWord = 8 * sizeof(Word);
-    static constexpr s32 Shift = log2(BitsPerWord);
+    static const s32 BitsPerWord = 8 * sizeof(Word);
+    static const s32 Shift = log2(BitsPerWord);
 
     static_assert(N % BitsPerWord == 0, "N must be a multiple of the number of bits per word");
     std::array<Word, N / BitsPerWord> mStorage{};

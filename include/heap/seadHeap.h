@@ -101,8 +101,8 @@ public:
 
     sead::CriticalSection& getCriticalSection() { return mCS; }
 
-    using HeapList = OffsetList<Heap>;
-    using DisposerList = OffsetList<IDisposer>;
+    typedef OffsetList<Heap> HeapList;
+    typedef OffsetList<IDisposer> DisposerList;
 
     void* mStart;
     size_t mSize;

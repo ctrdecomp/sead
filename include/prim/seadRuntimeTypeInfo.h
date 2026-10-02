@@ -20,7 +20,7 @@ class Root : public Interface
 public:
     Root() {}
 
-    bool isDerived(const Interface* typeInfo) const override { return typeInfo == this; }
+    virtual bool isDerived(const Interface* typeInfo) const { return typeInfo == this; }
 };
 
 template <typename BaseType>
@@ -29,7 +29,7 @@ class Derive : public Interface
 public:
     Derive() {}
 
-    bool isDerived(const Interface* typeInfo) const override
+    virtual bool isDerived(const Interface* typeInfo) const
     {
         if (this == typeInfo)
             return true;
@@ -72,8 +72,8 @@ inline DerivedType* DynamicCast(Type* obj)
         return checkDerivedRuntimeTypeInfoStatic(typeInfo);                                        \
     }
 #define SEAD_RTTI_CHECKDERIVEDRUNTIMETYPEINFO_OVERRIDE(CLASS)                                      \
-    bool checkDerivedRuntimeTypeInfo(const sead::RuntimeTypeInfo::Interface* typeInfo)             \
-        const override                                                                             \
+    virtual bool checkDerivedRuntimeTypeInfo(const sead::RuntimeTypeInfo::Interface* typeInfo)             \
+        const                                                                             \
     {                                                                                              \
         return checkDerivedRuntimeTypeInfoStatic(typeInfo);                                        \
     }
@@ -127,7 +127,7 @@ public:                                                                         
                                                                                                    \
     SEAD_RTTI_CHECKDERIVEDRUNTIMETYPEINFO_OVERRIDE(CLASS)                                          \
                                                                                                    \
-    const sead::RuntimeTypeInfo::Interface* getRuntimeTypeInfo() const override                    \
+    virtual const sead::RuntimeTypeInfo::Interface* getRuntimeTypeInfo() const                     \
     {                                                                                              \
         return getRuntimeTypeInfoStatic();                                                         \
     }

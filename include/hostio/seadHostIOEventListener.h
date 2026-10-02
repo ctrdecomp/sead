@@ -65,7 +65,7 @@ private:
         {
         }
 
-        ~DisposeHostIOCaller() override;
+        virtual ~DisposeHostIOCaller();
 
         bool hasInstance() const { return mInstance != nullptr; }
         void clearInstance() { mInstance = nullptr; }
@@ -104,8 +104,8 @@ class NodeEventListener : public PropertyEventListener
 public:
     using PropertyEventListener::PropertyEventListener;
 
-    void listenPropertyEvent([[maybe_unused]] const PropertyEvent* event) override {}
-    virtual void listenNodeEvent([[maybe_unused]] const NodeEvent* event) {}
+    virtual void listenPropertyEvent(const PropertyEvent* event) {}
+    virtual void listenNodeEvent(const NodeEvent* event) {}
 #endif
 };
 }  // namespace hostio

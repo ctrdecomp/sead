@@ -9,7 +9,7 @@ namespace sead
 template <typename Value>
 struct OrderedSetItemImpl
 {
-    OrderedSetItemImpl() = default;
+    OrderedSetItemImpl(){ }
     // NOLINTNEXTLINE(google-explicit-constructor)
     OrderedSetItemImpl(const Value& value_) : value(value_) {}
     OrderedSetItemImpl& operator=(const Value& value_)
@@ -37,13 +37,15 @@ template <typename Value>
 class OrderedSet : public TreeMapImpl<OrderedSetItemImpl<Value>>
 {
 public:
-    using MapImpl = TreeMapImpl<OrderedSetItemImpl<Value>>;
+    typedef TreeMapImpl<OrderedSetItemImpl<Value> > MapImpl;
+
+    OrderedSet() : mSize(0), mCapacity(0) {}
     class Node : public MapImpl::Node
     {
     public:
         Node(OrderedSet* set, const Value& value) : mSet(set) { this->mKey = value; }
 
-        void erase_() override;
+        virtual void erase_();
 
         // Values cannot be modified.
         const Value& value() const { return this->key().value; }
@@ -82,8 +84,8 @@ private:
     void eraseNodeForClear_(typename MapImpl::Node* node);
 
     FreeList mFreeList;
-    s32 mSize = 0;
-    s32 mCapacity = 0;
+    s32 mSize;
+    s32 mCapacity;
 };
 
 template <typename Value>
@@ -164,10 +166,18 @@ template <typename Value>
 template <typename Callable>
 inline void OrderedSet<Value>::forEach(const Callable& delegate) const
 {
-    MapImpl::forEach([&delegate](Node* base_node) {
-        Node* node = static_cast<Node*>(base_node);
-        delegate(node->value());
-    });
+    struct Local
+    {
+        const Callable& delegate;
+        explicit Local(const Callable& delegate_) : delegate(delegate_) {}
+        void operator()(Node* base_node) const
+        {
+            Node* node = static_cast<Node*>(base_node);
+            delegate(node->value());
+        }
+    };
+
+    MapImpl::forEach(Local(delegate));
 }
 
 template <typename Value>

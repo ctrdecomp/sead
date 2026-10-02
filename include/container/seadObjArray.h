@@ -14,7 +14,11 @@ template <typename T>
 class ObjArray : public PtrArrayImpl
 {
 public:
-    ObjArray() = default;
+    ObjArray(): 
+        PtrArrayImpl(), 
+        mFreeList()
+    {
+    }
     ObjArray(s32 max_num, void* buf) { setBuffer(max_num, buf); }
 
     void allocBuffer(s32 capacity, Heap* heap, s32 alignment = sizeof(void*))

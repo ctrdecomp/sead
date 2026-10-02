@@ -16,7 +16,7 @@ bool CtrSDFileDevice::doIsExistFile_(bool* exists, const SafeString& path)
         exists = NULL;
         return true;
     }
-    if(Result::ConstRange<Result::Level::LEVEL_STATUS, Result::Summary::SUMMARY_NOT_FOUND, Result::Module::MODULE_NN_FS, 100, 100, 179>::Includes(nn_result))
+    if(nn::fs::ResultNotFound().Includes(nn_result))
     {
         FileStream fstream;
         nn_result = openFileStreamImpl_(&fstream, getArchiveName_(), path, nn::fs::OPEN_MODE_READ);
@@ -26,7 +26,7 @@ bool CtrSDFileDevice::doIsExistFile_(bool* exists, const SafeString& path)
             *exists = true;
             return true;
         }
-        if(Result::ConstRange<Result::Level::LEVEL_STATUS, Result::Summary::SUMMARY_NOT_FOUND, Result::Module::MODULE_NN_FS, 100, 100, 179>::Includes(nn_result))
+        if(nn::fs::ResultNotFound().Includes(nn_result))
         {
             *exists = false;
             return true;

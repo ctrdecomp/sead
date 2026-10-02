@@ -1,0 +1,41 @@
+#pragma once
+
+#include <math/seadMatrix.h>
+
+namespace sead {
+
+class Camera;
+struct Color4f;
+class DrawContext;
+class Projection;
+
+class FontBase
+{
+public:
+    enum Encoding
+    {
+        cSJIS = 0,
+        cUTF8,
+        cUTF16
+    };
+
+public:
+    FontBase()
+    {
+    }
+
+    virtual ~FontBase()
+    {
+    }
+
+    virtual f32 getHeight() const = 0;
+    virtual f32 getWidth() const = 0;
+    virtual f32 getCharWidth(char16 letter) const = 0;
+    virtual Encoding getEncoding() const = 0;
+    virtual void begin(DrawContext* drawContext) const = 0;
+    virtual void end(DrawContext* drawContext) const = 0;
+    virtual void print(DrawContext* drawContext, const Projection& projection, const Camera& camera, const Matrix34f& mtx,
+                       const Color4f& color, const void* text, s32 length) const = 0;
+};
+
+} // namespace sead

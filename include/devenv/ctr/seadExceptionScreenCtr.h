@@ -22,7 +22,9 @@ public:
     static const char* sMapFilePath;
 
     void enableAssertCallback(){ AssertConfig::registerFinalCallback(&mEvent); }
+    void disableAssertCallback(){ AssertConfig::registerFinalCallback(&mEvent); }
     DirectPrintCtr* getDirectPrint(){ return &mPrinter; }
+
 protected:
     virtual void onHalt_(const char* msgName);
     virtual int putHaltMessage_(Vector2<int> const& pos, char const* msg);

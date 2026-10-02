@@ -31,7 +31,7 @@ public:
         bool operator!=(const iterator& rhs) const { return !(rhs == *this); }
         iterator& operator++() { return mIndex++, *this; }
         iterator& operator--() { return mIndex--, *this; }
-        const char& operator*() const { return mString->at(mIndex); }
+        const T& operator*() const { return mString->at(mIndex); }
 
         const SafeStringBase* getString() const { return mString; }
         s32 getIndex() const { return mIndex; }
@@ -90,7 +90,7 @@ public:
     {
     }
 
-    friend bool operator==(const SafeStringBase<CharType>& lhs, const SafeStringBase<CharType>& rhs){ return lhs.isEqual(rhs); }
+    friend bool operator==(const SafeStringBase<T>& lhs, const SafeStringBase<T>& rhs){ return lhs.isEqual(rhs); }
     bool operator!=(const SafeStringBase& rhs) const { return !(*this == rhs); }
 
     iterator begin() const { return iterator(this, 0); }
@@ -134,8 +134,8 @@ public:
     s32 findIndex(const SafeStringBase<T>& str, s32 start_pos) const;
     s32 rfindIndex(const SafeStringBase<T>& str) const;
 
-    iterator findIterator(const SafeStringBase& str) const { return {this, findIndex(str)}; }
-    iterator rfindIterator(const SafeStringBase& str) const { return {this, rfindIndex(str)}; }
+    iterator findIterator(const SafeStringBase& str) const { return iterator(this, findIndex(str)); }
+    iterator rfindIterator(const SafeStringBase& str) const { return iterator(this, rfindIndex(str)); }
 
     bool isEmpty() const;
     bool startsWith(const SafeStringBase<T>& prefix) const;
@@ -166,15 +166,14 @@ template <typename T>
 class BufferedSafeStringBase : public SafeStringBase<T>
 {
 public:
-    BufferedSafeStringBase(T* buffer, s32 size): 
-        SafeStringBase<T>(buffer)
-        mBufferSize(size)
+    BufferedSafeStringBase(T* buffer, s32 size)
+        : SafeStringBase<T>(buffer), mBufferSize(size)
     {
         if (size <= 0)
         {
             SEAD_ASSERT_MSG(false, "Invalied buffer size(%d).\n", this->getBufferSize());
-            mStringTop = nullptr;
-            mBufferSize = 0;
+            this->mStringTop = nullptr;
+            this->mBufferSize = 0;
         }
 
         assureTerminationImpl_();
@@ -456,8 +455,8 @@ class FormatFixedSafeString : public FixedSafeString<L>
 public:
     FormatFixedSafeString() : FormatFixedSafeString("") {}
 
-#ifdef __GNUC__
-    [[gnu::format(printf, 2, 3)]]
+#if defined(__GNUC__) && defined(__cplusplus) && __cplusplus >= 201103L
+    __attribute__((format(printf, 2, 3)))
 #endif
     explicit FormatFixedSafeString(const char* format, ...)
         : FixedSafeString<L>()
@@ -505,19 +504,22 @@ public:
 
     HeapSafeStringBase& operator=(const HeapSafeStringBase&)
     {
+        return *this;
     }
 
+#if defined(__cplusplus) && __cplusplus >= 201103L
     HeapSafeStringBase(HeapSafeStringBase&& other) noexcept
     {
         this->mStringTop = other.mStringTop;
-        other.mStringTop = nullptr;
+        other.mStringTop = NULL;
     }
     HeapSafeStringBase& operator=(HeapSafeStringBase&& other) noexcept
     {
         this->mStringTop = other.mStringTop;
-        other.mStringTop = nullptr;
+        other.mStringTop = NULL;
         return *this;
     }
+#endif
 
     virtual ~HeapSafeStringBase()
     {
@@ -532,8 +534,8 @@ public:
     }
 };
 
-using HeapSafeString = HeapSafeStringBase<char>;
-using WHeapSafeString = HeapSafeStringBase<char16>;
+typedef HeapSafeStringBase<char> HeapSafeString;
+typedef HeapSafeStringBase<char16> WHeapSafeString;
 
 inline bool operator<(const SafeString& lhs, const SafeString& rhs)
 {
@@ -555,6 +557,7 @@ inline bool operator>=(const SafeString& lhs, const SafeString& rhs)
     return lhs.compare(rhs) >= 0;
 }
 
+#if defined(__cplusplus) && __cplusplus >= 201103L
 inline namespace literals
 {
 inline namespace str
@@ -571,6 +574,7 @@ inline WSafeString operator""_str(const char16* str, std::size_t /*len*/)
 
 }  // namespace str
 }  // namespace literals
+#endif
 
 }  // namespace sead
 

@@ -22,9 +22,9 @@ TextWriter::~TextWriter()
 {
 }
 
-void TextWriter::setupGraphics(DrawContext* drawContext)
+void TextWriter::setupGraphics()
 {
-    sGraphicsContext.apply(drawContext);
+    sGraphicsContext.apply();
 }
 
 } // namespace sead

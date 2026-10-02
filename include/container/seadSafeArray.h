@@ -2,8 +2,10 @@
 
 #include <basis/seadAssert.h>
 #include <basis/seadTypes.h>
+#if defined(__cplusplus) && __cplusplus >= 201103L
 #include <type_traits>
 #include <utility>
+#endif
 
 namespace sead
 {
@@ -221,6 +223,7 @@ public:
     constIterator end() const { return constIterator(mBuffer, N); }
 };
 
+#if defined(__cplusplus) && __cplusplus >= 201103L
 namespace detail
 {
 // From https://en.cppreference.com/w/cpp/container/array/to_array
@@ -250,4 +253,16 @@ constexpr sead::SafeArray<std::remove_cv_t<T>, N> toArray(T(&&a)[N])
 {
     return detail::to_array_impl(std::move(a), std::make_index_sequence<N>{});
 }
+#endif
+
+#if !defined(__cplusplus) || __cplusplus < 201103L
+template <typename T, s32 N>
+SafeArray<T, N> toArray(T (&a)[N])
+{
+    SafeArray<T, N> result;
+    for (s32 i = 0; i < N; ++i)
+        result[i] = a[i];
+    return result;
+}
+#endif
 }  // namespace sead

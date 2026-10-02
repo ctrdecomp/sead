@@ -19,10 +19,10 @@ class HeapMgr : public hostio::Node
     struct CreateCallbackArg;
     struct DestroyCallbackArg;
     struct FreeCallbackArg;
-    using IAllocCallback = IDelegate1<const AllocCallbackArg*>;
-    using ICreateCallback = IDelegate1<const CreateCallbackArg*>;
-    using IDestroyCallback = IDelegate1<const DestroyCallbackArg*>;
-    using IFreeCallback = IDelegate1<const FreeCallbackArg*>;
+    typedef IDelegate1<const AllocCallbackArg*> IAllocCallback;
+    typedef IDelegate1<const CreateCallbackArg*> ICreateCallback;
+    typedef IDelegate1<const DestroyCallbackArg*> IDestroyCallback;
+    typedef IDelegate1<const FreeCallbackArg*> IFreeCallback;
 
 public:
     struct AllocFailedCallbackArg
@@ -33,7 +33,8 @@ public:
         size_t alloc_size;
         s32 alloc_alignment;
     };
-    using IAllocFailedCallback = IDelegate1<const AllocFailedCallbackArg*>;
+
+    typedef IDelegate1<const AllocFailedCallbackArg*> IAllocFailedCallback;
 
     HeapMgr();
     virtual ~HeapMgr();
@@ -70,8 +71,8 @@ public:
     static HeapMgr sInstance;
     static HeapMgr* sInstancePtr;
 
-    using RootHeaps = FixedPtrArray<Heap, 4>;
-    using IndependentHeaps = FixedPtrArray<Heap, 4>;
+    typedef FixedPtrArray<Heap, 4> RootHeaps;
+    typedef FixedPtrArray<Heap, 4> IndependentHeaps;
 
 private:
     friend class ScopedCurrentHeapSetter;
@@ -87,8 +88,8 @@ private:
     static TickSpan sSleepSpanAtRemoveCacheFailure;
 
     /// fallback heap that is returned when getting the current heap outside of an sead::Thread
-    Heap* mAllocFromNotSeadThreadHeap = nullptr;
-    IAllocFailedCallback* mAllocFailedCallback = nullptr;
+    Heap* mAllocFromNotSeadThreadHeap;
+    IAllocFailedCallback* mAllocFailedCallback;
 };
 
 /// Sets the "current heap" to the specified heap and restores the previous "current heap"
@@ -96,7 +97,8 @@ private:
 class ScopedCurrentHeapSetter
 {
 public:
-    explicit ScopedCurrentHeapSetter(sead::Heap* heap)
+    explicit ScopedCurrentHeapSetter(sead::Heap* heap):
+        mPreviousHeap(0)
     {
         if (heap)
             setPreviousHeap_(HeapMgr::instance()->setCurrentHeap_(heap));
@@ -123,13 +125,16 @@ protected:
         return reinterpret_cast<Heap*>(mPreviousHeap) != reinterpret_cast<Heap*>(1);
     }
 
-    uintptr_t mPreviousHeap = 0;
+    uintptr_t mPreviousHeap;
 };
 
 class FindContainHeapCache
 {
 public:
-    FindContainHeapCache();
+    FindContainHeapCache():
+        mHeap(0)
+    {
+    }
 
     bool tryRemoveHeap(Heap* heap);
     Heap* tryAddHeap()

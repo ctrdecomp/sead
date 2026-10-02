@@ -18,8 +18,8 @@ public:
     {
     }
 
-    void listenPropertyEvent(const hostio::PropertyEvent* ev) override;
-    void genMessage(hostio::Context* ctx) override;
+    virtual void listenPropertyEvent(const hostio::PropertyEvent* ev);
+    virtual void genMessage(hostio::Context* ctx);
 #endif // SEAD_DEBUG
 };
 

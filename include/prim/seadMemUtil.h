@@ -26,8 +26,10 @@ public:
 }  // namespace sead
 
 #define SEAD_PRIM_MEM_UTIL_H_
-#ifdef CTRSDK
+#ifdef SEAD_PLATFORM_CTR
 #include <prim/ctr/seadMemUtilCtr.hpp>
+#elif SEAD_PLATFORM_WIN
+#include <prim/win/seadMemUtilWin.hpp>
 #else
 #error "Unknown platform"
 #endif  // CTRSDK

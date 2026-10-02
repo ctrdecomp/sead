@@ -29,15 +29,15 @@ Note that many names (especially for inlined, templated functions) are just plai
 
 * **/LIBRARY_ROOT/sead/**
 
-        |____ **addins** - Additional libraries used by *sead*.
+*    |____ **addins** - Additional libraries used by *sead*.
 
-        |____ **include** - Headers used for *sead*.
+*    |____ **include** - Headers used for *sead*.
 
-        |____ **lib** - Libraries used by *sead*.
+*    |____ **lib** - Libraries used by *sead*.
 
-        |____ **modules/src** - Module source code.
+*    |____ **modules/src** - Module source code.
 
-        |____ **res** - Raw DVLE / DVLP Shader binary files for CTR. Contains the **primitive_renderer_ctr.bsm** sead shader as well. 
+*    |____ **template/ctr_nw4c** - Template files for the **ctr_nw4c** framework. Used by games using the *sead* engine. (Such as code, shaders, etc.)
 
 ## Addins
 
@@ -79,7 +79,19 @@ For progress, refer to [the GitHub project page](https://github.com/LoigiFan72/s
 Platform-specific files are usually placed into a subdirectory that is called:
 
 * **ctr** for 3Ds
-* **ctrwin** for CTR Emulated Windows
+* **winctr** for CTR Emulated Windows
+
+### Platform Frameworks
+
+## ctr
+
+* **ctr/ConsoleFrameWorkCtr** — Basic CTR application framework. Only initializes one screen for the device.
+
+* **ctr_nw4c/GameFrameworkCtrNw4c** — Base game framework with compatability with the **Nw4c** engine. Builds upon `GameFramework` and provides groundwork for using Nw4c with CTR. 
+
+* **ctr_nw4c/DoubleCmdGameFrameworkCtrNw4c** — Dual-screen game framework. Extends `GameFrameworkCtrNw4c` to initialize and manage both the top and bottom screens, including their respective frame buffers and presentation.
+
+* **ctr_nw4c/UlcdDoubleCmdGameFrameworkCtrNw4c** — ULCD dual-screen framework. Extends `DoubleCmdGameFrameworkCtrNw4c` and adapts its display handling for a left/right screen configuration, primarily presenting and managing the left and right displays.
 
 ### Version specific source
 
@@ -91,7 +103,6 @@ Set `SEAD_VERSION` to:
 - `SEAD_VERSION_CTRDASH`   (2): Mario Kart 7
 - `SEAD_VERSION_GARDEN`    (3): Animal-Crossing: New Leaf
 - `SEAD_VERSION_BIGRED`    (4): New Super Mario Bros. 2
-- `SEAD_VERSION_CTRDASHE3` (5): Mario Kart for 3DS (E3 2010)
 
 Presets and features for more games can be added if desired.
 
@@ -112,9 +123,9 @@ sead can be configured with several compile-time defines:
 
 #### Platforms
 * `CTRSDK` : Platform for CTR
-* `CTRWIN` : Platform for Windows emulating CTR
+* `WINDOWS_CTR` : Platform for Windows emulating CTR
 
-Other platforms (generic Unix, iOS, Android, CTR) are not supported.
+Other platforms (generic Unix, iOS, Android, NX, and cafe) are not supported.
 
 ## Contributing
 
@@ -138,4 +149,21 @@ If a function is inlined, you should try as hard as possible to make it match pe
 
 ## Planned Devices ##
 
-* **ctrwin** - Allow a Windows Device to Emulate the CTR Platform.
+* **winctr** - Allow a Windows Device to Emulate the CTR Platform.
+
+### Tentative PR Contributing rules
+The `ctrdecomp` organization follows a set of standards to maintain consistency and quality across our projects. To help contributors meet these standards, our team has established the following guidelines:
+
+* **All code must be submitted through the GitHub Pull Request process.**
+
+* **Code must not be obtained from illegal or unauthorized material.** If such material is detected, the contribution **will not** be accepted.
+
+* **Use of AI must be disclosed.** Contributors must disclose when and where they use AI.
+
+* **All code must be reviewed by a human before submission.** Contributors are responible for reviewing to match styling, errors, etc.
+
+* **Decompiled code should be reasonably representative of how the original source code may have been written. Avoid excessive or unnecessary pointer arithmetic when the underlying data is clearly identifiable as a struct or class.** In general, a raw Ghidra decompilation that merely compiles is not sufficient for PR acceptance; the code should be properly cleaned up, structured, and made readable.
+
+* **Most functions should have a corresponding Doxygen documentation comment above its top-most declaration.** Most one-line functions are exempt here, but generally over 2-3 lines is a decent rule of thumb.
+
+* **All code must be C++03-compliant.**

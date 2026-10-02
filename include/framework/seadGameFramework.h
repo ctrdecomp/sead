@@ -17,7 +17,7 @@ class GameFramework : public Framework
 public:
     enum DisplayState
     {
-        cHide = 0,
+        cHide,
         cReady,
         cShow
     };
@@ -31,17 +31,17 @@ public:
     virtual ~GameFramework();
     virtual void createSystemTasks(TaskBase* base, 
         const Framework::CreateSystemTaskArg& createSystemTaskArg);
-    virtual void quitRun_(Heap* heap);
     virtual void createControllerMgr(TaskBase* base);
     virtual void createHostIOMgr(TaskBase* base, HostIOMgr::Parameter* hostioParam, Heap* heap);
     virtual void createProcessMeter(TaskBase* base);
     virtual void createSeadMenuMgr(TaskBase* base);
     virtual void createInfLoopChecker(TaskBase* base, const TickSpan&, int);
-    virtual void createCuckooClock(TaskBase* base);
     virtual float calcFps() = 0;
-    virtual void saveScreenShot(const SafeString&) {}
+    virtual void saveScreenShot(const SafeString&) 
+    {
+        SEAD_ASSERT_MSG(false, "Not implement.");
+    }
     virtual bool isScreenShotBusy() const { return false; }
-    virtual void waitStartDisplayLoop_();
 
     void startDisplay();
     void lockFrameDrawContext();
@@ -53,6 +53,8 @@ public:
     MultiProcessMeterBar<32>& getGPUMeter() { return mGPUMeter; }
 
 protected:
+    virtual void waitStartDisplayLoop_();
+
     DisplayState mDisplayState;
     MultiProcessMeterBar<32> mCalcMeter;
     MultiProcessMeterBar<32> mDrawMeter;

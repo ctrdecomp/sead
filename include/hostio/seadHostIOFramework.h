@@ -8,7 +8,7 @@ class Heap;
 
 namespace hostio {
 
-enum class Command;
+class Command;
 class Context;
 class Config;
 class Node;

@@ -14,10 +14,19 @@ template <typename T>
 class ObjList : public ListImpl
 {
 public:
-    ObjList() 
+    ObjList(): 
+        ListImpl(), 
+        mFreeList(), 
+        mMaxNum(0)
     {
     }
-    ObjList(s32 max_num, void* buf) { setBuffer(max_num, buf); }
+    ObjList(s32 max_num, void* buf):
+        ListImpl(), 
+        mFreeList(), 
+        mMaxNum(0)
+    { 
+        setBuffer(max_num, buf); 
+    }
 
     void allocBuffer(s32 capacity, Heap* heap, s32 alignment = sizeof(void*))
     {
@@ -92,7 +101,7 @@ public:
     {
         T* item = back();
         if (!item)
-            return {};
+            return T();
 
         T copy = *item;
         erase(item);
@@ -103,7 +112,7 @@ public:
     {
         T* item = front();
         if (!item)
-            return {};
+            return T();
 
         T copy = *item;
         erase(item);
@@ -237,7 +246,7 @@ private:
     static constexpr size_t ElementSize = std::max(sizeof(Node), FreeList::cPtrSize);
 
     sead::FreeList mFreeList;
-    s32 mMaxNum = 0;
+    s32 mMaxNum;
 };
 
 template <typename T, s32 N>

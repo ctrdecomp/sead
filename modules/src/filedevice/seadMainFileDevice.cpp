@@ -9,7 +9,9 @@
 
 namespace sead
 {
-MainFileDevice::MainFileDevice(Heap* heap) : FileDevice("main"), mFileDevice(nullptr)
+MainFileDevice::MainFileDevice(Heap* heap) :
+    FileDevice("main"), 
+    mFileDevice(NULL)
 {
     mFileDevice = new (heap) CtrFileDevice();
     SEAD_ASSERT(mFileDevice);

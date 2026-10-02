@@ -9,8 +9,10 @@
 
 namespace sead
 {
-f32 StereoUtilCtr::calcStereoCamera(StereoCamera* ctrCam, DirectProjection* projL, DirectCamera* camL, DirectProjection* projR, DirectCamera* camR, Projection const& projOri, Camera const& camOri, 
-            float depthLevel, float factor, bool doCalcReal)
+f32 StereoUtilCtr::calcStereoCamera(StereoCamera* ctrCam, DirectProjection* projL, DirectCamera* camL, 
+    DirectProjection* projR, DirectCamera* camR, 
+    Projection const& projOri, Camera const& camOri, 
+    float depthLevel, float factor, bool doCalcReal)
 {
     // Get projection param before start.
     float up, down, left, right, near, far;

@@ -29,11 +29,6 @@ ExceptionScreenCtr::~ExceptionScreenCtr()
 {
 }
 
-void ExceptionScreenCtr::disableAssertCallback()
-{
-    AssertConfig::registerFinalCallback(NULL);
-}
-
 void ExceptionScreenCtr::exceptionHandler(ARM::ExceptionInfo * info, ARM::ExceptionContext* context)
 {
     FixedSafeString<2048> string;
@@ -60,16 +55,17 @@ void ExceptionScreenCtr::exceptionHandler(ARM::ExceptionInfo * info, ARM::Except
         len += string.append(stringR);
     }
     s32 cpsrLen;
-{
-    BufferedSafeString stringCpsr(static_cast<BufferedSafeString*>(&string), len);
-    cpsrLen = stringCpsr.format(" cpsr: 0x%x\n", context->cpsr);
-}
+    {
+        BufferedSafeString stringCpsr(static_cast<BufferedSafeString*>(&string), len);
 
-{
-    BufferedSafeString stringBackTrace(static_cast<BufferedSafeString*>(&string), len + cpsrLen);
+        cpsrLen = stringCpsr.format(" cpsr: 0x%x\n", context->cpsr);
+    }
 
-    putBackTraceString(&stringBackTrace, context->cpsr);
-}
+    {
+        BufferedSafeString stringBackTrace(static_cast<BufferedSafeString*>(&string), len + cpsrLen);
+
+        putBackTraceString(&stringBackTrace, context->cpsr);
+    }
 
     sExceptionScreenCtr->onHalt_(string.cstr());
 }
@@ -96,9 +92,7 @@ s32 ExceptionScreenCtr::putBackTraceString(BufferedSafeString* string, size_t si
 
     s32 length;
 {
-    SafeString header(" back trace:\n");
-
-    length = string->copy(header, size);
+    length = string->copy(" back trace:\n", size);
 }
 
     for (s32 i = 0; i < trace.size(); ++i)

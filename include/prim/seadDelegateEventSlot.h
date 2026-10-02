@@ -7,6 +7,8 @@
 #include <prim/seadDelegate.h>
 #include <prim/seadStorageFor.h>
 
+#if defined(__cplusplus) && __cplusplus >= 201103L
+
 namespace sead
 {
 /// Manages signal and slots for an event.
@@ -109,3 +111,5 @@ protected:
 };
 
 }  // namespace sead
+
+#endif

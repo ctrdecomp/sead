@@ -41,30 +41,26 @@ set_property(
   PROPERTY STRINGS "ctr"
 )
 
-add_library(libms OBJECT
-  addins/libms/include/LMS/commonbin.h
-  addins/libms/include/LMS/libms.h
-  addins/libms/include/LMS/msgfile.h
-  addins/libms/include/LMS/projfile.h
-  #addins/libms/include/flowfile.h
-  addins/libms/include/LMS/types.h
+# LibMessageStudio
 
-  addins/libms/src/commonbin.c
-  addins/libms/src/libms.c
-  addins/libms/src/msgfile.c
-  addins/libms/src/projfile.c
-  #addins/libms/src/flowfile.c
-)
+add_subdirectory(addins/libms)
+
+target_include_directories(LibMessageStudio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Main Library
 
 add_library(sead OBJECT
-  target_link_libraries(sead PUBLIC libms)
+  include/audio/seadAudioGlobal.h
+  include/audio/seadAudioPlayer.h
+  include/audio/seadAudioSettingParameter.h
+  include/audio/seadAudioSystem.h
 
   include/basis/seadAssert.h
   include/basis/seadDefines.h
   include/basis/seadNew.h
   include/basis/seadRawPrint.h
   include/basis/seadTypes.h
-  include/basos/seadWarning.h
+  include/basis/seadWarning.h
   modules/src/basis/seadAssert.cpp
   modules/src/basis/seadNew.cpp
   modules/src/basis/seadRawPrint.cpp
@@ -136,9 +132,10 @@ add_library(sead OBJECT
   include/framework/seadCalculateTask.h
   include/framework/seadFaderTask.h
   include/framework/seadFramework.h
-  include/framework/seadHeapPolicies.h
   include/framework/seadGameFramework.h
+  include/framework/seadHeapPolicies.h
   include/framework/seadInfLoopChecker.h
+  include/framework/seadInfLoopCheckerThread.h
   include/framework/seadMethodTree.h
   include/framework/seadMethodTreeMgr.h
   include/framework/seadProcessMeter.h
@@ -153,7 +150,11 @@ add_library(sead OBJECT
   modules/src/framework/seadFaderTask.cpp
   modules/src/framework/seadFramework.cpp
   modules/src/framework/seadGameFramework.cpp
+  modules/src/framework/seadInfLoopChecker.cpp
+  modules/src/framework/seadInfLoopCheckerThread.cpp
   modules/src/framework/seadMethodTree.cpp
+  modules/src/framework/seadMethodTreeMgr.cpp
+  modules/src/framework/seadProcessMeter.cpp
   modules/src/framework/seadProcessMeterBar.cpp
   modules/src/framework/seadSingleScreenMethodTreeMgr.cpp
   modules/src/framework/seadTask.cpp
@@ -164,6 +165,7 @@ add_library(sead OBJECT
   include/gfx/seadCamera.h
   include/gfx/seadColor.h
   include/gfx/seadDrawLockContext.h
+  include/gfx/seadFontBase.h
   include/gfx/seadFrameBuffer.h
   include/gfx/seadGraphics.h
   include/gfx/seadGraphicsContext.h
@@ -179,11 +181,12 @@ add_library(sead OBJECT
   modules/src/gfx/seadDrawLockContext.cpp
   modules/src/gfx/seadFrameBuffer.cpp
   modules/src/gfx/seadGraphics.cpp
-  modules/src/gfx/seadGraphicsContext.xpp
+  modules/src/gfx/seadGraphicsContext.cpp
   modules/src/gfx/seadPrimitiveRenderer.cpp
   modules/src/gfx/seadPrimitiveRendererUtil.cpp
   modules/src/gfx/seadProjection.cpp
   modules/src/gfx/seadTextureUtil.cpp
+  modules/src/gfx/seadTextWriter.cpp
   modules/src/gfx/seadViewport.cpp
 
   include/heap/seadArena.h
@@ -223,9 +226,6 @@ add_library(sead OBJECT
   modules/src/math/seadMatrix.cpp
   modules/src/math/seadQuat.cpp
   modules/src/math/seadVector.cpp
-
-  include/message/seadMessageSet.h
-  modules/src/message/seadMessageSet.cpp
 
   include/prim/seadBitFlag.h
   include/prim/seadBitUtil.h
@@ -318,6 +318,9 @@ target_sources(sead PRIVATE
   include/hostio/seadHostIOCurve.h
   modules/src/hostio/seadHostIOCurve.cpp
 )
+
+# Debug
+
 if(SEAD_DEBUG)
   target_sources(sead PRIVATE
     include/hostio/seadHostIOConfig.h
@@ -344,24 +347,28 @@ if(SEAD_DEBUG)
   )
 endif()
 
+target_link_libraries(sead PUBLIC libms)
+
+# PLATFORM: CTR
+
 if(SEAD_PLATFORM STREQUAL "ctr")
-  if(NOT TARGET CTRSDK)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}../CtrSDK) # change depend on prj
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}../NintendoWare4Ctr) # change depend on prj
+  if(NOT TARGET CTR_SDK)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}../CTR_SDK) # change depend on prj
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}../NintendoWare) # change depend on prj
   endif()
-  target_link_libraries(sead PUBLIC CTRSDK)
+  target_link_libraries(sead PUBLIC CTR_SDK)
 
   target_sources(sead PRIVATE
-    modules/src/basis/seadRawPrintCtr.cpp
+    modules/src/basis/ctr/seadRawPrintCtr.cpp
 
     include/controller/ctr/seadCtrAccelerometerAddon.h
     include/controller/ctr/seadCtrController.h
-    include/controller/ctr/seadCtrDebugController.h
-    include/controller/ctr/seadCtrHidDevice.h
+    include/controller/ctr/seadCtrDebugControllerCtr.h
+    include/controller/ctr/seadCtrHidDeviceCtr.h
     modules/src/controller/ctr/seadCtrAccelerometerAddon.cpp
     modules/src/controller/ctr/seadCtrController.cpp
-    modules/src/controller/ctr/seadCtrDebugController.cpp
-    modules/src/controller/ctr/seadCtrHidDevice.cpp
+    modules/src/controller/ctr/seadCtrDebugControllerCtr.cpp
+    modules/src/controller/ctr/seadCtrHidDeviceCtr.cpp
 
     include/devenv/ctr/seadDirectPrintCtr.h
     include/devenv/ctr/seadExceptionScreenCtr.h
@@ -395,10 +402,10 @@ if(SEAD_PLATFORM STREQUAL "ctr")
     modules/src/framework/ctr/seadConsoleFrameworkCtr.cpp
     modules/src/framework/ctr_nw4c/seadGameFrameworkCtrNw4c.cpp
     modules/src/framework/ctr_nw4c/seadDoubleCmdFrameworkCtrNw4c.cpp
-    modules/src/framework/ctr_nw4c/seadUlcdDoubleCmdFrameworkCtrNw4c.cpp
+    modules/src/framework/ctr_nw4c/seadUlcdDoubleCmdGameFrameworkCtrNw4c.cpp
 
-    include/gfx/seadSteroCameraWrapper.h
-    include/gfx/seadSteroUtil.h
+    include/gfx/seadStereoCameraWrapper.h
+    include/gfx/seadStereoUtil.h
     include/gfx/ctr/seadFrameBufferCtr.h
     include/gfx/ctr/seadGfxMemoryMgrCtr.h
     include/gfx/ctr/seadGraphicsCtr.h
@@ -409,8 +416,8 @@ if(SEAD_PLATFORM STREQUAL "ctr")
     include/gfx/ctr/seadTextureCtr.h
     include/gfx/ctr/seadTextureCtrGL.h
     include/gfx/ctr/seadTextureCtrGR.h
-    modules/src/gfx/seadSteroCameraWrapper.cpp
-    modules/src/gfx/seadSteroUtil.cpp
+    modules/src/gfx/seadStereoCameraWrapper.cpp
+    modules/src/gfx/seadStereoUtil.cpp
     modules/src/gfx/ctr/seadFrameBufferCtr.cpp
     modules/src/gfx/ctr/seadGfxMemoryMgrCtr.cpp
     modules/src/gfx/ctr/seadGraphicsCtr.cpp
@@ -420,18 +427,23 @@ if(SEAD_PLATFORM STREQUAL "ctr")
     modules/src/gfx/ctr/seadTextureCtrGL.cpp
     modules/src/gfx/ctr/seadTextureCtrGR.cpp
 
-    modules/src/heap/seadArenaCtr.cpp
+    modules/src/heap/ctr/seadArenaCtr.cpp
+
+    include/math/seadMathCalcCtr.hpp
+
+    include/message/seadMessageSet.h
+    modules/src/message/seadMessageSet.cpp
 
     include/prim/ctr/seadMemUtilCtr.hpp
     modules/src/prim/ctr/seadMemUtilCtr.cpp
 
-    include/stream/seadMemoryMapCtr.h
-    include/stream/seadMemoryMapCtr.hpp
+    include/stream/ctr/seadMemoryMapCtr.h
+    include/stream/ctr/seadMemoryMapCtr.hpp
 
     include/tentative/seadBitmapBuilder.h
     modules/src/tentative/seadBitmapBuilder.cpp
 
-    include/thread/ctr/seadThreadLocalStorage.hpp
+    include/thread/ctr/seadThreadLocalStorageCtr.hpp
     modules/src/thread/ctr/seadCriticalSectionCtr.cpp
     modules/src/thread/ctr/seadEventCtr.cpp
     modules/src/thread/ctr/seadMessageQueueCtr.cpp

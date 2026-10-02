@@ -2,10 +2,7 @@
 #define SEAD_ARENA_H_
 
 #include <basis/seadTypes.h>
-
-#ifdef CTRSDK
-    #include <nn/os.h>
-#endif
+#include <nn/os.h>
 
 namespace sead
 {

@@ -15,7 +15,7 @@ class Random;
 class PtrArrayImpl
 {
 public:
-    PtrArrayImpl() = default;
+    PtrArrayImpl(){ }
     PtrArrayImpl(s32 ptrNumMax, void* buf) { setBuffer(ptrNumMax, buf); }
 
     void setBuffer(s32 ptrNumMax, void* buf);
@@ -222,7 +222,7 @@ template <typename T>
 class PtrArray : public PtrArrayImpl
 {
 public:
-    PtrArray() = default;
+    PtrArray(){ }
     PtrArray(s32 ptrNumMax, T** buf) : PtrArrayImpl(ptrNumMax, buf) {}
 
     T* at(s32 pos) const { return static_cast<T*>(PtrArrayImpl::at(pos)); }

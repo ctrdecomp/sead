@@ -20,9 +20,6 @@ public:
     Event(Heap* disposer_heap, IDisposer::HeapNullOption heap_null_option, bool manual_reset);
     virtual ~Event();
 
-    Event(const Event&) = delete;
-    Event& operator=(const Event&) = delete;
-
     void initialize(bool manual_reset);
     void wait();
     bool wait(TickSpan duration);
@@ -30,6 +27,9 @@ public:
     void resetSignal();
 
 private:
+    Event(const Event&);
+    Event& operator=(const Event&);
+    
     void setInitialized(bool initialized)
     {
 #ifdef SEAD_DEBUG

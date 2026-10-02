@@ -52,33 +52,42 @@ public:
     ///                  be null. Note that this is only updated when false is returned.
     /// @return true if and only if the value was modified
     bool compareExchange(T expected, T desired, T* original = nullptr);
-
-protected:
-#ifdef NNSDK
-    // Nintendo appears to have manually implemented atomics with volatile and platform specific
-    // intrinsics (e.g. __builtin_arm_ldrex).
-    // For ease of implementation and portability, we will use std::atomic and cast to volatile
-    // when necessary. That is formally undefined behavior, but it should be safe because
-    // sead is built with -fno-strict-aliasing and because of the following static assertions.
-    std::atomic<T> mValue;
-    static_assert(sizeof(mValue) == sizeof(T),
-                  "std::atomic<T> and T do not have the same size; unsupported case");
-    static_assert(alignof(decltype(mValue)) == alignof(volatile T),
-                  "std::atomic<T> and T do not have the same alignment; unsupported case");
-    static_assert(std::atomic<T>::is_always_lock_free,
-                  "std::atomic<T>::is_always_lock_free is not true; unsupported case");
-
-    const volatile T* getValuePtr() const { return reinterpret_cast<const volatile T*>(&mValue); }
-    volatile T* getValuePtr() { return reinterpret_cast<volatile T*>(&mValue); }
-
-#endif
 };
 
 template <class T>
 struct Atomic : AtomicBase<T>
 {
-    using AtomicBase<T>::AtomicBase;
-    using AtomicBase<T>::operator=;
+    Atomic(): 
+        AtomicBase<T>()
+    {
+    }
+
+    explicit Atomic(T value): 
+        AtomicBase<T>(value)
+    {
+    }
+
+    Atomic(AtomicDirectInitTag tag, T value): 
+        AtomicBase<T>(tag, value)
+    {
+    }
+
+    Atomic(const Atomic& rhs): 
+        AtomicBase<T>(rhs)
+    {
+    }
+
+    Atomic& operator=(const Atomic& rhs)
+    {
+        AtomicBase<T>::operator=(rhs);
+        return *this;
+    }
+
+    Atomic& operator=(T value)
+    {
+        AtomicBase<T>::operator=(value);
+        return *this;
+    }
 
     T fetchAdd(T x);
     T fetchSub(T x);
@@ -112,11 +121,47 @@ struct Atomic : AtomicBase<T>
 template <class T>
 struct Atomic<T*> : AtomicBase<T*>
 {
-    using AtomicBase<T*>::AtomicBase;
-    using AtomicBase<T*>::operator=;
+    Atomic()
+        : AtomicBase<T*>()
+    {
+    }
 
-    T& operator*() const { return *this->load(); }
-    T* operator->() const { return this->load(); }
+    explicit Atomic(T* value)
+        : AtomicBase<T*>(value)
+    {
+    }
+
+    Atomic(AtomicDirectInitTag tag, T* value)
+        : AtomicBase<T*>(tag, value)
+    {
+    }
+
+    Atomic(const Atomic& rhs)
+        : AtomicBase<T*>(rhs)
+    {
+    }
+
+    Atomic& operator=(const Atomic& rhs)
+    {
+        AtomicBase<T*>::operator=(rhs);
+        return *this;
+    }
+
+    Atomic& operator=(T* value)
+    {
+        AtomicBase<T*>::operator=(value);
+        return *this;
+    }
+
+    T& operator*() const
+    {
+        return *this->load();
+    }
+
+    T* operator->() const
+    {
+        return this->load();
+    }
 };
 
 // Implementation.

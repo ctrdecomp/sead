@@ -18,15 +18,16 @@ using HandleBuffer = SafeArray<u8, 32>;
 class HandleBase
 {
 public:
-    HandleBase()
+    HandleBase():
+        mDevice(NULL),
+        mOriginalDevice(NULL),
+        mHandleBuffer()
     {
     }
     HandleBase(const HandleBase&)
     {
     }
-    HandleBase& operator=(const HandleBase&)
-    {
-    }
+    HandleBase& operator=(const HandleBase&);
     virtual ~HandleBase()
     {
     }
@@ -116,22 +117,38 @@ public:
 
     struct SaveArg
     {
-        SafeString path = "";
-        const u8* buffer = nullptr;
-        u32 buffer_size = 0;
-        u32 write_size = 0;
+        SaveArg():
+            path(""),
+            buffer(nullptr),
+            buffer_size(0),
+            write_size(0)
+        {
+        }
+        SafeString path;
+        const u8* buffer;
+        u32 buffer_size;
+        u32 write_size;
     };
 
 public:
-    FileDevice() : TListNode<FileDevice*>(this), IDisposer(), mDriveName(), mPermission(true) {}
+    FileDevice() :
+        TListNode<FileDevice*>(this),
+        IDisposer(),
+        mDriveName(),
+        mPermission(true)
+    {
+    }
 
-    explicit FileDevice(const SafeString& name)
-        : TListNode<FileDevice*>(this), IDisposer(), mDriveName(), mPermission(true)
+    explicit FileDevice(const SafeString& name):
+        TListNode<FileDevice*>(this),
+        IDisposer(),
+        mDriveName(),
+        mPermission(true)
     {
         setDriveName(name);
     }
 
-    ~FileDevice() override;
+    virtual ~FileDevice();
 
     const SafeString& getDriveName() const { return mDriveName; }
     void setDriveName(const SafeString& name)

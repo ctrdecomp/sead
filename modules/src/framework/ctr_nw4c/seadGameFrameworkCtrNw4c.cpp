@@ -160,12 +160,7 @@ void GameFrameworkCtrNw4c::initializeGraphicsSystem(Heap* heap, const Vector2f& 
         mTopFrameBuffer->bind();
     }
 
-    {
-        Graphics* graphics = new (heap) GraphicsCtr();
-
-        GraphicsCtr::setInstance(graphics);
-    }
-
+    GraphicsCtr::setInstance(new(heap) GraphicsCtr());
     Graphics::instance()->initialize(heap);
 
     SEAD_ASSERT_GL();
@@ -412,18 +407,20 @@ void GameFrameworkCtrNw4c::procFrame_()
 void GameFrameworkCtrNw4c::procDraw_()
 {
     mDrawMeter.measureBegin();
-    DualScreenMethodTreeMgr* method = DynamicCast<DualScreenMethodTreeMgr>(getMethodTreeMgr());
-    clearFrameBuffers_(6);
-    mTopFrameBuffer->bind();
-    method->drawTop();
-    presentTop_();
+    {
+        DualScreenMethodTreeMgr* method = DynamicCast<DualScreenMethodTreeMgr>(getMethodTreeMgr());
+        clearFrameBuffers_(6);
+        mTopFrameBuffer->bind();
+        method->drawTop();
+        presentTop_();
 
-    clearFrameBuffers_(9);
-    mBtmFrameBuffer->bind();
-    method->drawBtm();
-    presentBtm_();
+        clearFrameBuffers_(9);
+        mBtmFrameBuffer->bind();
+        method->drawBtm();
+        presentBtm_();
 
-    mTopFrameBuffer->bind();
+        mTopFrameBuffer->bind();
+    }
     mDrawMeter.measureEnd();
 }
 
@@ -606,15 +603,10 @@ void GameFrameworkCtrNw4c::doScreenShotImpl_(char const* shot)
 {
     FileDeviceMgr* fMgr = FileDeviceMgr::instance();
     FixedSafeString<264> str;
+
     {
         str.copy(shot);
-    }
-
-    {
         str.append("_top.bmp");
-    }
-
-    {
         FileHandle topHandle;
         fMgr->open(&topHandle, str, FileDevice::cFileOpenFlag_WriteOnly, 0);
         if(!topHandle.isOpened())
@@ -626,14 +618,10 @@ void GameFrameworkCtrNw4c::doScreenShotImpl_(char const* shot)
         nngxGetDisplaybufferParameteri(NN_GX_DISPLAYBUFFER_ADDRESS, &param);
         saveScreenShotToFileHandle_(&topHandle, &param, mGameArg.widthTop, mGameArg.heightTop, mGameArg.format);
     }
-        {
-            str.copy(shot);
-        }
 
-        {
-            str.append("_btm.bmp");
-        }
     {
+        str.copy(shot);
+        str.append("_btm.bmp");
         FileHandle btmHandle;
         fMgr->open(&btmHandle, str, FileDevice::cFileOpenFlag_WriteOnly, 0);
         if(!btmHandle.isOpened())

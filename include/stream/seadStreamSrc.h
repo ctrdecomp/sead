@@ -14,6 +14,6 @@ public:
     virtual bool isEOF() = 0;
     virtual bool flush() { return true; }
 
-    virtual ~StreamSrc() = default;
+    virtual ~StreamSrc(){ }
 };
 }  // namespace sead

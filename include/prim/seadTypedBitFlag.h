@@ -7,12 +7,11 @@
 
 namespace sead
 {
-template <typename Enum, typename Storage = std::underlying_type_t<Enum>>
+template <typename Enum, typename Storage = typename std::underlying_type<Enum>::type>
 class TypedBitFlag
 {
 public:
-    static_assert(std::is_enum<Enum>(), "Enum must be an enum");
-    using UnderlyingType = std::underlying_type_t<Enum>;
+    typedef typename std::underlying_type<Enum>::type UnderlyingType;
 
     TypedBitFlag() : mBits(0) {}
     explicit TypedBitFlag(UnderlyingType bits) : mBits(bits) {}
@@ -46,13 +45,13 @@ public:
 
     bool set(Enum val)
     {
-        const auto mask = UnderlyingType(val);
+        const UnderlyingType mask = UnderlyingType(val);
         return ((mBits |= mask) & mask) == 0;
     }
 
     bool reset(Enum val)
     {
-        const auto mask = UnderlyingType(val);
+        const UnderlyingType mask = UnderlyingType(val);
         return ((mBits &= ~mask) & mask) != 0;
     }
 
@@ -77,7 +76,7 @@ public:
     /// Popcount.
     int countOnBit() const
     {
-        if constexpr (sizeof(UnderlyingType) <= 4)
+        if (sizeof(UnderlyingType) <= sizeof(u32))
             return BitFlagUtil::countOnBit(mBits);
         else
             return BitFlagUtil::countOnBit64(mBits);
@@ -85,32 +84,33 @@ public:
     /// Count trailing zeroes.
     int countContinuousOffBitFromRight() const
     {
-        if constexpr (sizeof(UnderlyingType) <= 4)
+        if (sizeof(UnderlyingType) <= sizeof(u32))
             return BitFlagUtil::countContinuousOffBitFromRight(mBits);
         else
             return BitFlagUtil::countContinuousOffBitFromRight64(mBits);
     }
     int countRightOnBit(int bit) const
     {
-        if constexpr (sizeof(UnderlyingType) <= 4)
+        if (sizeof(UnderlyingType) <= sizeof(u32))
             return BitFlagUtil::countRightOnBit(mBits, bit);
         else
             return BitFlagUtil::countRightOnBit64(mBits, bit);
     }
     int findOnBitFromRight(int num) const
     {
-        if constexpr (sizeof(UnderlyingType) <= 4)
+        if (sizeof(UnderlyingType) <= sizeof(u32))
             return BitFlagUtil::findOnBitFromRight(mBits, num);
         else
             return BitFlagUtil::findOnBitFromRight64(mBits, num);
     }
 
 protected:
-    static constexpr UnderlyingType orEnums_(std::initializer_list<Enum> list)
+    static UnderlyingType orEnums_(std::initializer_list<Enum> list)
     {
-        UnderlyingType value{};
-        for (auto x : list)
-            value |= static_cast<UnderlyingType>(x);
+        UnderlyingType value = UnderlyingType();
+        std::initializer_list<Enum>::const_iterator it = list.begin();
+        for (; it != list.end(); ++it)
+            value |= static_cast<UnderlyingType>(*it);
         return value;
     }
 

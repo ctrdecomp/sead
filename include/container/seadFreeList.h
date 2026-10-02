@@ -10,6 +10,12 @@ namespace sead
 class FreeList
 {
 public:
+    FreeList(): 
+        mFree(NULL), 
+        mWork(NULL)
+    {
+    }
+
     void setWork(void* work, s32 elem_size, s32 num);
     void reset();
 
@@ -27,8 +33,8 @@ private:
         Node* nextFree;
     };
 
-    Node* mFree = nullptr;
-    void* mWork = nullptr;
+    Node* mFree;
+    void* mWork;
 };
 
 inline void FreeList::setWork(void* work, s32 elem_size, s32 num)

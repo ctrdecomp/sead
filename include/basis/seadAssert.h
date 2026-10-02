@@ -78,8 +78,10 @@
 
 #endif // SEAD_DEBUG
 
-namespace sead { 
-namespace system {
+namespace sead 
+{ 
+namespace system 
+{
 
 void DebugBreak();
 void Halt();

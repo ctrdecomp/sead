@@ -17,8 +17,26 @@ template <typename T>
 class Buffer
 {
 public:
-    Buffer() : mSize(0), mBuffer(NULL) {}
-    Buffer(s32 size, T* buffer) : mSize(size), mBuffer(buffer) {}
+    Buffer() : 
+        mSize(0), 
+        mBuffer(NULL) 
+    {
+    }
+
+    Buffer(s32 size, T* buffer): 
+        mSize(size), 
+        mBuffer(buffer) 
+    {
+        if (size > 0 && bufferptr)
+        {
+            mSize = size;
+            mBuffer = bufferptr;
+        }
+        else
+        {
+            SEAD_ASSERT_MSG(false, "illegal param: size[%d] bufferptr[" SEAD_FMT_UINTPTR "]", size, bufferptr);
+        }
+    }
     template <s32 N>
     Buffer(T (&array)[N]) : Buffer(N, array)
     {

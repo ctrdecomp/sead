@@ -6,19 +6,13 @@
 namespace sead
 {
 template <typename Function>
-class ScopeGuard final
+class ScopeGuard
 {
 public:
-    ScopeGuard(Function&& function) : mFunction(std::move(function)) {}
-    ScopeGuard(ScopeGuard&& other) noexcept
-    {
-        mFunction = std::move(other.mFunction);
-        other.dismiss();
-    }
-
+    explicit ScopeGuard(const Function& function) : mFunction(function) {}
     ~ScopeGuard() { exit(); }
 
-    void dismiss() { mFunction.reset(); }
+    void dismiss() { mFunction = Function(); }
 
     void exit()
     {
@@ -29,13 +23,7 @@ public:
     }
 
 private:
-    std::optional<Function> mFunction;
+    Function mFunction;
 };
 
-/// To work around the lack of CTAD in compilers with incomplete C++17 support.
-template <typename Function>
-[[nodiscard]] ScopeGuard<Function> makeScopeGuard(Function&& function)
-{
-    return ScopeGuard<Function>(std::forward<Function>(function));
-}
 }  // namespace sead

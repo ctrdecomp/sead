@@ -23,7 +23,7 @@ template <typename T>
 class Matrix22 : public Policies<T>::Mtx22Base
 {
 private:
-    using Self = Matrix22<T>;
+    typedef Matrix22<T> Self;
 
 public:
     Matrix22() {}
@@ -53,10 +53,10 @@ template <typename T>
 class Matrix33 : public Policies<T>::Mtx33Base
 {
 private:
-    using Self = Matrix33<T>;
-    using Mtx34 = Matrix34<T>;
+    typedef Matrix33<T> Self;
+    typedef Matrix34<T> Mtx34;
 
-    using Vec3 = Vector3<T>;
+    typedef Vector3<T> Vec3;
 
 public:
     Matrix33() {}
@@ -109,13 +109,13 @@ template <typename T>
 class Matrix34 : public Policies<T>::Mtx34Base
 {
 private:
-    using Self = Matrix34<T>;
-    using Mtx33 = Matrix33<T>;
-    using Mtx44 = Matrix44<T>;
+    typedef Matrix34<T> Self;
+    typedef Matrix33<T> Mtx33;
+    typedef Matrix44<T> Mtx44;
 
-    using Vec3 = Vector3<T>;
-    using Vec4 = Vector4<T>;
-    using QuatT = Quat<T>;
+    typedef Vector3<T> Vec3;
+    typedef Vector4<T> Vec4;
+    typedef Quat<T> QuatT;
 
 public:
     Matrix34() {}
@@ -217,12 +217,12 @@ template <typename T>
 class Matrix44 : public Policies<T>::Mtx44Base
 {
 private:
-    using Self = Matrix44<T>;
-    using Mtx33 = Matrix33<T>;
-    using Mtx34 = Matrix34<T>;
+    typedef Matrix44<T> Self;
+    typedef Matrix33<T> Mtx33;
+    typedef Matrix34<T> Mtx34;
 
-    using Vec3 = Vector3<T>;
-    using Vec4 = Vector4<T>;
+    typedef Vector3<T> Vec3;
+    typedef Vector4<T> Vec4;
 
 public:
     Matrix44() {}

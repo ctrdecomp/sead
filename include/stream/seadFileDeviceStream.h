@@ -13,24 +13,24 @@ class FileDeviceStreamSrc : public StreamSrc
 public:
     FileDeviceStreamSrc();
     FileDeviceStreamSrc(FileHandle* fileHandle);
-    ~FileDeviceStreamSrc() override;
+    virtual ~FileDeviceStreamSrc();
 
-    u32 read(void* buffer, u32 size) override;
-    u32 write(const void* buffer, u32 size) override;
-    u32 skip(s32 offset) override;
-    void rewind() override;
-    bool isEOF() override;
+    virtual u32 read(void* buffer, u32 size);
+    virtual u32 write(const void* buffer, u32 size);
+    virtual u32 skip(s32 offset);
+    virtual void rewind();
+    virtual bool isEOF();
 
     void setFileHandle(sead::FileHandle* fileHandle);
 
     FileHandle* getFileHandle() const { return mFileHandle; }
 
 private:
-    FileHandle* mFileHandle = nullptr;
-    u32 mStartingPos = 0;
+    FileHandle* mFileHandle;
+    u32 mStartingPos;
     FileHandle _18;
-    bool mIsHandleOpen = false;
-    u32 mFileSize = 0;
+    bool mIsHandleOpen;
+    u32 mFileSize;
 };
 
 class FileDeviceWriteStream : public WriteStream
@@ -40,7 +40,7 @@ public:
     FileDeviceWriteStream(StreamFormat* format);
     FileDeviceWriteStream(FileHandle* fileHandle, Stream::Modes mode);
     FileDeviceWriteStream(FileHandle* fileHandle, StreamFormat* format);
-    ~FileDeviceWriteStream() override;
+    virtual ~FileDeviceWriteStream();
 
     void setFileHandle(sead::FileHandle* fileHandle);
 
@@ -57,7 +57,7 @@ public:
     FileDeviceReadStream(StreamFormat* format);
     FileDeviceReadStream(FileHandle* fileHandle, Stream::Modes mode);
     FileDeviceReadStream(FileHandle* fileHandle, StreamFormat* format);
-    ~FileDeviceReadStream() override;
+    virtual ~FileDeviceReadStream();
 
     void setFileHandle(sead::FileHandle* fileHandle);
 
@@ -92,4 +92,5 @@ private:
     BufferReadStreamSrc mBufferSrc;
     u8 mBuffer[0x120];  // NOTE: 0x100 + 0x20 bytes for alignment
 };
+
 }  // namespace sead
