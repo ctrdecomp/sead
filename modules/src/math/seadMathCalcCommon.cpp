@@ -312,7 +312,7 @@ const MathCalcCommon<f32>::AtanSample MathCalcCommon<f32>::cAtanTbl[128 + 1] = {
 };
 
 template <>
-const MathCalcCommon<f32>::ExpSample MathCalcCommon<f32>::cExpTbl[32 + 1]{
+const MathCalcCommon<f32>::ExpSample MathCalcCommon<f32>::cExpTbl[32 + 1] = {
     {0.5, 0.02213689126074314},
     {0.5221368670463562, 0.023116976022720337},
     {0.5452538728713989, 0.024140451103448868},
@@ -349,7 +349,7 @@ const MathCalcCommon<f32>::ExpSample MathCalcCommon<f32>::cExpTbl[32 + 1]{
 };
 
 template <>
-const MathCalcCommon<f32>::LogSample MathCalcCommon<f32>::cLogTbl[256 + 1]{
+const MathCalcCommon<f32>::LogSample MathCalcCommon<f32>::cLogTbl[256 + 1] = {
     {0.0, 0.0038986403960734606},
     {0.0038986403960734606, 0.0038835001178085804},
     {0.007782140281051397, 0.0038684767205268145},

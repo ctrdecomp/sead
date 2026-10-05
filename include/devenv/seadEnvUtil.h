@@ -5,8 +5,35 @@
 
 namespace sead
 {
-SEAD_ENUM(RegionLanguageID, JPja, USen, USes, USfr, USpt, EUen, EUes, EUfr, EUde, EUit, EUpt, EUnl, EUru, KRko, CNzh, TWzh)
-SEAD_ENUM(RegionID, JP, US, EU, KR, CN, TW)
+    enum RegionLanguageID
+    {
+        JPja,
+        USen,
+        USes,
+        USfr,
+        USpt,
+        EUen,
+        EUes,
+        EUfr,
+        EUde,
+        EUit,
+        EUpt,
+        EUnl,
+        EUru,
+        KRko,
+        CNzh,
+        TWzh
+    };
+
+    enum RegionID
+    {
+        JP,
+        US,
+        EU,
+        KR,
+        CN,
+        TW
+    };
 
 class EnvUtil
 {

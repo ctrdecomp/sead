@@ -20,7 +20,6 @@ inline void* addOffset(const void* ptr, intptr_t offset)
 template <typename To, typename From>
 inline To bitCast(From value)
 {
-    static_assert(sizeof(To) == sizeof(From), "To and From must have the same size");
     To result;
     std::memcpy(&result, &value, sizeof(value));
     return result;
@@ -41,7 +40,6 @@ inline To bitCastPtr(const void* value, intptr_t offset = 0)
 template <typename To, typename From>
 inline void bitCastWrite(const From& value, To* ptr)
 {
-    static_assert(sizeof(To) == sizeof(From), "To and From must have the same size");
     std::memcpy(ptr, &value, sizeof(To));
 }
 }  // namespace BitUtil

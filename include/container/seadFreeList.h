@@ -30,6 +30,16 @@ public:
 private:
     struct Node
     {
+        Node(Node* next):
+            nextFree(next)
+        {
+        }
+
+        Node():
+            nextFree(NULL)
+        {
+        }
+
         Node* nextFree;
     };
 
@@ -76,6 +86,6 @@ inline void* FreeList::alloc()
 
 inline void FreeList::free(void* ptr)
 {
-    mFree = new (ptr) Node{mFree};
+    mFree = new (ptr) Node(mFree);
 }
 }  // namespace sead

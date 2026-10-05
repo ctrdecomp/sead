@@ -13,6 +13,6 @@ void TextureUtil::copyOutFrameBufferToTexture(Texture* texture, const FrameBuffe
 
 void TextureUtil::copyOutFrameBufferToTexture(Texture* texture, const FrameBuffer* frameBuffer, const BoundBox2f& texX, const Vector2f& texY)
 {
-    SEAD_ASSERT(false, "Not implement.");
+    SEAD_ASSERT_MSG(false, "Not implement.");
 }
 }

@@ -94,18 +94,18 @@ void GraphicsCtr::setCullingModeImpl(Graphics::CullingMode mode)
 
     switch (mode)
     {
-    case Graphics::cNone:
+    case cNoneCulling:
         mRenderState.cullingTest.isEnable = false;
         break;
 
-    case Graphics::cFront:
-    case Graphics::cBack:
+    case cFrontCulling:
+    case cBackCulling:
         mRenderState.cullingTest.isEnable = true;
 
         mRenderState.cullingTest.cullFace = static_cast<RenderState::Culling::CullFace>(mode);
         break;
 
-    case Graphics::cAll:
+    case cAllCulling:
         SEAD_ASSERT_MSG(false, "Unsupported culling mode.");
         break;
     }

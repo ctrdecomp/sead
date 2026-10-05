@@ -28,15 +28,15 @@ SingleScreenMethodTreeMgr::SingleScreenMethodTreeMgr():
     mRootDrawNode.pushBackChild(&mAppDrawFinalNode);
     mRootDrawNode.pushBackChild(&mSysDrawNode);
 
-    mSysCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mSysDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+    mSysCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mSysDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
 
-    mAppCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mAppDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mAppDrawFinalNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+    mAppCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mAppDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mAppDrawFinalNode.setPauseFlag(MethodTreeNode::cPause_None);
 
-    mRootCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
-    mRootDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+    mRootCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
+    mRootDrawNode.setPauseFlag(MethodTreeNode::cPause_Both);
 }
 
 SingleScreenMethodTreeMgr::~SingleScreenMethodTreeMgr()
@@ -101,22 +101,22 @@ void SingleScreenMethodTreeMgr::pauseAll(bool p)
 {
     if (p)
     {
-        mRootCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
-        mRootDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+        mRootCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
+        mRootDrawNode.setPauseFlag(MethodTreeNode::cPause_Both);
     }
     else
     {
-        mRootCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-        mRootDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mRootCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
+        mRootDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 
 void SingleScreenMethodTreeMgr::pauseAppCalc(bool p)
 {
     if (p)
-        mAppCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+        mAppCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
     else
-        mAppCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mAppCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
 }
 
 void SingleScreenMethodTreeMgr::calc()

@@ -6,8 +6,8 @@
 
 namespace
 {
-constexpr u32 sDaysOfMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-constexpr u32 sDaysSinceJan1[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+const u32 sDaysOfMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+const u32 sDaysSinceJan1[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
 
 u32 convertCalendarDateToDaysSince1970(const sead::CalendarTime::Date& date)
 {

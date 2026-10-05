@@ -1,6 +1,7 @@
 #pragma once
 
 #include <math/ctr/seadQuatCalcCtr.h>
+#include <math/seadQuatCalcCommon.h>
 #ifndef SEAD_MATH_QUAT_H_
 #include <math/seadQuat.h>
 #endif

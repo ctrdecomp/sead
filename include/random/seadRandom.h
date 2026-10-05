@@ -88,7 +88,7 @@ inline f32 Random::getF32Range(f32 a, f32 b)
 // UNCHECKED
 inline f64 Random::getF64()
 {
-    return BitUtil::bitCast<f64>((getU64() >> 12u) | 0x3FF0'0000'0000'0000lu) - 1.0;
+    return BitUtil::bitCast<f64>((getU64() >> 12u) | 0x3FF0000000000000ULL) - 1.0;
 }
 
 // UNCHECKED

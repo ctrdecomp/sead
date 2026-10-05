@@ -189,8 +189,8 @@ protected:
     s32 mBufferSize;
 };
 
-using StringBuilder = StringBuilderBase<char>;
-using WStringBuilder = StringBuilderBase<char16>;
+typedef StringBuilderBase<char> StringBuilder;
+typedef StringBuilderBase<char16> WStringBuilder;
 
 template <s32 N>
 class FixedStringBuilder : public StringBuilder

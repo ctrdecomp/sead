@@ -8,7 +8,7 @@ namespace sead
 {
 namespace system
 {
-void PutStringImpl(const char* fmt, s32 len)
+void PrintStringImpl(const char* fmt, s32 len)
 {
     if(0 < len)
     {
@@ -16,5 +16,7 @@ void PutStringImpl(const char* fmt, s32 len)
     }
     return;
 }
+
+
 }
 }

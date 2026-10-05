@@ -7,7 +7,7 @@ namespace sead
 { 
 namespace system 
 {
-void PutString(const char* fmt, s32 len)
+void PrintString(const char* fmt, s32 len)
 {
     PrintConfig::execCallbacks(PrintConfig::PrintEventArg(fmt, len));
 }

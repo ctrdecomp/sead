@@ -7,38 +7,38 @@
 
 namespace sead {
 
-template <typename T>
-void Matrix34CalcCtr<T>::multiply(Base& o, const Base& a, const Base& b)
+template <>
+void Matrix34CalcCtr<f32>::multiply(Base& o, const Base& a, const Base& b)
 {
-    const T a11 = a.m[0][0];
-    const T a12 = a.m[0][1];
-    const T a13 = a.m[0][2];
-    const T a14 = a.m[0][3];
+    const f32 a11 = a.m[0][0];
+    const f32 a12 = a.m[0][1];
+    const f32 a13 = a.m[0][2];
+    const f32 a14 = a.m[0][3];
 
-    const T a21 = a.m[1][0];
-    const T a22 = a.m[1][1];
-    const T a23 = a.m[1][2];
-    const T a24 = a.m[1][3];
+    const f32 a21 = a.m[1][0];
+    const f32 a22 = a.m[1][1];
+    const f32 a23 = a.m[1][2];
+    const f32 a24 = a.m[1][3];
 
-    const T a31 = a.m[2][0];
-    const T a32 = a.m[2][1];
-    const T a33 = a.m[2][2];
-    const T a34 = a.m[2][3];
+    const f32 a31 = a.m[2][0];
+    const f32 a32 = a.m[2][1];
+    const f32 a33 = a.m[2][2];
+    const f32 a34 = a.m[2][3];
 
-    const T b11 = b.m[0][0];
-    const T b12 = b.m[0][1];
-    const T b13 = b.m[0][2];
-    const T b14 = b.m[0][3];
+    const f32 b11 = b.m[0][0];
+    const f32 b12 = b.m[0][1];
+    const f32 b13 = b.m[0][2];
+    const f32 b14 = b.m[0][3];
 
-    const T b21 = b.m[1][0];
-    const T b22 = b.m[1][1];
-    const T b23 = b.m[1][2];
-    const T b24 = b.m[1][3];
+    const f32 b21 = b.m[1][0];
+    const f32 b22 = b.m[1][1];
+    const f32 b23 = b.m[1][2];
+    const f32 b24 = b.m[1][3];
 
-    const T b31 = b.m[2][0];
-    const T b32 = b.m[2][1];
-    const T b33 = b.m[2][2];
-    const T b34 = b.m[2][3];
+    const f32 b31 = b.m[2][0];
+    const f32 b32 = b.m[2][1];
+    const f32 b33 = b.m[2][2];
+    const f32 b34 = b.m[2][3];
 
     o.m[0][0] = a11 * b11 + a12 * b21 + a13 * b31;
     o.m[0][1] = a11 * b12 + a12 * b22 + a13 * b32;
@@ -56,20 +56,20 @@ void Matrix34CalcCtr<T>::multiply(Base& o, const Base& a, const Base& b)
     o.m[2][3] = a31 * b14 + a32 * b24 + a33 * b34 + a34;
 }
 
-template <typename T>
-void Matrix34CalcCtr<T>::makeQ(Base& o, const Quat& q)
+template <>
+void Matrix34CalcCtr<f32>::makeQ(Base& o, const Quat& q)
 {
     // Assuming the quaternion "q" is normalized
 
-    const T yy = 2 * q.y * q.y;
-    const T zz = 2 * q.z * q.z;
-    const T xx = 2 * q.x * q.x;
-    const T xy = 2 * q.x * q.y;
-    const T xz = 2 * q.x * q.z;
-    const T yz = 2 * q.y * q.z;
-    const T wz = 2 * q.w * q.z;
-    const T wx = 2 * q.w * q.x;
-    const T wy = 2 * q.w * q.y;
+    const f32 yy = 2 * q.y * q.y;
+    const f32 zz = 2 * q.z * q.z;
+    const f32 xx = 2 * q.x * q.x;
+    const f32 xy = 2 * q.x * q.y;
+    const f32 xz = 2 * q.x * q.z;
+    const f32 yz = 2 * q.y * q.z;
+    const f32 wz = 2 * q.w * q.z;
+    const f32 wx = 2 * q.w * q.x;
+    const f32 wy = 2 * q.w * q.y;
 
     o.m[0][0] = 1 - yy - zz;
     o.m[0][1] =     xy - wz;
@@ -88,8 +88,8 @@ void Matrix34CalcCtr<T>::makeQ(Base& o, const Quat& q)
     o.m[2][3] = 0;
 }
 
-template <typename T>
-void Matrix34CalcCtr<T>::makeS(Base& o, const Vec3& s)
+template <>
+void Matrix34CalcCtr<f32>::makeS(Base& o, const Vec3& s)
 {
     o.m[0][0] = s.x;
     o.m[1][0] = 0;
@@ -108,16 +108,16 @@ void Matrix34CalcCtr<T>::makeS(Base& o, const Vec3& s)
     o.m[2][3] = 0;
 }
 
-template <typename T>
-void Matrix34CalcCtr<T>::makeSRT(Base& o, const Vec3& s, const Vec3& r, const Vec3& t)
+template <>
+void Matrix34CalcCtr<f32>::makeSRT(Base& o, const Vec3& s, const Vec3& r, const Vec3& t)
 {
-    const T sinV[3] = { MathCalcCommon<T>::sin(r.x),
-                        MathCalcCommon<T>::sin(r.y),
-                        MathCalcCommon<T>::sin(r.z) };
+    const f32 sinV[3] = { MathCalcCommon<f32>::sin(r.x),
+                        MathCalcCommon<f32>::sin(r.y),
+                        MathCalcCommon<f32>::sin(r.z) };
 
-    const T cosV[3] = { MathCalcCommon<T>::cos(r.x),
-                        MathCalcCommon<T>::cos(r.y),
-                        MathCalcCommon<T>::cos(r.z) };
+    const f32 cosV[3] = { MathCalcCommon<f32>::cos(r.x),
+                        MathCalcCommon<f32>::cos(r.y),
+                        MathCalcCommon<f32>::cos(r.z) };
 
     o.m[0][0] = s.x * (cosV[1] * cosV[2]);
     o.m[1][0] = s.x * (cosV[1] * sinV[2]);
@@ -136,8 +136,8 @@ void Matrix34CalcCtr<T>::makeSRT(Base& o, const Vec3& s, const Vec3& r, const Ve
     o.m[2][3] = t.z;
 }
 
-template <typename T>
-void Matrix34CalcCtr<T>::makeST(Base& o, const Vec3& s, const Vec3& t)
+template <>
+void Matrix34CalcCtr<f32>::makeST(Base& o, const Vec3& s, const Vec3& t)
 {
     o.m[0][0] = s.x;
     o.m[1][0] = 0;
@@ -156,8 +156,8 @@ void Matrix34CalcCtr<T>::makeST(Base& o, const Vec3& s, const Vec3& t)
     o.m[2][3] = t.z;
 }
 
-template <typename T>
-void Matrix44CalcCtr<T>::copy(Base& o, const Mtx34& n, const Vec4& v)
+template <>
+void Matrix44CalcCtr<f32>::copy(Base& o, const Mtx34& n, const Vec4& v)
 {
     o.m[0][0] = n.m[0][0];
     o.m[0][1] = n.m[0][1];
@@ -180,43 +180,43 @@ void Matrix44CalcCtr<T>::copy(Base& o, const Mtx34& n, const Vec4& v)
     o.m[3][3] = v.w;
 }
 
-template <typename T>
-void Matrix44CalcCtr<T>::multiply(Base& o, const Base& a, const Mtx34& b)
+template <>
+void Matrix44CalcCtr<f32>::multiply(Base& o, const Base& a, const Mtx34& b)
 {
-    const T a11 = a.m[0][0];
-    const T a12 = a.m[0][1];
-    const T a13 = a.m[0][2];
-    const T a14 = a.m[0][3];
+    const f32 a11 = a.m[0][0];
+    const f32 a12 = a.m[0][1];
+    const f32 a13 = a.m[0][2];
+    const f32 a14 = a.m[0][3];
 
-    const T a21 = a.m[1][0];
-    const T a22 = a.m[1][1];
-    const T a23 = a.m[1][2];
-    const T a24 = a.m[1][3];
+    const f32 a21 = a.m[1][0];
+    const f32 a22 = a.m[1][1];
+    const f32 a23 = a.m[1][2];
+    const f32 a24 = a.m[1][3];
 
-    const T a31 = a.m[2][0];
-    const T a32 = a.m[2][1];
-    const T a33 = a.m[2][2];
-    const T a34 = a.m[2][3];
+    const f32 a31 = a.m[2][0];
+    const f32 a32 = a.m[2][1];
+    const f32 a33 = a.m[2][2];
+    const f32 a34 = a.m[2][3];
 
-    const T a41 = a.m[3][0];
-    const T a42 = a.m[3][1];
-    const T a43 = a.m[3][2];
-    const T a44 = a.m[3][3];
+    const f32 a41 = a.m[3][0];
+    const f32 a42 = a.m[3][1];
+    const f32 a43 = a.m[3][2];
+    const f32 a44 = a.m[3][3];
 
-    const T b11 = b.m[0][0];
-    const T b12 = b.m[0][1];
-    const T b13 = b.m[0][2];
-    const T b14 = b.m[0][3];
+    const f32 b11 = b.m[0][0];
+    const f32 b12 = b.m[0][1];
+    const f32 b13 = b.m[0][2];
+    const f32 b14 = b.m[0][3];
 
-    const T b21 = b.m[1][0];
-    const T b22 = b.m[1][1];
-    const T b23 = b.m[1][2];
-    const T b24 = b.m[1][3];
+    const f32 b21 = b.m[1][0];
+    const f32 b22 = b.m[1][1];
+    const f32 b23 = b.m[1][2];
+    const f32 b24 = b.m[1][3];
 
-    const T b31 = b.m[2][0];
-    const T b32 = b.m[2][1];
-    const T b33 = b.m[2][2];
-    const T b34 = b.m[2][3];
+    const f32 b31 = b.m[2][0];
+    const f32 b32 = b.m[2][1];
+    const f32 b33 = b.m[2][2];
+    const f32 b34 = b.m[2][3];
 
     o.m[0][0] = a11 * b11 + a12 * b21 + a13 * b31;
     o.m[0][1] = a11 * b12 + a12 * b22 + a13 * b32;
@@ -239,22 +239,28 @@ void Matrix44CalcCtr<T>::multiply(Base& o, const Base& a, const Mtx34& b)
     o.m[3][3] = a41 * b14 + a42 * b24 + a43 * b34 + a44;
 }
 
-template <typename T>
-void Matrix34CalcCtr<T>::setBase(Base& n, s32 axis, const Vec3& v)
+template <>
+void Matrix34CalcCtr<f32>::setBase(Base& n, s32 axis, const Vec3& v)
 {
     n.m[0][axis] = v.x;
     n.m[1][axis] = v.y;
     n.m[2][axis] = v.z;
 }
 
-template <typename T>
-void Matrix34CalcCtr<T>::setTranslation(Base& n, const Vec3& v)
+template <>
+void Matrix34CalcCtr<f32>::setTranslation(Base& n, const Vec3& v)
 {
     setBase(n, 3, v);
 }
 
-template <typename T>
-void Matrix44CalcCtr<T>::getRow(Vec4* v, const Base& n, s32 row)
+template <>
+void Matrix44CalcCtr<f32>::copy(Base& n, const Base& o)
+{
+    MTX44Copy(&n, o);
+}
+
+template <>
+void Matrix44CalcCtr<f32>::getRow(Vec4* v, const Base& n, s32 row)
 {
     v->x = n.m[row][0];
     v->y = n.m[row][1];
@@ -262,13 +268,19 @@ void Matrix44CalcCtr<T>::getRow(Vec4* v, const Base& n, s32 row)
     v->w = n.m[row][3];
 }
 
-template <typename T>
-void Matrix44CalcCtr<T>::setRow(Base& n, const Vec4& v, s32 row)
+template <>
+void Matrix44CalcCtr<f32>::setRow(Base& n, const Vec4& v, s32 row)
 {
     n.m[row][0] = v.x;
     n.m[row][1] = v.y;
     n.m[row][2] = v.z;
     n.m[row][3] = v.w;
+}
+
+template <>
+void Matrix44CalcCtr<f32>::inverse(Base& o, const Base& n)
+{
+    MTX44Inverse(&o, n);
 }
 
 } // namespace sead

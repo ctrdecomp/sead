@@ -6,7 +6,7 @@ CalculateTask::CalculateTask(const TaskConstructArg& arg):
     TaskBase(arg),
     mCalcNode(nullptr)
 {
-    mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+    mCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
 
     mCalcNode.bind(this, &CalculateTask::calc, "CalculateTask");
 }
@@ -15,7 +15,7 @@ CalculateTask::CalculateTask(const TaskConstructArg& arg, const char* name):
     TaskBase(arg, name),
     mCalcNode(nullptr)
 {
-    mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+    mCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
 
     mCalcNode.bind(this, &CalculateTask::calc, name);
 }
@@ -36,7 +36,7 @@ void CalculateTask::attachCalcImpl()
 
     switch (getTag())
     {
-        case Tag::cSystem:
+        case cSystem:
             attachMethodWithCheck(0, &mCalcNode);
             break;
 
@@ -44,7 +44,7 @@ void CalculateTask::attachCalcImpl()
             SEAD_ASSERT_MSG(false, "Undefined Tag(%d).", getTag());
             //! Fallthrough
 
-        case Tag::cApp:
+        case cApp:
             if (!p)
             {
                 attachMethodWithCheck(1, &mCalcNode);
@@ -77,9 +77,9 @@ void CalculateTask::detachDrawImpl()
 void CalculateTask::pauseCalc(bool b)
 {
     if (b)
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Self);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_Self);
     else
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
 }
 
 void CalculateTask::pauseDraw(bool)
@@ -89,9 +89,9 @@ void CalculateTask::pauseDraw(bool)
 void CalculateTask::pauseCalcRec(bool b)
 {
     if (b)
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
     else
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
 }
 
 void CalculateTask::pauseDrawRec(bool)
@@ -101,9 +101,9 @@ void CalculateTask::pauseDrawRec(bool)
 void CalculateTask::pauseCalcChild(bool b)
 {
     if (b)
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Child);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_Child);
     else
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
 }
 
 void CalculateTask::pauseDrawChild(bool)

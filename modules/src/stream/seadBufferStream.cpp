@@ -2,10 +2,10 @@
 
 #include "math/seadMathCalcCommon.h"
 
-namespace sead
+namespace sead 
 {
 BufferReadStreamSrc::BufferReadStreamSrc(StreamSrc* src, void* buffer, u32 buffer_size)
-    : mSrc(src), mBuffer(buffer), mBufferSize(buffer_size)
+    : mSrc(src), mBuffer(buffer), mBufferSize(buffer_size), mCurrentSize(0), mCurrentPos(0)
 {
 }
 
@@ -40,7 +40,7 @@ u32 BufferReadStreamSrc::read(void* data, u32 size)
     return totalBytesRead;
 }
 
-u32 BufferReadStreamSrc::write([[maybe_unused]] const void* data, [[maybe_unused]] u32 size)
+u32 BufferReadStreamSrc::write(const void* data, u32 size)
 {
     return 0;
 }
@@ -86,7 +86,7 @@ BufferReadStream::~BufferReadStream()
 }
 
 BufferWriteStreamSrc::BufferWriteStreamSrc(StreamSrc* src, void* buffer, u32 buffer_size)
-    : mSrc(src), mBuffer(buffer), mBufferSize(buffer_size)
+    : mSrc(src), mBuffer(buffer), mBufferSize(buffer_size), mCurrentPos(0)
 {
 }
 
@@ -117,7 +117,7 @@ u32 BufferWriteStreamSrc::write(const void* data, u32 size)
     return totalBytesWritten;
 }
 
-u32 BufferWriteStreamSrc::skip([[maybe_unused]] s32 offset)
+u32 BufferWriteStreamSrc::skip(s32 offset)
 {
     return 0;
 }
@@ -150,6 +150,86 @@ BufferWriteStream::~BufferWriteStream()
 {
     flush();
     setSrc(nullptr);
+}
+
+BufferMultiByteTextWriteStreamSrc::BufferMultiByteTextWriteStreamSrc(StreamSrc* src, void* start, u32 size)
+    : BufferWriteStreamSrc(src, start, size)
+{
+    SEAD_ASSERT_MSG(size >= 4, "size[%u] must be larger or equal than 4", size);
+}
+
+u32 BufferMultiByteTextWriteStreamSrc::write(const void* src, u32 size)
+{
+    u32 writeSize = 0;
+    const u8* data = static_cast<const u8*>(src);
+
+    do
+    {
+        if (mCurrentPos < mBufferSize)
+        {
+            u32 remainBufSize = mBufferSize - mCurrentPos;
+            u32 writeStep = size - writeSize;
+
+            if (writeStep > remainBufSize)
+            {
+                writeStep = remainBufSize;
+
+                u32 characterOffset = 0;
+
+                u8 lastByte = data[writeSize + remainBufSize - 1];
+                if ((lastByte & 0x80) != 0)
+                {
+                    if ((lastByte & 0xC0) == 0x80)
+                    {
+                        for (s32 i = 2; i <= Mathi::min(remainBufSize, 4); i++)
+                        {
+                            lastByte = data[writeSize + remainBufSize - i];
+                            if ((lastByte & 0xC0) != 0x80)
+                            {
+                                s32 multiByteLen = 0;
+                                if ((lastByte & 0xE0) == 0xC0)
+                                    multiByteLen = 2;
+                                else if ((lastByte & 0xF0) == 0xE0)
+                                    multiByteLen = 3;
+                                else if ((lastByte & 0xF8) == 0xF0)
+                                    multiByteLen = 4;
+
+                                if (multiByteLen > i)
+                                    characterOffset = i;
+
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        characterOffset = 1;
+                    }
+                }
+
+                if (characterOffset > 0)
+                {
+                    writeStep = remainBufSize - characterOffset;
+                    reinterpret_cast<u8*>(mBuffer)[mBufferSize - characterOffset] = 0;
+                }
+            }
+
+            MemUtil::copy((u8*)mBuffer + mCurrentPos, data + writeSize, writeStep);
+
+            writeSize += writeStep;
+            mCurrentPos += writeStep;
+        }
+    } while (writeSize < size && flush());
+
+    return writeSize;
+}
+
+bool BufferMultiByteNullTerminatedTextWriteStreamSrc::flush()
+{
+    SEAD_ASSERT(mCurrentPos <= mBufferSize);
+
+    reinterpret_cast<u8*>(mBuffer)[mCurrentPos] = '\0';
+    return BufferWriteStreamSrc::flush();
 }
 
 }  // namespace sead

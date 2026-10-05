@@ -12,10 +12,9 @@ public:
         CtrFileStreamFileDevice("backup")
     {
     }
-protected:
 
     virtual ~CtrBackupFileDevice(){ }
-
+protected:
     virtual const char* getArchiveName_() const;
 };
 }

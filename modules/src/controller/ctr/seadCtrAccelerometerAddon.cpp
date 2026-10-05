@@ -14,9 +14,13 @@ CtrAccelerometerAddon::CtrAccelerometerAddon(Controller* controller):
 {
 }
 
+CtrAccelerometerAddon::~CtrAccelerometerAddon()
+{
+}
+
 bool CtrAccelerometerAddon::calc()
 {
-    CtrHidDevice* ctrDevice = DynamicCast<CtrHidDevice>(static_cast<ControlDevice*>(getController()->getMgr()->getControlDevice(ControllerDefine::DeviceId::cDevice_CtrHid)));
+    CtrHidDevice* ctrDevice = DynamicCast<CtrHidDevice>(static_cast<ControlDevice*>(getController()->getMgr()->getControlDevice(ControllerDefine::cDevice_CtrHid)));
 
     if (ctrDevice == nullptr)
     {

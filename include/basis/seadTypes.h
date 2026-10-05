@@ -20,12 +20,6 @@ typedef int64_t s64;
 typedef float f32;
 typedef double f64;
 
-#if defined(__cplusplus) && __cplusplus >= 201103L
-typedef char16_t char16;
-#else
-typedef unsigned short char16;
-#endif
-
 typedef size_t size_t;
 
 /* Maintain compatability with nullptr hack */
@@ -33,5 +27,17 @@ typedef size_t size_t;
 #ifndef nullptr
 #define nullptr NULL
 #endif
+
+template <typename T>
+struct RemovePointer
+{
+    typedef T Type;
+};
+
+template <typename T>
+struct RemovePointer<T*>
+{
+    typedef T Type;
+};
 
 #endif  // SEAD_NEW_H_

@@ -55,5 +55,5 @@ modules/src/controller/win/*
 modules/src/framework/win/*
 docs/ctr/*
 lib/glad/*
-lib/CtrSDK/*
+lib/CTR_SDK/*
 lib/Nw4cEngine/*

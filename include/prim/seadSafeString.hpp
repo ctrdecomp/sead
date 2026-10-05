@@ -938,8 +938,6 @@ template <typename T>
 inline s32 BufferedSafeStringBase<T>::convertFromMultiByteString(const SafeStringBase<char>& str,
                                                                  s32 str_length)
 {
-    if (sizeof(T) == sizeof(char))
-        return copy(str, str_length);
     return convertFromOtherType_(str, str_length);
 }
 
@@ -947,8 +945,6 @@ template <typename T>
 inline s32 BufferedSafeStringBase<T>::convertFromWideCharString(const SafeStringBase<char16>& str,
                                                                 s32 str_length)
 {
-    if (sizeof(T) == sizeof(char16))
-        return copy(str, str_length);
     return convertFromOtherType_(str, str_length);
 }
 

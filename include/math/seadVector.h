@@ -9,11 +9,30 @@
 namespace sead {
 template <typename T>
 struct Vector2 : public Policies<T>::Vec2Base {
-    /// @warning This constructor leaves member variables uninitialized.
-    Vector2() {}
+    typedef T ValueType;
+    typedef Vector2<T> Self;
 
-    Vector2(const Vector2& other) {};
-    Vector2(T x, T y);
+    static const Self zero;
+    static const Self ex;
+    static const Self ey;
+    static const Self ones;
+
+    /// @warning This constructor leaves member variables uninitialized.
+    Vector2()
+        : Policies<T>::Vec2Base(0, 0)
+    {
+    }
+
+    template <typename Vec>
+    Vector2(const Vec& v)
+        : Policies<T>::Vec2Base(v.x, v.y)
+    {
+    }
+
+    Vector2(T x_, T y_)
+        : Policies<T>::Vec2Base(x_, y_)
+    {
+    }
 
     Vector2& operator=(const Vector2& other);
 
@@ -69,17 +88,16 @@ struct Vector2 : public Policies<T>::Vec2Base {
 
     bool isZero() const { return *this == zero; }
     bool isNan() const { return sead::Mathf::isNan(this->x) || sead::Mathf::isNan(this->y); }
-
-    static const Vector2 zero;
-    static const Vector2 ex;
-    static const Vector2 ey;
-    static const Vector2 ones;
 };
 
 template <typename T>
 struct Vector3 : public Policies<T>::Vec3Base {
     typedef typename Policies<T>::Mtx33Base Mtx33;
     typedef typename Policies<T>::Mtx34Base Mtx34;
+
+    typedef typename Policies<T>::Mtx44Base Mtx44;
+
+    typedef Vector3<T> Self;
 
     /// @warning This constructor leaves member variables uninitialized.
     Vector3() {}
@@ -169,6 +187,8 @@ struct Vector3 : public Policies<T>::Vec3Base {
 
 template <typename T>
 struct Vector4 : public Policies<T>::Vec4Base {
+    typedef Vector4<T> Self;
+
     /// @warning This constructor leaves member variables uninitialized.
     Vector4() {}
 
@@ -209,6 +229,9 @@ struct Vector4 : public Policies<T>::Vec4Base {
 
     bool operator!=(const Vector4& rhs) const { return !operator==(rhs); }
 
+    T dot(const Self& t) const;
+    T length() const;
+    T normalize();
     void set(const Vector4& v);
     void set(T x_, T y_, T z_, T w_);
 

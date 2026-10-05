@@ -29,7 +29,15 @@ typedef TListNode<Thread*> ThreadListNode;
 class Thread : public IDisposer, public INamable, public hostio::Reflexible
 {
 public:
-    SEAD_ENUM(State, cInitialized, cRunning, cQuitting, cTerminated, cReleased)
+    enum State
+    {
+        cInitialized,
+        cRunning,
+        cQuitting,
+        cTerminated,
+        cReleased
+    };
+
 
     Thread(const SafeString& name, Heap* heap, s32 priority, MessageQueue::BlockType block_type,
         MessageQueue::Element quit_msg, s32 stack_size, s32 message_queue_size);
@@ -37,7 +45,7 @@ public:
     virtual ~Thread();
 
     Thread(const Thread&){ };
-    Thread& operator=(const Thread&){ };
+    Thread& operator=(const Thread&){ return *this; };
 
     virtual void destroy() { waitDone(); }
 
@@ -59,10 +67,10 @@ public:
 
     u32 getId() const { return mId; }
     State getState() const { return mState; }
-    bool isDone() const { return mState == State::cTerminated || mState == State::cReleased; }
-    bool isActive() const { return mState == State::cRunning || mState == State::cQuitting; }
+    bool isDone() const { return mState == cTerminated || mState == cReleased; }
+    bool isActive() const { return mState == cRunning || mState == cQuitting; }
 
-    void* GetStackBottom() const { return PtrUtil::addOffset(mStackTop, mStackSize); }
+    uptr GetStackBottom() const { return (uptr)PtrUtil::addOffset(mStackTop, mStackSize); }
 
     static void yield();
     static void sleep(TickSpan howLong);
@@ -80,7 +88,12 @@ public:
     bool isDefaultPriority() const { return getPriority() == cDefaultPriority; }
 
     Heap* getCurrentHeap() const { return mCurrentHeap; }
-    Heap* setCurrentHeap(Heap* heap) { return std::exchange(mCurrentHeap, heap); }
+    Heap* setCurrentHeap(Heap* heap)
+    {
+        Heap* oldHeap = mCurrentHeap;
+        mCurrentHeap = heap;
+        return oldHeap;
+    }
     FindContainHeapCache* getFindContainHeapCache() { return &mFindContainHeapCache; }
 
     static const s32 cDefaultSeadPriority;
@@ -90,16 +103,15 @@ public:
     static const s32 cDefaultMsgQueueSize = 32;
     static const s32 cDefaultStackSize = 0x1000;
     static const s32 cDefaultQuitMsg = 0x7FFFFFFF;
-
-    static void ctrThreadFunc_(uptr param);
 protected:
+    static void ctrThreadFunc_(uptr param);
+
     virtual void run_();
     virtual void calc_(MessageQueue::Element msg) = 0;
 
     virtual uintptr_t getStackCheckStartAddress_() const;
 
     void initStackCheck_();
-
 
     MessageQueue mMessageQueue;
     s32 mStackSize;
@@ -136,19 +148,6 @@ public:
     static void quitAndWaitDoneMultipleThread(Thread** threads, s32 num, bool is_jam);
 
     CriticalSection* getListCS() { return &mListCS; }
-
-    bool tryRemoveFromFindContainHeapCache(Heap* heap){
-        const ThreadList::iterator end = mList.end();
-        ScopedLock<CriticalSection> lock(getListCS());
-        bool found = false;
-        for (ThreadList::iterator it = mList.begin(); it != end; ++it){
-            bool result = !(*it)->getFindContainHeapCache()->tryRemoveHeap(heap);
-            found |= result;
-            if (result)
-                break;
-        }
-        return found;
-    }
 
 #ifdef SEAD_DEBUG
     void initHostIO();
@@ -189,7 +188,7 @@ public:
         Thread(heap, nn_thread, thread_id)
     {}
 
-    virtual ~MainThread() { mState = State::cTerminated; }
+    virtual ~MainThread() { mState = cTerminated; }
 
     virtual void destroy() { SEAD_ASSERT_MSG(false, "Main thread can not destroy"); }
     virtual void quit(bool) { SEAD_ASSERT_MSG(false, "Main thread can not quit"); }

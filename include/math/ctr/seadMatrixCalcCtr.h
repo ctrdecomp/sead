@@ -1,8 +1,31 @@
 #pragma once
 
 #include <math/seadMathPolicies.h>
+#include <math/seadVector.h>
 
-namespace sead {
+namespace sead 
+{
+
+// TODO IMPL
+template <typename T>
+class Matrix22CalcCtr
+{
+public:
+    typedef typename Policies<T>::Mtx22Base Base;
+
+public:
+    static void makeIdentity(Base& o);
+    static void makeZero(Base& o);
+
+    static void copy(Base& o, const Base& n);
+    static void inverse(Base& o, const Base& n);
+    static void inverseTranspose(Base& o, const Base& n);
+    static void multiply(Base& o, const Base& a, const Base& b);
+    static void transpose(Base& o);
+    static void transposeTo(Base& o, const Base& n);
+
+    static void makeRIdx(Base& o, u32 r);
+};
 
 template <typename T>
 class Matrix34CalcCtr
@@ -53,8 +76,8 @@ public:
 
     static void setCol(Base& n, s32 axis, const Vec4& v);
     static void setRow(Base& n, const Vec4& v, s32 row);
+
+    static void inverse(Base& o, const Base& n);
 };
 
 } // namespace sead
-
-#include <math/seadMatrixCalcCommon.hpp>

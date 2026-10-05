@@ -3,10 +3,11 @@
 // Project: StandardEAD C++ Library for CTR
 
 #include <gfx/seadStereoUtil.h>
+#include <math/seadVector.h>
 
 namespace
 {
-    Vector2f cSrcSize;
+    sead::Vector2f cSrcSize;
 }
 
 namespace sead

@@ -18,7 +18,7 @@ Thread::Thread(const SafeString& name, Heap* heap, s32 priority, MessageQueue::B
     mBlockType(block_type), 
     mQuitMsg(quit_msg),
     mId(0),
-    mState(State::cInitialized),
+    mState(cInitialized),
     mPriority(priority)
 {
     mMessageQueue.allocate(message_queue_size, heap);
@@ -39,10 +39,10 @@ Thread::Thread(Heap* heap, nn::os::Thread* pThread, u32 thread_id):
     mListNode(this),
     mCurrentHeap(nullptr),
     mFindContainHeapCache(),
-    mBlockType(MessageQueue::BlockType::NonBlocking), 
+    mBlockType(MessageQueue::cNoBlock), 
     mQuitMsg(0),
     mId(thread_id),
-    mState(State::cInitialized)
+    mState(cInitialized)
 {
     pThread->GetPriority();
     mMessageQueue.allocate(32, heap);
@@ -60,9 +60,9 @@ Thread::~Thread()
     {
         ThreadMgr::instance()->removeThread_(this);
 
-        if (mState != State::cQuitting && mState != State::cTerminated)
+        if (mState != cQuitting && mState != cTerminated)
         {
-            if (mState == State::cRunning)
+            if (mState == cRunning)
             {
                 SEAD_ASSERT_MSG(false, "Thread is running. Do quit and waitDone");
                 quitAndWaitDoneSingleThread(false);
@@ -96,26 +96,26 @@ bool Thread::start()
 
     mThreadInner->TryStart(ctrThreadFunc_, reinterpret_cast<uptr>(this), *this, mPriority);
 
-    if (mState == State::cInitialized)
-        mState = State::cRunning;
+    if (mState == cInitialized)
+        mState = cRunning;
 
     return true;
 }
 
 void Thread::waitDone()
 {
-    if ((mState.value() | State::cReleased) == State::cReleased)
+    if ((mState | cReleased) == cReleased)
         return;
 
     mThreadInner->Join();
-    SEAD_ASSERT_MSG(mState == State::cTerminated, "Join failed?");
-    mState = State::cReleased;
+    SEAD_ASSERT_MSG(mState == cTerminated, "Join failed?");
+    mState = cReleased;
 }
 
 void Thread::setPriority(s32 prio)
 {
     mPriority = prio;
-    if(isActive)
+    if(isActive())
     {
         Thread* thread = ThreadMgr::instance()->getCurrentThread();
         if(thread == this)
@@ -143,7 +143,8 @@ void Thread::yield()
 void Thread::sleep(TickSpan howLong)
 {
     nn::os::Thread* thread;
-    thread->Sleep(howLong.toS64());
+    nn::os::Tick tick(howLong.toS64());
+    thread->Sleep(tick);
 }
 
 uintptr_t Thread::getStackCheckStartAddress_() const
@@ -158,10 +159,10 @@ void Thread::ctrThreadFunc_(uptr arg)
     ThreadMgr::instance()->mThreadPtrTLS.setValue(reinterpret_cast<uintptr_t>(self));
 
     const u32 id = self->mThreadInner->GetCurrentId();
-    self->mState = State::cRunning;
+    self->mState = cRunning;
     self->mId = id;
     self->run_();
-    self->mState = State::cTerminated;
+    self->mState = cTerminated;
 }
 
 /* sead::ThreadMgr */

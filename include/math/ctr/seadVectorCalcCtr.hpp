@@ -1,10 +1,10 @@
 #pragma once
 
-#include <nn/math/math_Vec3.h>
+#include <nn/math/math_Vector3.h>
 
 #include <math/seadMathCalcCommon.h>
 #ifndef SEAD_MATH_VECTOR_CALC_COMMON_H_
-#include <math/seadVectorCalcCtr.h>
+#include <math/ctr/seadVectorCalcCtr.h>
 #endif
 
 namespace sead 
@@ -36,6 +36,8 @@ inline void Vector2CalcCtr<T>::set(Base& v, T x, T y)
     v.x = x;
     v.y = y;
 }
+
+/* Vector3CalcCtr */
 
 template <typename T>
 inline void Vector3CalcCtr<T>::add(Base& o, const Base& a, const Base& b) 

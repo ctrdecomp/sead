@@ -1,9 +1,12 @@
 #ifndef SEAD_PRIMITIVE_RENDERER_H_
 #define SEAD_PRIMITIVE_RENDERER_H_
 
+#include <math/seadBoundBox.h>
 #include <math/seadVector.h>
 #include <math/seadMatrix.h>
 #include <heap/seadDisposer.h>
+#include <prim/seadSafeString.h>
+#include <gfx/seadColor.h>
 
 namespace sead
 {
@@ -137,7 +140,7 @@ public:
     };
     
     PrimitiveRenderer();
-    virtual ~PrimitiveRenderer() {}
+    virtual ~PrimitiveRenderer();
 
     void prepareFromBinary(Heap* heap, const void* bin_data, u32 bin_size);
     void prepare(Heap* heap, const SafeString& path);

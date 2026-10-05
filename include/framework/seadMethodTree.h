@@ -29,18 +29,21 @@ public:
         cPause_Both = 3,
     };
 
-    using PauseEventDelegate = IDelegate2<MethodTreeNode*, PauseFlag>;
+    typedef IDelegate2<MethodTreeNode*, PauseFlag> PauseEventDelegate;
+
+    MethodTreeNode()
+    {
+    }
 
     explicit MethodTreeNode(CriticalSection* cs) : 
         TTreeNode(this), 
         INamable(), 
         IDisposer(), 
-        mDelegateHolder(),
+        mDelegate(),
         mCriticalSection(cs),
         mPauseFlag(cPause_None), 
-        mPauseEventDelegate(nullptr), 
-        mUserID(nullptr)
-
+        mPauseEventDelegate(NULL), 
+        mUserID(NULL)
     {
     }
 
@@ -50,7 +53,7 @@ public:
     void bind(T* object, typename Delegate<T>::PTMF method, const char* name)
     {
         lock_();
-        mDelegateHolder.bind(object, method);
+        mDelegate.bind(object, method);
         unlock_();
 
         if (name)
@@ -78,7 +81,7 @@ private:
     void lock_();
     void unlock_();
 
-    StorageFor<sead::AnyDelegate> mDelegateHolder;
+    AnyDelegate mDelegate;
     mutable CriticalSection* mCriticalSection;
     u32 mPriority;
     BitFlag32 mPauseFlag;

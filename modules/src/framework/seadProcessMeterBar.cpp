@@ -1,6 +1,7 @@
 #include <framework/seadProcessMeterBar.h>
 
 #include <framework/seadProcessMeter.h>
+#include <time/seadTickSpan.h>
 
 namespace sead {
 
@@ -130,7 +131,7 @@ void ProcessMeterBarBase::measureEndImpl_(const TickTime& arg)
     }
 
     Section* last = getCurSection_(mTopSection);
-    if (t - last->begin < 0)
+    if ((t - last->begin).toS64() < 0)
         t = last->begin;
 
     SEAD_ASSERT_MSG(mTopSection >= 0, "Unmatching measureBegin / measureEnd.");

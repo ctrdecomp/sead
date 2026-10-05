@@ -25,7 +25,7 @@ void FrameBufferCtr::clear(u32 clr_flag, const Color4f& color, f32 depth, u32 st
     if (clr_flag & FrameBuffer::cStencil)
         buffer_bit |= nn::gr::CTR::FrameBuffer::STENCIL_BUFFER_BIT;
 
-    MemUtil::copy(nn_buffer.colorBuffer.clearColor, color.c, sizeof(sizeof(color.c[4])));
+    MemUtil::copy(nn_buffer.colorBuffer.clearColor, color.c.c, sizeof(sizeof(color.c.c[4])));
 
     nn_buffer.depthStencilBuffer.clearDepth = depth;
     nn_buffer.depthStencilBuffer.clearStencil = stencil;

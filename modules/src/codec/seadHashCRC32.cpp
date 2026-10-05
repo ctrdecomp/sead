@@ -1,5 +1,3 @@
-#include <array>
-
 #include <codec/seadHashCRC32.h>
 
 namespace sead
@@ -9,7 +7,7 @@ bool HashCRC32::sInitialized = false;
 
 void HashCRC32::initialize()
 {
-    for (u32 i = 0; i < std::size(sTable); ++i)
+    for (u32 i = 0; i < sizeof(sTable) / sizeof(sTable[0]); ++i)
     {
         u32 val = i;
         for (int j = 0; j < 8; ++j)

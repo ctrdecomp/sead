@@ -11,7 +11,9 @@ CriticalSection::CriticalSection():
 {
 }
 
-CriticalSection::~CriticalSection(){}
+CriticalSection::~CriticalSection()
+{
+}
 
 void CriticalSection::lock()
 {

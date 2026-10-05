@@ -36,7 +36,7 @@ public:
 
     virtual float getHeight() const = 0;
     virtual float getWidth() const = 0;
-    virtual float getCharWidth(char16_t c) const = 0;
+    virtual float getCharWidth(char16 c) const = 0;
     virtual u32 getEncoding() const = 0;
     virtual u32 getMaxDrawNum() const = 0;
     virtual void begin() const = 0;

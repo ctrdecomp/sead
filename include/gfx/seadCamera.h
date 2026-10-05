@@ -48,6 +48,11 @@ public:
         doUpdateMatrix(&mMatrix);
     }
 
+    void unprojectByMatrix(Vector3f* dst, const Vector3f& cameraPos) const
+    {
+        cameraPosToWorldPosByMatrix(dst, cameraPos);
+    }
+
 private:
     Matrix34f mMatrix;
 };
@@ -56,7 +61,13 @@ class LookAtCamera : public Camera
 {
     SEAD_RTTI_OVERRIDE(LookAtCamera, Camera)
 public:
-    LookAtCamera(){ };
+    LookAtCamera::LookAtCamera(): 
+        mPos(0.0f, 0.0f, 10.0f),
+        mAt(0.0f, 0.0f, 0.0f),
+        mUp(0.0f, 1.0f, 0.0f)
+    {
+    }
+
     LookAtCamera(const Vector3f& pos, const Vector3f& at, const Vector3f& up);
     virtual ~LookAtCamera();
     virtual void doUpdateMatrix(Matrix34f* dst) const;
@@ -74,9 +85,9 @@ public:
     void addAt(const Vector3f& at) { mAt += at; }
 
 private:
-    Vector3f mPos = {0.0f, 0.0f, 10.0f};
-    Vector3f mAt = {0.0f, 0.0f, 0.0f};
-    Vector3f mUp = {0.0f, 1.0f, 0.0f};
+    Vector3f mPos;
+    Vector3f mAt;
+    Vector3f mUp;
 };
 
 class DirectCamera : public Camera

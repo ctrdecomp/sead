@@ -14,11 +14,16 @@ namespace StringUtil
 {
 struct Char16Pair
 {
+    Char16Pair(char16 cBefore, char16 cAfter):
+        before(cBefore),
+        after(cAfter)
+    {
+    }
     char16 before;
     char16 after;
 };
 
-enum class CardinalNumber
+enum CardinalNumber
 {
     BaseAuto = -1,
     Base2 = 2,

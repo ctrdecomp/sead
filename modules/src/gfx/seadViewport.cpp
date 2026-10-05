@@ -1,5 +1,6 @@
 #include <gfx/seadViewport.h>
 #include <gfx/seadFrameBuffer.h>
+#include <gfx/seadProjection.h>
 
 namespace sead 
 {
@@ -117,4 +118,29 @@ void Viewport::apply(const LogicalFrameBuffer& frame_buffer) const
     Graphics::instance()->setScissorRealPosition(real_pos.x, real_pos.y, real_size.x, real_size.y);
 }
 
+void Viewport::project(Vector2f* dst, const Vector3f& screenPos) const
+{
+    Vector2f center = getCenter();
+
+    dst->x = getHalfSizeX() * screenPos.x;
+    dst->y = getHalfSizeY() * screenPos.y;
+}
+
+void Viewport::project(Vector2f* dst, const Vector2f& screenPos) const
+{
+    Vector2f center = getCenter();
+
+    dst->x = getHalfSizeX() * screenPos.x;
+    dst->y = getHalfSizeY() * screenPos.y;
+}
+
+void Viewport::unproject(Vector3f* dst, const Vector2f& canvasPos, const Projection& projection, const Camera& camera) const
+{
+    Vector3f screenPos;
+    screenPos.x = canvasPos.x / getHalfSizeX();
+    screenPos.y = canvasPos.y / getHalfSizeY();
+    screenPos.z = 0.0f;
+
+    projection.unproject(dst, screenPos, camera);
+}
 }  // namespace sead

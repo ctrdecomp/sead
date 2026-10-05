@@ -42,19 +42,26 @@ StringBuilderBase<T>* StringBuilderBase<T>::createImpl_(s32 buffer_size, Heap* h
     if (!heap)
         heap = HeapMgr::instance()->getCurrentHeap();
 
-    if (alignment > s32(alignof(StringBuilderBase<T>)))
+    if (alignment > s32(__alignof__(StringBuilderBase<T>)))
     {
-        const s32 buffer_offset = Mathi::roundUpPow2(sizeof(StringBuilderBase<T>), alignment);
-        void* buffer = heap->alloc(buffer_offset + buffer_size * sizeof(T), alignment);
+        const s32 buffer_offset =
+            Mathi::roundUpPow2(sizeof(StringBuilderBase<T>), alignment);
+
+        void* buffer =
+            heap->alloc(buffer_offset + buffer_size * sizeof(T), alignment);
+
         return new (buffer) StringBuilderBase<T>(
             static_cast<T*>(PtrUtil::addOffset(buffer, buffer_offset)), buffer_size);
     }
     else
     {
-        void* buffer = heap->alloc(buffer_size * sizeof(T) + sizeof(StringBuilderBase<T>),
-                                   alignof(StringBuilderBase<T>));
+        void* buffer =
+            heap->alloc(buffer_size * sizeof(T) + sizeof(StringBuilderBase<T>),
+                        __alignof__(StringBuilderBase<T>));
+
         return new (buffer) StringBuilderBase<T>(
-            static_cast<T*>(PtrUtil::addOffset(buffer, sizeof(StringBuilderBase<T>))), buffer_size);
+            static_cast<T*>(PtrUtil::addOffset(buffer, sizeof(StringBuilderBase<T>))),
+            buffer_size);
     }
 }
 
@@ -427,7 +434,6 @@ s32 StringBuilderBase<T>::append(T c, s32 num)
 template s32 StringBuilder::append(char c, s32 n);
 template s32 WStringBuilder::append(char16 c, s32 n);
 
-template <typename T>
 static void failChop_(s32 chop_num, s32 length)
 {
     SEAD_ASSERT_MSG(false, "chop_num(%d) out of range[0, %d]", chop_num, length);
@@ -441,13 +447,13 @@ s32 StringBuilderBase<T>::chop(s32 chop_num)
 
     if (chop_num < 0)
     {
-        failChop_<T>(chop_num, length);
+        failChop_(chop_num, length);
         return 0;
     }
 
     if (chop_num > length)
     {
-        failChop_<T>(chop_num, length);
+        failChop_(chop_num, length);
         length = mLength;
         chop_num = mLength;
     }
@@ -528,7 +534,7 @@ template s32 StringBuilder::chopUnprintableAsciiChar();
 template s32 WStringBuilder::chopUnprintableAsciiChar();
 
 template <typename T>
-static bool shouldStripChar_(const T* characters, const T* buffer, s32 idx)
+static bool shouldStripChar_(const T* characters, T* buffer, s32 idx)
 {
     for (const T* it = characters; *it; ++it)
     {
@@ -547,8 +553,25 @@ s32 StringBuilderBase<T>::rstrip(const T* characters)
 
     T* buffer = mBuffer;
     s32 new_length = length;
-    while (new_length >= 1 && shouldStripChar_(characters, buffer, new_length - 1))
+
+    while (new_length >= 1)
+    {
+        bool strip = false;
+
+        for (const T* it = characters; *it; ++it)
+        {
+            if (buffer[new_length - 1] == *it)
+            {
+                strip = true;
+                break;
+            }
+        }
+
+        if (!strip)
+            break;
+
         --new_length;
+    }
 
     if (length <= new_length)
         return 0;
@@ -557,9 +580,6 @@ s32 StringBuilderBase<T>::rstrip(const T* characters)
     mLength = new_length;
     return length - new_length;
 }
-
-template s32 StringBuilder::rstrip(const char* characters);
-template s32 WStringBuilder::rstrip(const char16* characters);
 
 // NON_MATCHING: equivalent, two instruction reorders
 template <typename T>
@@ -753,25 +773,26 @@ s32 StringBuilderBase<T>::convertFromOtherType_(const OtherType* src, s32 src_si
 template <typename T>
 s32 StringBuilderBase<T>::convertFromMultiByteString(const char* str, s32 str_length)
 {
-    if (sizeof(T) == sizeof(char))
-        return copy(str, str_length);
-    else
-        return convertFromOtherType_(str, str_length);
+    return convertFromOtherType_(str, str_length);
 }
 
 template <typename T>
 s32 StringBuilderBase<T>::convertFromWideCharString(const char16* str, s32 str_length)
 {
-    if (sizeof(T) == sizeof(char16))
-        return copy(str, str_length);
-    else
-        return convertFromOtherType_(str, str_length);
+    return convertFromOtherType_(str, str_length);
 }
 
-template s32 StringBuilder::convertFromMultiByteString(const char* str, s32 str_length);
-template s32 StringBuilder::convertFromWideCharString(const char16* str, s32 str_length);
-template s32 WStringBuilder::convertFromMultiByteString(const char* str, s32 str_length);
-template s32 WStringBuilder::convertFromWideCharString(const char16* str, s32 str_length);
+template <>
+s32 StringBuilderBase<char>::convertFromMultiByteString(const char* str, s32 str_length)
+{
+    return copy(str, str_length);
+}
+
+template <>
+s32 StringBuilderBase<char16>::convertFromWideCharString(const char16* str, s32 str_length)
+{
+    return copy(str, str_length);
+}
 
 template <typename T>
 s32 StringBuilderBase<T>::cutOffAppend(const T* str, s32 append_length)

@@ -53,7 +53,7 @@ public:
         s32 mValue;
     };
 
-    enum class Week
+    enum Week
     {
         Sunday,
         Monday,

@@ -10,10 +10,10 @@ namespace sead
 class Graphics : public IDisposer
 {
 protected:
-    using UnknownCallback = void (*)(int);
+    typedef void (*UnknownCallback)(int);
 
 public:
-    using LockFunc = void (*)(bool isLock);
+    typedef void (*LockFunc)(bool isLock);
     
     enum DevicePosture
     {
@@ -29,108 +29,98 @@ public:
 
     enum DepthFunc
     {
-        cLessEqual = GL_LEQUAL,
-        cLess = GL_LESS,
-        cGreaterEqual = GL_GEQUAL,
-        cGreater = GL_GREATER,
-        cAlways = GL_ALWAYS,
-        cNever = GL_NEVER,
-        cEqual = GL_EQUAL,
-        cNotEqual = GL_NOTEQUAL,
-        cInvalid = 0xFFFFFFFF
+        cLessEqualDepth = GL_LEQUAL,
+        cLessDepth = GL_LESS,
+        cGreaterEqualDepth = GL_GEQUAL,
+        cGreaterDepth = GL_GREATER,
+        cAlwaysDepth = GL_ALWAYS,
+        cNeverDepth = GL_NEVER,
+        cEqualDepth = GL_EQUAL,
+        cNotEqualDepth = GL_NOTEQUAL,
+        cInvalidDepth = 0xFFFFFFFF
     };
 
     enum CullingMode
     {
-        cFront = GL_FRONT,
-        cBack = GL_BACK,
-        cNone = 0xFFFFFFF0,
-        cAll = 0xFFFFFFF1,
-        cInvalid = 0xFFFFFFFF
+        cFrontCulling = GL_FRONT,
+        cBackCulling = GL_BACK,
+        cNoneCulling = 0xFFFFFFF0,
+        cAllCulling = 0xFFFFFFF1,
+        cInvalidCulling = 0xFFFFFFFF
     };
 
     enum BlendFactor
     {
-        cZero = GL_ZERO,
-        cOne = GL_ONE,
-        cSrcColor = GL_SRC_COLOR,
-        cInvSrcColor = GL_ONE_MINUS_SRC_COLOR,
-        cSrcAlpha = GL_SRC_ALPHA,
-        cInvSrcAlpha = GL_ONE_MINUS_SRC_ALPHA,
-        cDstColor = GL_DST_COLOR,
-        cInvDstColor = GL_ONE_MINUS_DST_COLOR,
-        cDstAlpha = GL_DST_ALPHA,
-        cInvDstAlpha = GL_ONE_MINUS_DST_ALPHA,
-        cConstantColor = GL_CONSTANT_COLOR,
-        cInvConstantColor = GL_ONE_MINUS_CONSTANT_COLOR,
-        cConstantAlpha = GL_CONSTANT_ALPHA,
-        cInvConstantAlpha = GL_ONE_MINUS_CONSTANT_ALPHA,
-        cSrcAlphaSaturate = GL_SRC_ALPHA_SATURATE,
-        cInvalid = 0xFFFFFFFF
+        cZeroBlend = GL_ZERO,
+        cOneBlend = GL_ONE,
+        cSrcColorBlend = GL_SRC_COLOR,
+        cInvSrcColorBlend = GL_ONE_MINUS_SRC_COLOR,
+        cSrcAlphaBlend = GL_SRC_ALPHA,
+        cInvSrcAlphaBlend = GL_ONE_MINUS_SRC_ALPHA,
+        cDstColorBlend = GL_DST_COLOR,
+        cInvDstColorBlend = GL_ONE_MINUS_DST_COLOR,
+        cDstAlphaBlend = GL_DST_ALPHA,
+        cInvDstAlphaBlend = GL_ONE_MINUS_DST_ALPHA,
+        cConstantColorBlend = GL_CONSTANT_COLOR,
+        cInvConstantColorBlend = GL_ONE_MINUS_CONSTANT_COLOR,
+        cConstantAlphaBlend = GL_CONSTANT_ALPHA,
+        cInvConstantAlphaBlend = GL_ONE_MINUS_CONSTANT_ALPHA,
+        cSrcAlphaSaturateBlend = GL_SRC_ALPHA_SATURATE,
+        cInvalidBlend = 0xFFFFFFFF
     };
 
     enum BlendEquation
     {
-        cAdd = GL_FUNC_ADD,
-        cSub = GL_FUNC_SUBTRACT,
-        cReverseSub = GL_FUNC_REVERSE_SUBTRACT,
-        cMin = GL_MIN,
-        cMax = GL_MAX,
-        cInvalid = 0xFFFFFFFF
+        cAddBlendEquation = GL_FUNC_ADD,
+        cSubBlendEquation = GL_FUNC_SUBTRACT,
+        cReverseSubBlendEquation = GL_FUNC_REVERSE_SUBTRACT,
+        cMinBlendEquation = GL_MIN,
+        cMaxBlendEquation = GL_MAX,
+        cInvalidBlendEquation = 0xFFFFFFFF
     };
 
-    enum AlphaFunc 
+    enum AlphaFunc
     {
-        cLessEqual = GL_LEQUAL,
-        cLess = GL_LESS,
-        cGreaterEqual = GL_GEQUAL,
-        cGreater = GL_GREATER,
-        cAlways = GL_ALWAYS,
-        cNever = GL_NEVER,
-        cEqual = GL_EQUAL,
-        cNotEqual = GL_NOTEQUAL,
-        cInvalid = 0xFFFFFFFF
+        cLessEqualAlpha = GL_LEQUAL,
+        cLessAlpha = GL_LESS,
+        cGreaterEqualAlpha = GL_GEQUAL,
+        cGreaterAlpha = GL_GREATER,
+        cAlwaysAlpha = GL_ALWAYS,
+        cNeverAlpha = GL_NEVER,
+        cEqualAlpha = GL_EQUAL,
+        cNotEqualAlpha = GL_NOTEQUAL,
+        cInvalidAlpha = 0xFFFFFFFF
     };
 
     enum StencilFunc
     {
-        cLessEqual = GL_LEQUAL,
-        cLess = GL_LESS,
-        cGreaterEqual = GL_GEQUAL,
-        cGreater = GL_GREATER,
-        cAlways = GL_ALWAYS,
-        cNever = GL_NEVER,
-        cEqual = GL_EQUAL,
-        cNotEqual = GL_NOTEQUAL,
-        cInvalid = 0xFFFFFFFF
+        cLessEqualStencil = GL_LEQUAL,
+        cLessStencil = GL_LESS,
+        cGreaterEqualStencil = GL_GEQUAL,
+        cGreaterStencil = GL_GREATER,
+        cAlwaysStencil = GL_ALWAYS,
+        cNeverStencil = GL_NEVER,
+        cEqualStencil = GL_EQUAL,
+        cNotEqualStencil = GL_NOTEQUAL,
+        cInvalidStencilFunc = 0xFFFFFFFF
     };
 
     enum StencilOp
     {
-        cKeep = GL_KEEP,
-        cZero = GL_ZERO,
-        cReplace = GL_REPLACE,
-        cIncrement = GL_INCR,
-        cDecrement = GL_DECR,
-        cInvert = GL_INVERT,
-        cIncrementWrap = GL_INCR_WRAP,
-        cDecrementWrap = GL_DECR_WRAP,
-        cInvalid = 0xFFFFFFFF
+        cKeepStencil = GL_KEEP,
+        cZeroStencil = GL_ZERO,
+        cReplaceStencil = GL_REPLACE,
+        cIncrementStencil = GL_INCR,
+        cDecrementStencil = GL_DECR,
+        cInvertStencil = GL_INVERT,
+        cIncrementWrapStencil = GL_INCR_WRAP,
+        cDecrementWrapStencil = GL_DECR_WRAP,
+        cInvalidStencilOp = 0xFFFFFFFF
     };
 
     enum PolygonMode
     {
-        cInvalid = 0xFFFFFFFF
-    };
-
-    enum CullingMode
-    {
-        cFront = GL_FRONT,
-        cBack = GL_BACK,
-        cNone = 0xFFFFFFF0,
-        cAll = 0xFFFFFFF1,
-
-        cInvalid = 0xFFFFFFFF
+        cInvalidPolygon = 0xFFFFFFFF
     };
 
     Graphics();
@@ -309,8 +299,8 @@ public:
     virtual void setBlendEquationImpl(BlendEquation equationRgb, BlendEquation equationA) = 0;
     virtual void setBlendEquationMRTImpl(u32 target, BlendEquation equationRgb, BlendEquation equationA) = 0;
     virtual void setBlendConstantColorImpl(const Color4f& color) = 0;
-    virtual void lockDrawContextImpl();
-    virtual void unlockDrawContextImpl();
+    virtual void lockDrawContextImpl() = 0;
+    virtual void unlockDrawContextImpl() = 0;
     virtual void waitForVBlankImpl() = 0;
     virtual void setColorMaskImpl(bool r, bool g, bool b, bool a) = 0;
     virtual void setColorMaskMRTImpl(u32 target, bool r, bool g, bool b, bool a) = 0;
@@ -322,9 +312,7 @@ public:
     virtual void setPolygonModeImpl(PolygonMode front, PolygonMode back) = 0;
     virtual void setPolygonOffsetEnableImpl(bool fillFrontEnable, bool fillBackEnable, bool pointLineEnable) = 0;
 
-    void clear(u32 colorIdx, Color4f const& color, f32, u32);
-
-    void waitForVBlank(){ waitForVBlankImpl(); }
+    void clear(u32 colorIdx, const Color4f& color, f32 depth, u32 stencil);
 
 protected:
     static Graphics* sInstance;

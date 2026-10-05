@@ -1,11 +1,12 @@
 #pragma once
 
-#include <math.h>
 #include <basis/seadAssert.h>
-#ifndef SEAD_MATH_MATH_CALC_COMMON_H_
 #include <math/seadMathCalcCommon.h>
-#endif
 #include <prim/seadBitUtil.h>
+
+#include <cmath>
+#include <math.h>
+#include <limits>
 
 namespace sead {
 template <>
@@ -21,56 +22,54 @@ template <>
 const MathCalcCommon<float>::LogSample MathCalcCommon<float>::cLogTbl[];
 
 template <typename T>
-inline T MathCalcCommon<T>::sign(T value) {
+inline T MathCalcCommon<T>::sign(T value) 
+{
     return value < 0 ? -1 : 1;
 }
 
 template <typename T>
-inline T MathCalcCommon<T>::sqrt(T t) {
+inline T MathCalcCommon<T>::sqrt(T t) 
+{
     return sqrt(t);
 }
 
 template <typename T>
-inline T MathCalcCommon<T>::rsqrt(T t) {
+inline T MathCalcCommon<T>::rsqrt(T t) 
+{
     return 1 / sqrt(t);
 }
 
 template <typename T>
-inline T MathCalcCommon<T>::pow(T x, T y) {
+inline T MathCalcCommon<T>::pow(T x, T y)
+{
     return pow(x, y);
 }
 
-/*template <typename T>
+template <typename T>
 inline T MathCalcCommon<T>::sin(T t)
 {
-    if constexpr (std::is_same_v<T, float>) {
-        const auto as_int = BitUtil::bitCast<u32>(t);
-        const SinCosSample& sample = cSinCosTbl[as_int >> 18];
-        return sample.sin_val + sample.sin_delta * (as_int & 0xFFFFFFu) * 0x1p-24f;
-    } else {
-        static_assert(!std::is_same<T, T>(), "Unsupported type");
-    }
+    return std::sin(t);
 }
 
 template <typename T>
 inline T MathCalcCommon<T>::cos(T t)
 {
-    if constexpr (std::is_same_v<T, float>) {
-        const auto as_int = BitUtil::bitCast<u32>(t);
-        const SinCosSample& sample = cSinCosTbl[as_int >> 18];
-        return sample.cos_val + sample.cos_delta * (as_int & 0xFFFFFFu) * 0x1p-24f;
-    } else {
-        static_assert(!std::is_same<T, T>(), "Unsupported type");
-    }
-}*/
+    return std::cos(t);
+}
 
-/*template <typename T>
+template <typename T>
 inline T MathCalcCommon<T>::tan(T t)
 {
     return tan(t);
 }
 
 template <typename T>
+inline T MathCalcCommon<T>::inv(T t)
+{
+    return 1.0f / t;
+}
+
+/*template <typename T>
 inline T MathCalcCommon<T>::asin(T t)
 {
     if constexpr (std::is_floating_point<T>())
@@ -88,12 +87,12 @@ inline T MathCalcCommon<T>::acos(T t)
 
 template <typename T>
 inline T MathCalcCommon<T>::atan(T t) {
-    return atan(t);
+    return ::atan(t);
 }
 
 template <typename T>
 inline T MathCalcCommon<T>::atan2(T y, T x) {
-    return atan2(y, x);
+    return ::atan2(y, x);
 }
 
 template <>
@@ -206,6 +205,42 @@ inline u32 MathCalcCommon<f32>::atan2Idx(f32 y, f32 x) {
     }
 }
 
+template <typename T>
+inline T MathCalcCommon<T>::minNumber()
+{
+    return std::numeric_limits<T>::min();
+}
+
+template <typename T>
+inline T MathCalcCommon<T>::maxNumber()
+{
+    return std::numeric_limits<T>::max();
+}
+
+template <>
+inline f32 MathCalcCommon<f32>::minNumber()
+{
+    return -std::numeric_limits<f32>::max();
+}
+
+template <>
+inline f32 MathCalcCommon<f32>::maxNumber()
+{
+    return std::numeric_limits<f32>::max();
+}
+
+template <>
+inline f64 MathCalcCommon<f64>::minNumber()
+{
+    return -std::numeric_limits<f64>::max();
+}
+
+template <>
+inline f64 MathCalcCommon<f64>::maxNumber()
+{
+    return std::numeric_limits<f64>::max();
+}
+
 template <>
 inline void MathCalcCommon<f32>::sinCosIdx(f32* pSin, f32* pCos, u32 idx) {
     u32 index = (idx >> 24) & 0xff;
@@ -214,6 +249,12 @@ inline void MathCalcCommon<f32>::sinCosIdx(f32* pSin, f32* pCos, u32 idx) {
 
     /*if (pSin != NULL)*/ *pSin = sample.sin_val + sample.sin_delta * rest;
     /*if (pCos != NULL)*/ *pCos = sample.cos_val + sample.cos_delta * rest;
+}
+
+template <typename T>
+inline T MathCalcCommon<T>::epsilon()
+{
+    return std::numeric_limits<T>::epsilon();
 }
 
 template <typename T>
@@ -279,12 +320,12 @@ inline T MathCalcCommon<T>::min3(T a, T b, T c) {
 
 template <typename T>
 inline T MathCalcCommon<T>::deg2rad(T deg) {
-    return deg * (numbers::pi_v / static_cast<T>(180));
+    return deg * (numbers::pi / static_cast<T>(180));
 }
 
 template <typename T>
 inline T MathCalcCommon<T>::rad2deg(T rad) {
-    return rad * (static_cast<T>(180) / numbers::pi_v);
+    return rad * (static_cast<T>(180) / numbers::pi);
 }
 
 template <typename T>
@@ -317,6 +358,13 @@ inline s32 MathCalcCommon<s32>::roundOff(s32 val) {
     return val;
 }
 
+template <>
+inline u32 MathCalcCommon<u32>::roundDownPow2(u32 val, s32 base)
+{
+    SEAD_ASSERT_MSG(base > 0 && (base - 1u & base) == 0, "illegal param[base:%d]", base);
+    return val & ~(base - 1u);
+}
+
 template <typename T>
 inline s32 MathCalcCommon<T>::floor(T val) {
     return floor(val);
@@ -341,6 +389,15 @@ template <typename T>
 inline T MathCalcCommon<T>::roundUp(T x, s32 multNumber) {
     SEAD_ASSERT(multNumber > 0);
     return (x + multNumber - 1) / multNumber * multNumber;
+}
+
+template <typename T>
+inline T MathCalcCommon<T>::roundUpN(T x, s32 multNumber) {
+    SEAD_ASSERT(multNumber > 0);
+    if (x >= 0)
+        return (x + multNumber - 1) / multNumber * multNumber;
+
+    return (x - multNumber + 1) / multNumber * multNumber;
 }
 
 template <>
@@ -373,6 +430,12 @@ inline T MathCalcCommon<T>::clamp(T value, T low, T high) {
     else if (value > high)
         value = high;
     return value;
+}
+
+template <>
+inline bool MathCalcCommon<s32>::isPow2(s32 t)
+{
+    return (t & t - 1u) == 0;
 }
 
 template <typename T>

@@ -26,19 +26,36 @@ public:
     }
 
     Heap* mHeaps[4];
-    bool mAdjusted[4]{};
-    s32 mPrimaryIndex{};
+    bool mAdjusted[4];
+    s32 mPrimaryIndex;
+
+    HeapArray()
+        : mAdjusted()
+        , mPrimaryIndex(0)
+    {
+    }
 };
 
 struct HeapPolicy
 {
-    Heap* parent{};
-    u32 size{};
-    u32 create_slack{};
-    u32 adjust_slack{};
-    u8 adjust{};
-    u8 temporary{};
-    u8 dont_create{};
+    Heap* parent;
+    u32 size;
+    u32 create_slack;
+    u32 adjust_slack;
+    u8 adjust;
+    u8 temporary;
+    u8 dont_create;
+
+    HeapPolicy()
+        : parent(NULL)
+        , size(0)
+        , create_slack(0)
+        , adjust_slack(0)
+        , adjust(0)
+        , temporary(0)
+        , dont_create(0)
+    {
+    }
 };
 
 struct HeapPolicies
@@ -53,7 +70,7 @@ struct HeapPolicies
 
         return mPolicies[idx];
     }
-    
+
     void useOnly(s32 idx)
     {
         s32 rootHeapNum = HeapMgr::getRootHeapNum();
@@ -70,7 +87,7 @@ struct HeapPolicies
 
         mPrimaryIndex = idx;
     }
-    
+
     void useOnlyPrimaryHeap()
     {
         useOnly(mPrimaryIndex);
@@ -91,7 +108,12 @@ struct HeapPolicies
     }
 
     HeapPolicy mPolicies[4];
-    s32 mPrimaryIndex{};
+    s32 mPrimaryIndex;
+
+    HeapPolicies()
+        : mPrimaryIndex(0)
+    {
+    }
 };
 
 }  // namespace sead

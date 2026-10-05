@@ -8,7 +8,7 @@ namespace sead
 {
 class MemBlock
 {
-public:
+protected:
     MemBlock(): 
         mListNode(), 
         mHeapCheckTag(0), 
@@ -17,15 +17,145 @@ public:
     {
     }
 
-    static MemBlock* FindManageArea(void* ptr);
+    u8* memory() const
+    {
+        return static_cast<u8*>(PtrUtil::addOffset(this, mOffset + sizeof(MemBlock)));
+    }
 
-    static u32 getOffset() { return offsetof(MemBlock, mListNode); }
+    ListNode& getListNode()
+    {
+        return mListNode;
+    }
+
+    void setHeapCheckTag(u16 tag)
+    {
+        mHeapCheckTag = tag;
+    }
+
+    void setSize(size_t size)
+    {
+        SEAD_ASSERT(size % cPtrSize == 0);
+        mSize = size;
+    }
+
+    void setOffset(u16 offset)
+    {
+        SEAD_ASSERT(offset % cPtrSize == 0);
+        mOffset = offset;
+
+        if (mOffset != 0)
+        {
+            intptr_t* offsetTail = reinterpret_cast<intptr_t*>(memory() - cPtrSize);
+            SEAD_ASSERT(!PtrUtil::isInclude(offsetTail, this, PtrUtil::addOffset(this, sizeof(MemBlock))));
+            *offsetTail = reinterpret_cast<intptr_t>(this) + 1;
+        }
+    }
+
+    void fill(u8 val)
+    {
+        MemUtil::fill(memory(), val, mSize);
+    }
+
+    bool isInclude(const void* ptr) const
+    {
+        u8* begin = memory();
+
+        return PtrUtil::isInclude(ptr, begin, begin + mSize);
+    }
+
+public:
+    size_t getSize() const
+    {
+        return mSize;
+    }
+
+    size_t getSizeWithManage() const
+    {
+        return mOffset + sizeof(MemBlock) + mSize;
+    }
+
+    u32 getOffset() const
+    {
+        return mOffset;
+    }
+
+    bool isValid(const void* heapStart, size_t heapSize) const
+    {
+        if (mSize == 0)
+            return false;
+
+        const u8* start = reinterpret_cast<const u8*>(heapStart);
+        const u8* block = reinterpret_cast<const u8*>(this);
+
+        if (block < start || block + getSizeWithManage() > start + heapSize)
+        {
+            SEAD_PRINT("Invalid address: 0x%p\n", block);
+            return false;
+        }
+
+        u8* next = reinterpret_cast<u8*>(mListNode.next());
+        if (next < start || next + sizeof(MemBlock) > start + heapSize)
+        {
+            SEAD_PRINT("Invalid next address: 0x%p\n", next);
+            return false;
+        }
+
+        u8* prev = reinterpret_cast<u8*>(mListNode.prev());
+        if (prev < start || prev + sizeof(MemBlock) > start + heapSize)
+        {
+            SEAD_PRINT("Invalid prev address: 0x%p\n", prev);
+            return false;
+        }
+
+        if (mListNode.prev()->next() != &mListNode || mListNode.next()->prev() != &mListNode)
+        {
+            SEAD_PRINT("Invalid bidirectional link\n");
+            return false;
+        }
+
+        return true;
+    }
+
+    void dump() const
+    {
+        SEAD_PRINT("addr: 0x%p\n", this);
+        SEAD_PRINT("memory: 0x%p\n", memory());
+        SEAD_PRINT("size: 0x%p\n", getSize());
+        SEAD_PRINT("prev: 0x%p\n", mListNode.prev());
+        SEAD_PRINT("next: 0x%p\n", mListNode.next());
+    }
+
+    static MemBlock* FindManageArea(void* ptr)
+    {
+        MemBlock* block;
+
+        uintptr_t offsetTail = *reinterpret_cast<uintptr_t*>(reinterpret_cast<intptr_t>(ptr) - cPtrSize);
+        if ((offsetTail & 1) == 0)
+        {
+            block = reinterpret_cast<MemBlock*>(reinterpret_cast<intptr_t>(ptr) - sizeof(MemBlock));
+
+#if defined(SEAD_DEBUG)
+            if (block->getOffset() != 0)
+            {
+                SEAD_ASSERT_MSG(false, "Invalid pointer: 0x%p\n", ptr);
+            }
+#endif // SEAD_DEBUG
+        }
+        else
+        {
+            block = reinterpret_cast<MemBlock*>(offsetTail - 1);
+        }
+
+        return block;
+    }
 
 protected:
     ListNode mListNode;
     u16 mHeapCheckTag;
     u16 mOffset;
     size_t mSize;
+
+    friend class ExpHeap;
 };
 
 typedef OffsetList<MemBlock> MemBlockList;

@@ -46,7 +46,7 @@ bool Event::wait(TickSpan span)
 #ifdef SEAD_DEBUG
     SEAD_ASSERT_MSG(mInitialized, "Event is not initialized.");
 #endif
-    mEventInner.Wait(nn::os::Tick::Tick(span.toS64()));
+    mEventInner.Wait(nn::os::Tick(span.toS64()));
 }
 
 void Event::setSignal()

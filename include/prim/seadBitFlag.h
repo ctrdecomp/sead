@@ -118,9 +118,9 @@ protected:
     T mBits;
 };
 
-using BitFlag8 = BitFlag<u8>;
-using BitFlag16 = BitFlag<u16>;
-using BitFlag32 = BitFlag<u32>;
-using BitFlag64 = BitFlag<u64>;
+typedef BitFlag<u8> BitFlag8;
+typedef BitFlag<u16> BitFlag16;
+typedef BitFlag<u32> BitFlag32;
+typedef BitFlag<u64> BitFlag64;
 
 }  // namespace sead

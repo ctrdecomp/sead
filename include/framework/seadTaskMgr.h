@@ -40,8 +40,8 @@ public:
             prepare_stack_size(0x8000),
             prepare_priority(-1),
             roottask_create_arg(roottask_arg),
-            heap(nullptr),
-            parent_framework(nullptr)
+            heap(NULL),
+            parent_framework(NULL)
         {
         }
 
@@ -77,8 +77,6 @@ public:
     virtual void listenPropertyEvent(const hostio::PropertyEvent* ev);
     virtual void genMessage(hostio::Context* context);
 #endif // SEAD_DEBUG
-
-    TaskBase* createTaskSync(const TaskBase::CreateArg& arg);
 
     Framework* getFramework() const
     {

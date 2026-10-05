@@ -15,12 +15,13 @@ Resource::Resource()
 
 Resource::~Resource()
 {
-
 }
 
-DirectResource::DirectResource()
+DirectResource::DirectResource():
+    mRawData(NULL),
+    mRawSize(0),
+    mBufferSize(0)
 {
-
 }
 
 DirectResource::~DirectResource()
@@ -156,7 +157,7 @@ Resource* IndirectResourceFactoryBase::create(const ResourceMgr::CreateArg& crea
     if (resource == nullptr)
         return nullptr;
 
-    RamReadStream stream(createArg.buffer, createArg.file_size, Stream::Modes::Binary);
+    RamReadStream stream(createArg.buffer, createArg.file_size, Stream::Binary);
     resource->create(&stream, createArg.file_size, createArg.heap);
 
     return resource;
@@ -183,7 +184,7 @@ Resource* IndirectResourceFactoryBase::tryCreate(const ResourceMgr::LoadArg& loa
         return nullptr;
     }
 
-    BufferFileDeviceReadStream stream(&handle, Stream::Modes::Binary);
+    BufferFileDeviceReadStream stream(&handle, Stream::Binary);
     resource->create(&stream, handle.getFileSize(), loadArg.instance_heap);
 
     if (!handle.tryClose())
@@ -215,7 +216,7 @@ Resource* IndirectResourceFactoryBase::tryCreateWithDecomp(const ResourceMgr::Lo
         return nullptr;
     }
 
-    RamReadStream stream(data, outSize, Stream::Modes::Binary);
+    RamReadStream stream(data, outSize, Stream::Binary);
     resource->create(&stream, outSize, loadArg.instance_heap);
     delete[] data;
 

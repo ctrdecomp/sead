@@ -61,7 +61,6 @@ struct SharcArchiveRes::HandleInner
 
 static SharcArchiveRes::HandleInner* getHandleInner_(HandleBuffer* handle, bool create_new = false)
 {
-    static_assert(sizeof(SharcArchiveRes::HandleInner) <= sizeof(HandleBuffer));
     if (create_new)
         return new (handle) SharcArchiveRes::HandleInner;
     return reinterpret_cast<SharcArchiveRes::HandleInner*>(handle);

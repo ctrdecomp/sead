@@ -119,7 +119,7 @@ void GameFrameworkCtrNw4c::initializeGraphicsSystem(Heap* heap, const Vector2f& 
         {
             ExpHeap* gfxHeap = ExpHeap::create(mGameArg.cmdMemSize, "sead::DefaultGfxMemoryMgrCtr", heap);
 
-            GfxMemoryMgrCtr* mem = new(gfxHeap) DefaultGfxMemoryMgrCtr();
+            GfxMemoryMgrCtr* mem = new(gfxHeap) DefaultGfxMemoryMgrCtr(gfxHeap);
             mem->setInitialize(true);
             initNngx_(mem);
             mem->setInitialize(false);
@@ -380,7 +380,6 @@ void GameFrameworkCtrNw4c::procFrame_()
 
     Graphics::instance()->lockDrawContext();
     {
-
         nngxRunCmdlist();
         procDraw_();
         procCalc_();
@@ -396,11 +395,11 @@ void GameFrameworkCtrNw4c::procFrame_()
     mFrameNow.setNow();
     waitForVBlank_();
 
-    if(getDisplayState() == DisplayState::cReady)
+    if(getDisplayState() == cReady)
     {
         nngxStartLcdDisplay();
 
-        mDisplayState = DisplayState::cShow;
+        mDisplayState = cShow;
     }
 }
 
@@ -479,8 +478,7 @@ void GameFrameworkCtrNw4c::swapBuffer_()
 
 void GameFrameworkCtrNw4c::waitForVBlank_()
 {
-    Graphics* graphics = Graphics::instance();
-    graphics->waitForVBlank();
+    Graphics::instance()->waitForVBlank();
 
     TickSpan waitSpan;
     waitSpan.setMilliSeconds(10);
@@ -499,35 +497,33 @@ void GameFrameworkCtrNw4c::waitForVBlank_()
 
         if (vblankDiff >= mVblinkBuf)
         {
-            Graphics* graphics = Graphics::instance();
-
-            graphics->lockDrawContext();
+            Graphics::instance()->lockDrawContext();
             {
                 nngxSwapBuffers(NN_GX_DISPLAY_BOTH);
             }
-            graphics->unlockDrawContext();
+            Graphics::instance()->unlockDrawContext();
 
             mGameArg.wait_vblank = vblank;
+            
 
             break;
         }
 
         if (vblankDiff + 1 == mVblinkBuf)
         {
-            Graphics* graphics = Graphics::instance();
-
-            graphics->lockDrawContext();
+            Graphics::instance()->lockDrawContext();
             {
                 nngxSwapBuffers(NN_GX_DISPLAY_BOTH);
             }
-            graphics->unlockDrawContext();
+            Graphics::instance()->unlockDrawContext();
 
-            graphics->waitForVBlank();
-
+            Graphics::instance()->waitForVBlank();
             break;
         }
-
-        Thread::sleep(waitSpan);
+        else
+        {
+            Thread::sleep(waitSpan);
+        }
     }
 
     mFrameNow.setNow();
@@ -536,7 +532,7 @@ void GameFrameworkCtrNw4c::waitForVBlank_()
 void GameFrameworkCtrNw4c::clearFrameBuffers_(s32 method)
 {
     getMethodFrameBuffer(method)->bind();
-    Graphics::instance()->clear(FrameBuffer::ClearFlag::cAll, mGameArg.clearColor, 1.0f, 0);
+    Graphics::instance()->clear(FrameBuffer::cAll, mGameArg.clearColor, 1.0f, 0);
 }
 
 void GameFrameworkCtrNw4c::doScreenShot_(char const* shot)

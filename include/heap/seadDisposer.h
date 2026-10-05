@@ -23,8 +23,7 @@ public:
     };
 
     IDisposer();
-    explicit IDisposer(Heap* disposer_heap,
-                       HeapNullOption option = HeapNullOption::UseSpecifiedOrCurrentHeap);
+    explicit IDisposer(Heap* disposer_heap, HeapNullOption option = UseSpecifiedOrCurrentHeap);
     virtual ~IDisposer();
 
     static u32 getListNodeOffset() { return offsetof(IDisposer, mListNode); }
@@ -71,7 +70,7 @@ protected: \
     { \
         if (!sInstance) \
         { \
-            u8* buffer = new (heap, __alignof(CLASS)) u8[sizeof(CLASS)]; \
+            u8* buffer = new (heap, __alignof__(CLASS)) u8[sizeof(CLASS)]; \
             SEAD_ASSERT_MSG(!SingletonDisposer_::sStaticDisposer, "Create Singleton Twice (%s).", \
                             #CLASS); \
             u8* disposer_buffer = buffer + offsetof(CLASS, mSingletonDisposerBuf_); \

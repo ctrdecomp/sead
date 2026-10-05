@@ -8,7 +8,7 @@ namespace sead
 class AssertConfig
 {
 public:
-    using AssertEvent = DelegateEvent<const char*>;
+    typedef DelegateEvent<const char*> AssertEvent;
 
     static void registerCallback(AssertEvent::Slot& slot);
     static void unregisterCallback(AssertEvent::Slot& slot);

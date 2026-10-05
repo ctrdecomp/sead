@@ -1,6 +1,8 @@
 // Filename: seadCtrController.cpp
 //
 // Project: StandardEAD C++ Library for CTR
+//
+// TODO: CHECK THIS
 
 #include <controller/ctr/seadCtrController.h>
 #include <controller/seadControllerMgr.h>
@@ -10,14 +12,14 @@ namespace sead
 CtrController::CtrController(ControllerMgr* mgr):
     Controller(mgr)
 {
-    mId = ControllerDefine::ControllerId::cController_Ctr;
-    mLeftStickCrossStartBit  = -nn::hid::CTR::AnalogStickClamper::STICK_CLAMP_MODE_CROSS;
-    mRightStickCrossStartBit = -nn::hid::CTR::AnalogStickClamper::STICK_CLAMP_MODE_CROSS;
+    mId = ControllerDefine::cController_Ctr;
+    mLeftStickCrossStartBit  = -1;
+    mRightStickCrossStartBit = -1;
 }
 
 void CtrController::calcImpl_()
 {
-    CtrHidDevice* ctrDevice = DynamicCast<CtrHidDevice>(static_cast<ControlDevice*>(getMgr()->getControlDevice(ControllerDefine::DeviceId::cDevice_CtrHid)));
+    CtrHidDevice* ctrDevice = DynamicCast<CtrHidDevice>(static_cast<ControlDevice*>(getMgr()->getControlDevice(ControllerDefine::cDevice_CtrHid)));
 
     if (ctrDevice == nullptr)
         return;
@@ -148,10 +150,10 @@ void CtrController::calcImpl_()
 
 void CtrController::setStickClampMode(PadReader::StickClampMode mode)
 {
-    CtrHidDevice* ctrDevice = DynamicCast<CtrHidDevice>(static_cast<ControlDevice*>(getMgr()->getControlDevice(ControllerDefine::DeviceId::cDevice_CtrHid)));
+    CtrHidDevice* ctrDevice = DynamicCast<CtrHidDevice>(static_cast<ControlDevice*>(getMgr()->getControlDevice(ControllerDefine::cDevice_CtrHid)));
     if(ctrDevice != NULL)
     {
-        ctrDevice->mPadReaderPtr->GetStickClampMode() = mode;
+        ctrDevice->mPadReaderPtr->SetStickClampMode(mode);
     }
 }
 }

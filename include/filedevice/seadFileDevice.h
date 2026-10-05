@@ -2,6 +2,7 @@
 #define SEAD_FILEDEVICE_H_
 
 #include <basis/seadTypes.h>
+#include <basis/seadWarning.h>
 #include <container/seadSafeArray.h>
 #include <container/seadTList.h>
 #include <heap/seadDisposer.h>
@@ -13,7 +14,7 @@ namespace sead
 {
 class FileDevice;
 
-using HandleBuffer = SafeArray<u8, 32>;
+typedef SafeArray<u8, 32> HandleBuffer;
 
 class HandleBase
 {
@@ -34,7 +35,7 @@ public:
 
     FileDevice* getDevice() const { return mDevice; }
     FileDevice* getOriginalDevice() const { return mOriginalDevice; }
-    bool isOpened() const { return mOriginalDevice != nullptr; }
+    bool isOpened() const { return mOriginalDevice != NULL; }
 
 protected:
     friend class FileDevice;
@@ -79,11 +80,13 @@ public:
         LoadArg():
             path(""),
             buffer(nullptr),
-            buffer_size(),
+            buffer_size(0),
             heap(nullptr),
             alignment(0),
             buffer_size_alignment(0),
             div_size(0),
+            enable_alloc_assert(true), 
+            check_read_whole(true),
             read_size(0),
             roundup_size(0),
             need_unload(false)
@@ -95,8 +98,11 @@ public:
             buffer(arg.buffer), 
             buffer_size(arg.buffer_size), 
             heap(arg.heap), 
-            alignment(arg.alignment), 
+            alignment(arg.alignment),
+            buffer_size_alignment(arg.buffer_size_alignment),
             div_size(arg.div_size), 
+            enable_alloc_assert(arg.enable_alloc_assert), 
+            check_read_whole(arg.check_read_whole),
             read_size(arg.read_size), 
             roundup_size(arg.roundup_size), 
             need_unload(arg.need_unload)
@@ -110,6 +116,8 @@ public:
         s32 alignment;
         s32 buffer_size_alignment;
         u32 div_size;
+        bool enable_alloc_assert;
+        bool check_read_whole;
         u32 read_size;
         u32 roundup_size;
         bool need_unload;
@@ -119,11 +127,12 @@ public:
     {
         SaveArg():
             path(""),
-            buffer(nullptr),
+            buffer(NULL),
             buffer_size(0),
             write_size(0)
         {
         }
+
         SafeString path;
         const u8* buffer;
         u32 buffer_size;
@@ -155,7 +164,7 @@ public:
     {
 #ifdef SEAD_DEBUG
         if (name.include(':'))
-            SEAD_WARN("drive name should not include ':'. (in %s)", name.cstr());
+            SEAD_WARNING("drive name should not include ':'. (in %s)", name.cstr());
 #endif
         mDriveName = name;
     }
@@ -201,28 +210,6 @@ public:
         return true;
     }
     bool tryClose(FileHandle* handle);
-
-    bool flush(FileHandle* handle)
-    {
-        if (!tryFlush(handle))
-        {
-            SEAD_ASSERT_MSG(false, "file flush error");
-            return false;
-        }
-        return true;
-    }
-    bool tryFlush(FileHandle* handle);
-
-    bool remove(const SafeString& str)
-    {
-        if (!tryRemove(str))
-        {
-            SEAD_ASSERT_MSG(false, "file remove error");
-            return false;
-        }
-        return true;
-    }
-    bool tryRemove(const SafeString& str);
 
     u32 read(FileHandle* handle, u8* data, u32 size)
     {
@@ -417,9 +404,6 @@ public:
 
     bool close();
     bool tryClose();
-
-    bool flush();
-    bool tryFlush();
 
     u32 read(u8* outBuffer, u32 bytesToRead);
     bool tryRead(u32* actual_size, u8* data, u32 size);

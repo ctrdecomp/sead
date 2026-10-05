@@ -10,22 +10,24 @@
 
 namespace sead
 {
+
 template <typename T>
 class ObjList : public ListImpl
 {
 public:
-    ObjList(): 
-        ListImpl(), 
-        mFreeList(), 
-        mMaxNum(0)
+    ObjList()
+        : ListImpl()
+        , mFreeList()
+        , mMaxNum(0)
     {
     }
-    ObjList(s32 max_num, void* buf):
-        ListImpl(), 
-        mFreeList(), 
-        mMaxNum(0)
-    { 
-        setBuffer(max_num, buf); 
+
+    ObjList(s32 max_num, void* buf)
+        : ListImpl()
+        , mFreeList()
+        , mMaxNum(0)
+    {
+        setBuffer(max_num, buf);
     }
 
     void allocBuffer(s32 capacity, Heap* heap, s32 alignment = sizeof(void*))
@@ -76,22 +78,35 @@ public:
         mFreeList.reset();
     }
 
-    bool isBufferReady() const { return mFreeList.work() != nullptr; }
+    bool isBufferReady() const
+    {
+        return mFreeList.work() != NULL;
+    }
 
-    bool isFull() const { return size() >= mMaxNum; }
+    bool isFull() const
+    {
+        return size() >= mMaxNum;
+    }
 
-    T* front() const { return listNodeToObjWithNullCheck(ListImpl::front()); }
-    T* back() const { return listNodeToObjWithNullCheck(ListImpl::back()); }
+    T* front() const
+    {
+        return listNodeToObjWithNullCheck(ListImpl::front());
+    }
+
+    T* back() const
+    {
+        return listNodeToObjWithNullCheck(ListImpl::back());
+    }
 
     T* birthBack()
     {
         if (isFull())
         {
             SEAD_ASSERT_MSG(false, "buffer full.");
-            return nullptr;
+            return NULL;
         }
 
-        Node* node = new(mFreeList.get()) Node();
+        Node* node = new (mFreeList.getFree()) Node();
         ListImpl::pushBack(objToListNode(&node->item));
 
         return &node->item;
@@ -119,17 +134,36 @@ public:
         return copy;
     }
 
-    template <class... Args>
-    T* emplaceBack(Args&&... args)
+    T* emplaceBack()
     {
-        if (isFull())
-        {
-            SEAD_ASSERT_MSG(false, "buffer full.");
-            return nullptr;
-        }
-        Node* item = new (mFreeList.alloc()) Node{T{std::forward<Args>(args)...}, {}};
-        ListImpl::pushBack(&item->node);
-        return &item->item;
+        T* obj = allocObject();
+        if (!obj)
+            return NULL;
+
+        new (obj) T();
+        return obj;
+    }
+
+    template <class A1>
+    T* emplaceBack(const A1& a1)
+    {
+        T* obj = allocObject();
+        if (!obj)
+            return NULL;
+
+        new (obj) T(a1);
+        return obj;
+    }
+
+    template <class A1, class A2>
+    T* emplaceBack(const A1& a1, const A2& a2)
+    {
+        T* obj = allocObject();
+        if (!obj)
+            return NULL;
+
+        new (obj) T(a1, a2);
+        return obj;
     }
 
     void erase(T* item)
@@ -142,10 +176,11 @@ public:
     void clear()
     {
         ListNode* node = mStartEnd.next();
+
         while (node != &mStartEnd)
         {
-            // Fetch the next pointer before erasing the item from the linked list.
             ListNode* next = node->next();
+
             ListImpl::erase(node);
 
             T* item = listNodeToObj(node);
@@ -159,91 +194,166 @@ public:
     T* prev(const T* obj) const
     {
         ListNode* prev_node = objToListNode(obj)->prev();
+
         if (prev_node == &mStartEnd)
-            return nullptr;
+            return NULL;
+
         return listNodeToObj(prev_node);
     }
 
     T* next(const T* obj) const
     {
         ListNode* next_node = objToListNode(obj)->next();
+
         if (next_node == &mStartEnd)
-            return nullptr;
+            return NULL;
+
         return listNodeToObj(next_node);
     }
 
-    T* nth(s32 n) const { return listNodeToObjWithNullCheck(ListImpl::nth(n)); }
+    T* nth(s32 n) const
+    {
+        return listNodeToObjWithNullCheck(ListImpl::nth(n));
+    }
 
-    s32 indexOf(const T* obj) const { return ListImpl::indexOf(objToListNode(obj)); }
+    s32 indexOf(const T* obj) const
+    {
+        return ListImpl::indexOf(objToListNode(obj));
+    }
 
-    bool isNodeLinked(const T* obj) const { return objToListNode(obj)->isLinked(); }
+    bool isNodeLinked(const T* obj) const
+    {
+        return objToListNode(obj)->isLinked();
+    }
 
     class iterator
     {
     public:
-        explicit iterator(T* ptr) : mPtr{ptr} {}
-        bool operator==(const iterator& other) const { return mPtr == other.mPtr; }
-        bool operator!=(const iterator& other) const { return !operator==(other); }
+        explicit iterator(T* ptr)
+            : mPtr(ptr)
+        {
+        }
+
+        bool operator==(const iterator& other) const
+        {
+            return mPtr == other.mPtr;
+        }
+
+        bool operator!=(const iterator& other) const
+        {
+            return !operator==(other);
+        }
+
         iterator& operator++()
         {
-            constexpr s32 offset = Node::getListNodeOffset();
-            ListNode* node = static_cast<ListNode*>(PtrUtil::addOffset(mPtr, offset))->next();
+            const s32 offset = Node::getListNodeOffset();
+
+            ListNode* node =
+                static_cast<ListNode*>(PtrUtil::addOffset(mPtr, offset))->next();
+
             mPtr = static_cast<T*>(PtrUtil::addOffset(node, -offset));
             return *this;
         }
-        T& operator*() const { return *mPtr; }
-        T* operator->() const { return mPtr; }
+
+        T& operator*() const
+        {
+            return *mPtr;
+        }
+
+        T* operator->() const
+        {
+            return mPtr;
+        }
 
     private:
         T* mPtr;
     };
 
-    iterator begin() const { return iterator(listNodeToObj(mStartEnd.next())); }
-    iterator end() const { return iterator(listNodeToObj(const_cast<ListNode*>(&mStartEnd))); }
-    iterator begin(T* ptr) const { return iterator(ptr); }
+    iterator begin() const
+    {
+        return iterator(listNodeToObj(mStartEnd.next()));
+    }
 
-    static constexpr size_t calculateWorkBufferSize(size_t n) { return n * ElementSize; }
+    iterator end() const
+    {
+        return iterator(listNodeToObj(const_cast<ListNode*>(&mStartEnd)));
+    }
+
+    iterator begin(T* ptr) const
+    {
+        return iterator(ptr);
+    }
+
+    static size_t calculateWorkBufferSize(size_t n)
+    {
+        return n * ElementSize;
+    }
 
 private:
     struct Node
     {
-        static constexpr s32 getListNodeOffset() { return offsetof(Node, node); }
+        static s32 getListNodeOffset()
+        {
+            return offsetof(Node, node);
+        }
+
         T item;
         ListNode node;
     };
-    static_assert(offsetof(Node, item) == 0, "item must be at offset 0 in Node");
+
+    T* allocObject()
+    {
+        if (isFull())
+        {
+            SEAD_ASSERT_MSG(false, "buffer full.");
+            return NULL;
+        }
+
+        Node* node = static_cast<Node*>(mFreeList.getFree());
+
+        ListImpl::pushBack(objToListNode(&node->item));
+
+        return &node->item;
+    }
 
     ListNode* objToListNode(T* obj) const
     {
-        return static_cast<ListNode*>(PtrUtil::addOffset(obj, Node::getListNodeOffset()));
+        return static_cast<ListNode*>(
+            PtrUtil::addOffset(obj, Node::getListNodeOffset()));
     }
 
     const ListNode* objToListNode(const T* obj) const
     {
-        return static_cast<const ListNode*>(PtrUtil::addOffset(obj, Node::getListNodeOffset()));
+        return static_cast<const ListNode*>(
+            PtrUtil::addOffset(obj, Node::getListNodeOffset()));
     }
 
     T* listNodeToObj(ListNode* node) const
     {
-        return static_cast<T*>(PtrUtil::addOffset(node, -Node::getListNodeOffset()));
+        return static_cast<T*>(
+            PtrUtil::addOffset(node, -Node::getListNodeOffset()));
     }
 
     const T* listNodeToObj(const ListNode* node) const
     {
-        return static_cast<const T*>(PtrUtil::addOffset(node, -Node::getListNodeOffset()));
+        return static_cast<const T*>(
+            PtrUtil::addOffset(node, -Node::getListNodeOffset()));
     }
 
     T* listNodeToObjWithNullCheck(ListNode* node) const
     {
-        return node ? listNodeToObj(node) : nullptr;
+        return node ? listNodeToObj(node) : NULL;
     }
 
     const T* listNodeToObjWithNullCheck(const ListNode* node) const
     {
-        return node ? listNodeToObj(node) : nullptr;
+        return node ? listNodeToObj(node) : NULL;
     }
 
-    static constexpr size_t ElementSize = std::max(sizeof(Node), FreeList::cPtrSize);
+public:
+    static const size_t ElementSize = sizeof(Node) > FreeList::cPtrSize ? sizeof(Node) : FreeList::cPtrSize;
+
+private:
 
     sead::FreeList mFreeList;
     s32 mMaxNum;
@@ -253,18 +363,27 @@ template <typename T, s32 N>
 class FixedObjList : public ObjList<T>
 {
 public:
-    FixedObjList() : ObjList<T>(N, &mWork) {}
+    FixedObjList()
+        : ObjList<T>(N, &mWork)
+    {
+    }
 
-    // These do not make sense for a *fixed* array.
-    void setBuffer(s32 ptrNumMax, void* buf) = delete;
-    void allocBuffer(s32 ptrNumMax, Heap* heap, s32 alignment = sizeof(void*)) = delete;
-    bool tryAllocBuffer(s32 ptrNumMax, Heap* heap, s32 alignment = sizeof(void*)) = delete;
-    void freeBuffer() = delete;
+    void setBuffer(s32 ptrNumMax, void* buf);
+    void allocBuffer(s32 ptrNumMax, Heap* heap,
+                     s32 alignment = sizeof(void*));
+    bool tryAllocBuffer(s32 ptrNumMax, Heap* heap,
+                        s32 alignment = sizeof(void*));
+    void freeBuffer();
 
 private:
-    std::aligned_storage_t<ObjList<T>::calculateWorkBufferSize(N),
-                           std::max(alignof(T), alignof(T*))>
-        mWork;
+    union WorkBuffer
+    {
+        u8 data[N * ObjList<T>::ElementSize];
+        T alignT;
+        T* alignPtr;
+    };
+
+    WorkBuffer mWork;
 };
 
-}  // namespace sead
+} // namespace sead

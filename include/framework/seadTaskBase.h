@@ -15,6 +15,7 @@
 
 namespace sead
 {
+class Framework;
 class FaderTaskBase;
 class MethodTreeNode;
 class MethodTreeMgr;
@@ -69,8 +70,6 @@ public:
         SingletonFunc instance_cb;
     };
 
-    static_assert(sizeof(CreateArg) == 0x50);
-
     struct TakeoverArg : public CreateArg
     {
         TakeoverArg(TaskBase* src, const TaskClassID& dst, FaderTaskBase* fader);
@@ -94,6 +93,10 @@ public:
     };
 
 public:
+    TaskBase()
+    {
+    }
+    
     explicit TaskBase(const TaskConstructArg& arg);
     TaskBase(const TaskConstructArg& arg, const char* name);
     virtual ~TaskBase();
@@ -122,9 +125,6 @@ public:
     virtual const RuntimeTypeInfo::Interface* getCorrespondingMethodTreeMgrTypeInfo() const = 0;
     virtual MethodTreeNode* getMethodTreeNode(s32 method_type) = 0;
     virtual void onDestroy();
-
-    void setFlag_(u32 flag){ mInternalFlag.set(flag); }
-    Tag getTag() const { return mTag; }
 
     void attachCalc();
     void attachCalcDraw();

@@ -22,8 +22,7 @@ bool MemUtil::isStack(const void* ptr)
     for (ThreadList::constIterator it = mgr->constBegin(); it != mgr->constEnd(); ++it) {
         Thread* thread = *it;
 
-        u32 stackBottom = reinterpret_cast<u32>(thread->GetStackBottom());
-
+        uptr stackBottom = thread->GetStackBottom();
         u32 stackTop = thread->getStackSize();
 
         if (addr >= stackTop && addr < stackBottom)

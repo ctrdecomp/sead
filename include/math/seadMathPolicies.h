@@ -3,7 +3,8 @@
 #include <math/seadMathBase.h>
 #include <nn/math.h>
 
-namespace sead{
+namespace sead
+{
 
 using namespace nn::math;
 

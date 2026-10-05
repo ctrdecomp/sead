@@ -9,6 +9,10 @@ class CalculateTask : public TaskBase
 {
     SEAD_RTTI_OVERRIDE(CalculateTask, TaskBase)
 public:
+    CalculateTask()
+    {
+    }
+    
     explicit CalculateTask(const TaskConstructArg& arg);
     CalculateTask(const TaskConstructArg& arg, const char* name);
     virtual ~CalculateTask();

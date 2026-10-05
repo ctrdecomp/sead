@@ -10,7 +10,10 @@ const u32 cDestructedFlag = 1;
 
 namespace sead
 {
-IDisposer::IDisposer() : IDisposer(nullptr, HeapNullOption::UseSpecifiedOrContainHeap) {}
+IDisposer::IDisposer():
+    mDisposerHeap(nullptr)
+{
+}
 
 IDisposer::IDisposer(Heap* const disposer_heap, HeapNullOption option)
 {
@@ -23,18 +26,18 @@ IDisposer::IDisposer(Heap* const disposer_heap, HeapNullOption option)
 
     switch (option)
     {
-    case HeapNullOption::AlwaysUseSpecifiedHeap:
+    case AlwaysUseSpecifiedHeap:
         SEAD_ASSERT_MSG(false, "disposer_heap must not be nullptr");
-    case HeapNullOption::UseSpecifiedOrContainHeap:
+    case UseSpecifiedOrContainHeap:
         if (!sead::HeapMgr::sInstancePtr)
             return;
         mDisposerHeap = sead::HeapMgr::sInstancePtr->findContainHeap(this);
         if (mDisposerHeap)
             mDisposerHeap->appendDisposer_(this);
         return;
-    case HeapNullOption::DoNotAppendDisposerIfNoHeapSpecified:
+    case DoNotAppendDisposerIfNoHeapSpecified:
         return;
-    case HeapNullOption::UseSpecifiedOrCurrentHeap:
+    case UseSpecifiedOrCurrentHeap:
         if (!sead::HeapMgr::sInstancePtr)
             return;
         mDisposerHeap = sead::HeapMgr::sInstancePtr->getCurrentHeap();

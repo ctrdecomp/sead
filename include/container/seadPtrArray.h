@@ -15,14 +15,26 @@ class Random;
 class PtrArrayImpl
 {
 public:
-    PtrArrayImpl(){ }
-    PtrArrayImpl(s32 ptrNumMax, void* buf) { setBuffer(ptrNumMax, buf); }
+    PtrArrayImpl()
+        : mPtrNum(0),
+          mPtrNumMax(0),
+          mPtrs(NULL)
+    {
+    }
+
+    PtrArrayImpl(s32 ptrNumMax, void* buf)
+        : mPtrNum(0),
+          mPtrNumMax(0),
+          mPtrs(NULL)
+    {
+        setBuffer(ptrNumMax, buf);
+    }
 
     void setBuffer(s32 ptrNumMax, void* buf);
     void allocBuffer(s32 ptrNumMax, Heap* heap, s32 alignment = sizeof(void*));
     bool tryAllocBuffer(s32 ptrNumMax, Heap* heap, s32 alignment = sizeof(void*));
     void freeBuffer();
-    bool isBufferReady() const { return mPtrs != nullptr; }
+    bool isBufferReady() const { return mPtrs != NULL; }
 
     bool isEmpty() const { return mPtrNum == 0; }
     bool isFull() const { return mPtrNum >= mPtrNumMax; }
@@ -34,9 +46,7 @@ public:
     void erase(s32 position, s32 count);
     void clear() { mPtrNum = 0; }
 
-    // TODO
     void resize(s32 size);
-    // TODO
     void unsafeResize(s32 size);
 
     void swap(s32 pos1, s32 pos2)
@@ -45,30 +55,33 @@ public:
         mPtrs[pos1] = mPtrs[pos2];
         mPtrs[pos2] = ptr;
     }
+
     void reverse();
+
     void shuffle()
     {
         Random random;
         shuffle(&random);
     }
+
     void shuffle(Random* random);
 
 protected:
-    using CompareCallbackImpl = s32 (*)(const void* a, const void* b);
+    typedef s32 (*CompareCallbackImpl)(const void* a, const void* b);
 
     void* at(s32 idx) const
     {
         if (u32(mPtrNum) <= u32(idx))
         {
             SEAD_ASSERT_MSG(false, "index exceeded [%d/%d]", idx, mPtrNum);
-            return nullptr;
+            return NULL;
         }
+
         return mPtrs[idx];
     }
 
     void* unsafeAt(s32 idx) const { return mPtrs[idx]; }
 
-    // XXX: should this use at()?
     void* front() const { return mPtrs[0]; }
     void* back() const { return mPtrs[mPtrNum - 1]; }
 
@@ -79,7 +92,7 @@ protected:
             SEAD_ASSERT_MSG(false, "list is full.");
             return false;
         }
-        // Simplest insert case, so this is implemented directly without using insert().
+
         mPtrs[mPtrNum] = ptr;
         ++mPtrNum;
         return true;
@@ -91,13 +104,14 @@ protected:
     {
         if (mPtrNum >= 1)
             return mPtrs[--mPtrNum];
-        return nullptr;
+
+        return NULL;
     }
 
     void* popFront()
     {
         if (isEmpty())
-            return nullptr;
+            return NULL;
 
         void* result = mPtrs[0];
         erase(0);
@@ -113,7 +127,8 @@ protected:
             if (cmp(mPtrs[i], ptr) == 0)
                 return mPtrs[i];
         }
-        return nullptr;
+
+        return NULL;
     }
 
     s32 search(const void* ptr, CompareCallbackImpl cmp) const
@@ -123,6 +138,7 @@ protected:
             if (cmp(mPtrs[i], ptr) == 0)
                 return i;
         }
+
         return -1;
     }
 
@@ -136,6 +152,7 @@ protected:
             if (cmp(mPtrs[i], other.mPtrs[i]) != 0)
                 return false;
         }
+
         return true;
     }
 
@@ -146,6 +163,7 @@ protected:
             if (mPtrs[i] == ptr)
                 return i;
         }
+
         return -1;
     }
 
@@ -154,7 +172,8 @@ protected:
         if (mPtrNum <= pos)
             return;
 
-        MemUtil::copyOverlap(mPtrs + pos + count, mPtrs + pos,
+        MemUtil::copyOverlap(mPtrs + pos + count,
+                             mPtrs + pos,
                              s32(sizeof(void*)) * (mPtrNum - pos));
     }
 
@@ -165,10 +184,8 @@ protected:
     template <typename T>
     void sort(s32 (*cmpT)(const T* a, const T* b))
     {
-        // Symbols show that `sort()` accepts a `void*` comparer, but needs to receive a `T*`
-        // comparer in order to match SMO. This overload exists to safely accept a `T*` comparer.
-        // This cast is UB, but we know that `cmpT` and `cmpVoid` have the same representation.
-        s32 cmpVoid = reinterpret_cast<s32 (*)(const void*, const void*)>(cmpT);
+        CompareCallbackImpl cmpVoid =
+            reinterpret_cast<CompareCallbackImpl>(cmpT);
         sort(cmpVoid);
     }
 
@@ -177,83 +194,95 @@ protected:
     template <typename T>
     void heapSort(s32 (*cmpT)(const T* a, const T* b))
     {
-        // Symbols show that `sort()` accepts a `void*` comparer, but needs to receive a `T*`
-        // comparer in order to match SMO. This overload exists to safely accept a `T*` comparer.
-        // This cast is UB, but we know that `cmpT` and `cmpVoid` have the same representation.
-        s32 cmpVoid = reinterpret_cast<s32 (*)(const void*, const void*)>(cmpT);
+        CompareCallbackImpl cmpVoid =
+            reinterpret_cast<CompareCallbackImpl>(cmpT);
         heapSort(cmpVoid);
     }
+
     void heapSort(CompareCallbackImpl cmp);
 
     s32 compare(const PtrArrayImpl& other, CompareCallbackImpl cmp) const;
     void uniq(CompareCallbackImpl cmp);
 
-    s32 binarySearch(const void* ptr, CompareCallbackImpl cmp) const
-    {
-        if (mPtrNum == 0)
-            return -1;
+    s32 binarySearch(const void* ptr, CompareCallbackImpl cmp) const;
 
-        s32 a = 0;
-        s32 b = mPtrNum - 1;
-        while (a < b)
-        {
-            const s32 m = (a + b) / 2;
-            const s32 c = cmp(mPtrs[m], ptr);
-            if (c == 0)
-                return m;
-            if (c < 0)
-                a = m + 1;
-            else
-                b = m;
-        }
-
-        if (cmp(mPtrs[a], ptr) == 0)
-            return a;
-
-        return -1;
-    }
-
-    s32 mPtrNum = 0;
-    s32 mPtrNumMax = 0;
-    void** mPtrs = nullptr;
+    s32 mPtrNum;
+    s32 mPtrNumMax;
+    void** mPtrs;
 };
 
 template <typename T>
 class PtrArray : public PtrArrayImpl
 {
 public:
-    PtrArray(){ }
-    PtrArray(s32 ptrNumMax, T** buf) : PtrArrayImpl(ptrNumMax, buf) {}
+    PtrArray() {}
 
-    T* at(s32 pos) const { return static_cast<T*>(PtrArrayImpl::at(pos)); }
-    T* unsafeAt(s32 pos) const { return static_cast<T*>(PtrArrayImpl::unsafeAt(pos)); }
+    PtrArray(s32 ptrNumMax, T** buf)
+        : PtrArrayImpl(ptrNumMax, buf)
+    {
+    }
+
+    T* at(s32 pos) const
+    {
+        return static_cast<T*>(PtrArrayImpl::at(pos));
+    }
+
+    T* unsafeAt(s32 pos) const
+    {
+        return static_cast<T*>(PtrArrayImpl::unsafeAt(pos));
+    }
+
     T* operator()(s32 pos) const { return unsafeAt(pos); }
     T* operator[](s32 pos) const { return at(pos); }
 
-    // XXX: Does this use at()?
     T* front() const { return at(0); }
     T* back() const { return at(mPtrNum - 1); }
 
-    bool pushBack(T* ptr) { return PtrArrayImpl::pushBack(constCast(ptr)); }
-    void pushFront(T* ptr) { PtrArrayImpl::pushFront(constCast(ptr)); }
+    bool pushBack(T* ptr)
+    {
+        return PtrArrayImpl::pushBack(constCast(ptr));
+    }
 
-    T* popBack() { return static_cast<T*>(PtrArrayImpl::popBack()); }
-    T* popFront() { return static_cast<T*>(PtrArrayImpl::popFront()); }
+    void pushFront(T* ptr)
+    {
+        PtrArrayImpl::pushFront(constCast(ptr));
+    }
 
-    void insert(s32 pos, T* ptr) { PtrArrayImpl::insert(pos, constCast(ptr)); }
+    T* popBack()
+    {
+        return static_cast<T*>(PtrArrayImpl::popBack());
+    }
+
+    T* popFront()
+    {
+        return static_cast<T*>(PtrArrayImpl::popFront());
+    }
+
+    void insert(s32 pos, T* ptr)
+    {
+        PtrArrayImpl::insert(pos, constCast(ptr));
+    }
+
     void insert(s32 pos, T* array, s32 count)
     {
-        // XXX: is this right?
         PtrArrayImpl::insertArray(pos, constCast(array), count, sizeof(T));
     }
-    void replace(s32 pos, T* ptr) { PtrArrayImpl::replace(pos, constCast(ptr)); }
 
-    s32 indexOf(const T* ptr) const { return PtrArrayImpl::indexOf(ptr); }
+    void replace(s32 pos, T* ptr)
+    {
+        PtrArrayImpl::replace(pos, constCast(ptr));
+    }
 
-    using CompareCallback = s32 (*)(const T*, const T*);
+    s32 indexOf(const T* ptr) const
+    {
+        return PtrArrayImpl::indexOf(ptr);
+    }
+
+    typedef s32 (*CompareCallback)(const T*, const T*);
 
     void sort() { sort(compareT); }
     void sort(CompareCallback cmp) { PtrArrayImpl::sort<T>(cmp); }
+
     void heapSort() { heapSort(compareT); }
     void heapSort(CompareCallback cmp) { PtrArrayImpl::heapSort<T>(cmp); }
 
@@ -269,28 +298,64 @@ public:
 
     T* find(const T* ptr) const
     {
-        return PtrArrayImpl::find(ptr,
-                                  [](const void* a, const void* b) { return a == b ? 0 : -1; });
+        return static_cast<T*>(
+            PtrArrayImpl::find(ptr, comparePtr));
     }
-    T* find(const T* ptr, CompareCallback cmp) const { return PtrArrayImpl::find(ptr, cmp); }
+
+    T* find(const T* ptr, CompareCallback cmp) const
+    {
+        return static_cast<T*>(PtrArrayImpl::find(ptr, cmp));
+    }
+
     s32 search(const T* ptr) const
     {
-        return PtrArrayImpl::search(ptr,
-                                    [](const void* a, const void* b) { return a == b ? 0 : -1; });
+        return PtrArrayImpl::search(ptr, comparePtr);
     }
-    s32 search(const T* ptr, CompareCallback cmp) const { return PtrArrayImpl::search(ptr, cmp); }
-    s32 binarySearch(const T* ptr) const { return PtrArrayImpl::binarySearch(ptr, compareT); }
+
+    s32 search(const T* ptr, CompareCallback cmp) const
+    {
+        return PtrArrayImpl::search(ptr, cmp);
+    }
+
+    s32 binarySearch(const T* ptr) const
+    {
+        return PtrArrayImpl::binarySearch(ptr, compareT);
+    }
+
     s32 binarySearch(const T* ptr, CompareCallback cmp) const
     {
         return PtrArrayImpl::binarySearch(ptr, cmp);
     }
 
-    bool operator==(const PtrArray& other) const { return equal(other, compareT); }
-    bool operator!=(const PtrArray& other) const { return !(*this == other); }
-    bool operator<(const PtrArray& other) const { return compare(other) < 0; }
-    bool operator<=(const PtrArray& other) const { return compare(other) <= 0; }
-    bool operator>(const PtrArray& other) const { return compare(other) > 0; }
-    bool operator>=(const PtrArray& other) const { return compare(other) >= 0; }
+    bool operator==(const PtrArray& other) const
+    {
+        return equal(other, compareT);
+    }
+
+    bool operator!=(const PtrArray& other) const
+    {
+        return !(*this == other);
+    }
+
+    bool operator<(const PtrArray& other) const
+    {
+        return compare(other, compareT) < 0;
+    }
+
+    bool operator<=(const PtrArray& other) const
+    {
+        return compare(other, compareT) <= 0;
+    }
+
+    bool operator>(const PtrArray& other) const
+    {
+        return compare(other, compareT) > 0;
+    }
+
+    bool operator>=(const PtrArray& other) const
+    {
+        return compare(other, compareT) >= 0;
+    }
 
     void uniq() { PtrArrayImpl::uniq(compareT); }
     void uniq(CompareCallback cmp) { PtrArrayImpl::uniq(cmp); }
@@ -298,14 +363,27 @@ public:
     class iterator
     {
     public:
-        iterator(T* const* pptr) : mPPtr{pptr} {}
-        bool operator==(const iterator& other) const { return mPPtr == other.mPPtr; }
-        bool operator!=(const iterator& other) const { return !(*this == other); }
+        iterator(T* const* pptr)
+            : mPPtr(pptr)
+        {
+        }
+
+        bool operator==(const iterator& other) const
+        {
+            return mPPtr == other.mPPtr;
+        }
+
+        bool operator!=(const iterator& other) const
+        {
+            return !(*this == other);
+        }
+
         iterator& operator++()
         {
             ++mPPtr;
             return *this;
         }
+
         T& operator*() const { return **mPPtr; }
         T* operator->() const { return *mPPtr; }
 
@@ -319,14 +397,27 @@ public:
     class constIterator
     {
     public:
-        constIterator(const T* const* pptr) : mPPtr{pptr} {}
-        bool operator==(const constIterator& other) const { return mPPtr == other.mPPtr; }
-        bool operator!=(const constIterator& other) const { return !(*this == other); }
+        constIterator(const T* const* pptr)
+            : mPPtr(pptr)
+        {
+        }
+
+        bool operator==(const constIterator& other) const
+        {
+            return mPPtr == other.mPPtr;
+        }
+
+        bool operator!=(const constIterator& other) const
+        {
+            return !(*this == other);
+        }
+
         constIterator& operator++()
         {
             ++mPPtr;
             return *this;
         }
+
         const T& operator*() const { return **mPPtr; }
         const T* operator->() const { return *mPPtr; }
 
@@ -334,8 +425,15 @@ public:
         const T* const* mPPtr;
     };
 
-    constIterator constBegin() const { return constIterator(dataBegin()); }
-    constIterator constEnd() const { return constIterator(dataEnd()); }
+    constIterator constBegin() const
+    {
+        return constIterator(dataBegin());
+    }
+
+    constIterator constEnd() const
+    {
+        return constIterator(dataEnd());
+    }
 
     T** data() const { return reinterpret_cast<T**>(mPtrs); }
     T** dataBegin() const { return data(); }
@@ -344,22 +442,28 @@ public:
 protected:
     static void* constCast(const T* ptr)
     {
-        // Unfortunately, we need to cast away const because several PtrArrayImpl functions
-        // only take void* even though the pointed-to object isn't actually modified.
-        return static_cast<void*>(const_cast<std::remove_const_t<T>*>(ptr));
+        return const_cast<void*>(static_cast<const void*>(ptr));
+    }
+
+    static s32 comparePtr(const void* a, const void* b)
+    {
+        return a == b ? 0 : -1;
     }
 
     static s32 compareT(const void* a, const void* b)
     {
-        return compareT(static_cast<const T*>(a), static_cast<const T*>(b));
+        return compareT(static_cast<const T*>(a),
+                        static_cast<const T*>(b));
     }
 
     static s32 compareT(const T* a, const T* b)
     {
         if (*a < *b)
             return -1;
+
         if (*b < *a)
             return 1;
+
         return 0;
     }
 };
@@ -368,21 +472,20 @@ template <typename T, s32 N>
 class FixedPtrArray : public PtrArray<T>
 {
 public:
-    FixedPtrArray() : PtrArray<T>(N, mWork) {}
-
-    // These do not make sense for a *fixed* array.
-    void setBuffer(s32 ptrNumMax, void* buf) = delete;
-    void allocBuffer(s32 ptrNumMax, Heap* heap, s32 alignment = sizeof(void*)) = delete;
-    bool tryAllocBuffer(s32 ptrNumMax, Heap* heap, s32 alignment = sizeof(void*)) = delete;
-    void freeBuffer() = delete;
+    FixedPtrArray()
+        : PtrArray<T>(N, mWork)
+    {
+    }
 
 private:
-    // Nintendo uses an untyped u8[N*sizeof(void*)] buffer. That is undefined behavior,
-    // so we will not do that.
+    void setBuffer(s32 ptrNumMax, void* buf);
+    void allocBuffer(s32 ptrNumMax, Heap* heap, s32 alignment = sizeof(void*));
+    bool tryAllocBuffer(s32 ptrNumMax, Heap* heap, s32 alignment = sizeof(void*));
+    void freeBuffer();
+
     T* mWork[N];
 };
 
-// TODO: Restrict usage of this object type
 template <typename T>
 class ConstPtrArray : public PtrArray<T>
 {

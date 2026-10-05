@@ -11,10 +11,10 @@ class MessageQueue
 public:
     typedef s64 Element;
 
-    enum class BlockType
+    enum BlockType
     {
-        Blocking = 0,
-        NonBlocking = 1,
+        cBlock,
+        cNoBlock
     };
 
     MessageQueue();

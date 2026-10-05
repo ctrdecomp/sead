@@ -37,8 +37,5 @@ protected:
 
     friend class Controller;
 };
-#ifdef cafe
-static_assert(sizeof(ControllerWrapperBase) == 0x174, "sead::ControllerWrapperBase size mismatch");
-#endif  // cafe
 
 }  // namespace sead

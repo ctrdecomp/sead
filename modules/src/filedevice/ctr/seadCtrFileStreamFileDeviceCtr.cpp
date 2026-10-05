@@ -16,9 +16,9 @@ bool CtrFileStreamFileDevice::doIsAvailable_() const
 {
     nn::fs::Directory dir;
     
-#ifdef MATCHING_HACK_CTR
-    const_cast<CtrFileStreamFileDevice*>(this)->nn_result = const_cast<CtrFileStreamFileDevice*>(this)->openDirectryImpl_(&dir, getArchiveName_(), "");
-#endif
+    CtrFileStreamFileDevice* self = const_cast<CtrFileStreamFileDevice*>(this);
+    self->nn_result = self->openDirectryImpl_(&dir, getArchiveName_(), "");
+
     return nn_result.IsSuccess();
 }
 
@@ -27,9 +27,9 @@ FileDevice* CtrFileStreamFileDevice::doOpen_(FileHandle* handle, const SafeStrin
 { 
     enum
     {
-        cCtrFile_Read = 1,
-        cCtrFile_ReadWrite = 3,
-        cCtrFile_WriteAndCreate = 6,
+        cCtrFile_Read = nn::fs::OPEN_MODE_READ,
+        cCtrFile_WriteAndCreate = nn::fs::OPEN_MODE_WRITE | nn::fs::OPEN_MODE_CREATE,
+        cCtrFile_ReadWrite = nn::fs::OPEN_MODE_READ | nn::fs::OPEN_MODE_WRITE,
     } mode;
 
     switch(flag)
@@ -139,13 +139,13 @@ bool CtrFileStreamFileDevice::doSeek_(FileHandle *handle, int offset,
     switch (origin)
     {
     case cSeekOrigin_Begin:
-        positionBase = nn::fs::PositionBase::BASE_BEGIN;
+        positionBase = nn::fs::POSITION_BASE_BEGIN;
         break;
     case cSeekOrigin_Current:
-        positionBase = nn::fs::PositionBase::BASE_CURRENT;
+        positionBase = nn::fs::POSITION_BASE_CURRENT;
         break;
     case cSeekOrigin_End:
-        positionBase = nn::fs::PositionBase::BASE_END;
+        positionBase = nn::fs::POSITION_BASE_END;
         break;
     default:
         return false;
@@ -178,17 +178,15 @@ bool CtrFileStreamFileDevice::doGetFileSize_(u32* fileSize, const SafeString& pa
     FileStream fs;
     nn_result = openFileStreamImpl_(&fs, getArchiveName_(), path, nn::fs::OPEN_MODE_READ);
 
-    if(nn_result.IsFailure())
-    {
-        return false;
-    }
-    else
+    if(!nn_result.IsFailure())
     {
         s64 size = 0;
         nn_result = fs.TryGetSize(&size);
         *fileSize = 0;
         return nn_result.IsSuccess();
     }
+
+    return false;
 }
 
 bool CtrFileStreamFileDevice::doGetFileSize_(u32* fileSize, FileHandle* handle)
@@ -210,29 +208,27 @@ bool CtrFileStreamFileDevice::doIsExistFile_(bool* exists, const SafeString& pat
         *exists = false;
         return true;
     }
-    else
+
+    if(nn_result.IsFailure())
     {
+        nn::fs::FileStream fs;
+        nn_result = openFileStreamImpl_(&fs, getArchiveName_(), path, nn::fs::OPEN_MODE_READ);
+
         if(nn_result.IsFailure())
         {
-            nn::fs::FileStream fs;
-            nn_result = openFileStreamImpl_(&fs, getArchiveName_(), path, nn::fs::OPEN_MODE_READ);
-
-            if(nn_result.IsFailure())
-            {
-                *exists = false;
-                return false;
-            }
-            else
-            {
-                *exists = true;
-                return true;
-            }
+            *exists = false;
+            return false;
         }
         else
         {
-            *exists = false;
+            *exists = true;
             return true;
         }
+    }
+    else
+    {
+        *exists = false;
+        return true;
     }
 }
 
@@ -246,29 +242,27 @@ bool CtrFileStreamFileDevice::doIsExistDirectory_(bool* exists, const SafeString
         *exists = false;
         return true;
     }
-    else
+
+    if(nn_result.IsFailure())
     {
+        nn::fs::Directory dr;
+        nn_result = openDirectryImpl_(&dr, getArchiveName_(), path);
+   
         if(nn_result.IsFailure())
         {
-            nn::fs::Directory dr;
-            nn_result = openDirectryImpl_(&dr, getArchiveName_(), path);
-   
-            if(nn_result.IsFailure())
-            {
-                *exists = false;
-                return false;
-            }
-            else
-            {
-                *exists = true;
-                return true;
-            }
+            *exists = false;
+            return false;
         }
         else
         {
-            *exists = false;
+            *exists = true;
             return true;
         }
+    }
+    else
+    {
+        *exists = false;
+        return true;
     }
 }
 
@@ -288,7 +282,7 @@ bool CtrFileStreamFileDevice::doMakeDirectory_(const SafeString& path, u32 u_32)
 {
     WFixedSafeString<256> string;
 
-    s32 len = string.format(u"%s:/%s", getArchiveName_(), path.cstr());
+    s32 len = string.format(L"%s:/%s", getArchiveName_(), path.cstr());
     SEAD_ASSERT(len < cFileNameFormatBufSize - 1);
     nn_result = nn::fs::TryCreateDirectory((const char*)string.cstr());
     return nn_result.IsSuccess();
@@ -304,7 +298,7 @@ bool CtrFileStreamFileDevice::doCloseDirectory_(DirectoryHandle* handle)
     Directory* pDir = new(getNnFsDirectory_(handle)) Directory();
     pDir->Finalize();
     pDir->~Directory();
-    nn_result = nn::Result::Const<nn::Result::LEVEL_SUCCESS, nn::Result::SUMMARY_SUCCESS, nn::Result::MODULE_COMMON, 0>();
+    nn_result = nn::ResultSuccess();
     return true;
 }
 
@@ -356,10 +350,10 @@ nn::Result CtrFileStreamFileDevice::openFileStreamImpl_(nn::fs::FileStream* fs, 
     SEAD_ASSERT(fs);
     WFixedSafeString<256> sstring;
 
-    s32 len = sstring.format(u"%s:/%s", pathInner.cstr(), pathOutter.cstr());
+    s32 len = sstring.format(L"%s:/%s", pathInner.cstr(), pathOutter.cstr());
 
     SEAD_ASSERT(len < cFileNameFormatBufSize - 1);
-    return fs->TryInitialize((wchar_t*)sstring.cstr(), mode);
+    return fs->TryInitialize(sstring.cstr(), mode);
 }
 
 nn::Result CtrFileStreamFileDevice::openDirectryImpl_(nn::fs::Directory* dr, SafeString const& pathInner, 
@@ -367,9 +361,19 @@ nn::Result CtrFileStreamFileDevice::openDirectryImpl_(nn::fs::Directory* dr, Saf
 {
     SEAD_ASSERT(dr);
     WFixedSafeString<256> sstring;
-    s32 len = sstring.format(u"%s:/%s", pathInner.cstr(), pathOutter.cstr());
+    s32 len = sstring.format(L"%s:/%s", pathInner.cstr(), pathOutter.cstr());
     SEAD_ASSERT(len < cFileNameFormatBufSize - 1);
-    return dr->TryInitialize((wchar_t*)sstring.cstr());
+    return dr->TryInitialize(sstring.cstr());
+}
+
+CtrFileStreamFileDevice::FileStreamFileHandle* CtrFileStreamFileDevice::getFileStreamFileHandle_(FileHandle* h) const
+{
+    return reinterpret_cast<FileStreamFileHandle*>(getHandleBaseHandleBuffer_(h)[0]);
+}
+
+Directory* CtrFileStreamFileDevice::getNnFsDirectory_(DirectoryHandle* h) const
+{
+    return reinterpret_cast<Directory*>(getHandleBaseHandleBuffer_(h)[0]);
 }
 
 }

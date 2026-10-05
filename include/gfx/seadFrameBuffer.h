@@ -96,6 +96,9 @@ public:
     virtual void bindImpl_() const = 0;
 
     void bind() const;
+
+    static FrameBuffer* getBoundFrameBuffer() { return sBoundFrameBuffer; }
+    static FrameBuffer* sBoundFrameBuffer;
 };
 
 }  // namespace sead

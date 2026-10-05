@@ -34,7 +34,7 @@ bool Thread::sendMessage(MessageQueue::Element msg, MessageQueue::BlockType bloc
 
 MessageQueue::Element Thread::recvMessage(MessageQueue::BlockType block_type)
 {
-    if (mState == State::cQuitting)
+    if (mState == cQuitting)
         return 0;
     return mMessageQueue.pop(block_type);
 }
@@ -46,13 +46,13 @@ void Thread::quit(bool is_jam)
         return;
     }
 
-    if (mState == State::cRunning)
-        mState = State::cQuitting;
+    if (mState == cRunning)
+        mState = cQuitting;
 
     if (is_jam)
-        mMessageQueue.jam(mQuitMsg, MessageQueue::BlockType::Blocking);
+        mMessageQueue.jam(mQuitMsg, MessageQueue::cBlock);
     else
-        mMessageQueue.push(mQuitMsg, MessageQueue::BlockType::Blocking);
+        mMessageQueue.push(mQuitMsg, MessageQueue::cBlock);
 }
 
 void Thread::quitAndWaitDoneSingleThread(bool is_jam)
@@ -61,7 +61,7 @@ void Thread::quitAndWaitDoneSingleThread(bool is_jam)
     waitDone();
 }
 
-constexpr u32 cStackCanaryMagic = 0x5EAD5CEC;
+const u32 cStackCanaryMagic = 0x5EAD5CEC;
 
 static bool checkStackMagic(uintptr_t addr)
 {
@@ -148,20 +148,29 @@ ThreadMgr::~ThreadMgr()
 {
     ScopedLock<CriticalSection> lock(getListCS());
 
-    for (Thread* thread : mList)
+    for (ThreadList::iterator it = mList.begin(); it != mList.end(); ++it)
+    {
+        Thread* thread = *it;
         thread->quit(false);
+    }
 
     bool all_done;
     do
     {
         all_done = true;
-        for (Thread* thread : mList)
+        for (ThreadList::iterator it = mList.begin(); it != mList.end(); ++it)
+        {
+            Thread* thread = *it;
             all_done &= thread->isDone();
+        }
         Thread::yield();
     } while (!all_done);
 
-    for (Thread* thread : mList)
+    for (ThreadList::iterator it = mList.begin(); it != mList.end(); ++it)
+    {
+        Thread* thread = *it;
         thread->waitDone();
+    }
 }
 
 void ThreadMgr::initialize(Heap* heap)

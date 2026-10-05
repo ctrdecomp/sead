@@ -37,7 +37,7 @@ void ScreenFiller::draw(f32 alpha)
 {
     PrimitiveDrawer drawer(nullptr);
 
-    mViewport.apply(nullptr, *mLogicalFrameBuffer);
+    mViewport.apply(*mLogicalFrameBuffer);
 
     drawer.setProjection(&mProjection);
     drawer.setCamera(&mCamera);
@@ -55,7 +55,7 @@ void ScreenFiller::draw(f32 alpha)
 
 FaderTaskBase::FaderTaskBase(const TaskConstructArg& arg, const char* name): 
     TaskBase(arg, name), 
-    mType(Type::cInvalid), 
+    mType(cInvalid), 
     mSrcTask(nullptr), 
     mCreateArg(), 
     mDstTask(nullptr), 
@@ -68,10 +68,10 @@ FaderTaskBase::FaderTaskBase(const TaskConstructArg& arg, const char* name):
     mFadeinFrame(mLoopFrame + 30), 
     mBlackness(0.0f), 
     mFinishing(false), 
-    mFaderState(FaderState::cWait)
+    mFaderState(cWait)
 {
     mCalcNode.setName(name);
-    mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+    mCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
 
     mCalcNode.bind(this, &FaderTaskBase::calc, name);
     mCalcDestructionNode.bind(this, &FaderTaskBase::calcCore_, "calcCore_");
@@ -92,11 +92,11 @@ void FaderTaskBase::pauseCalc(bool b)
 {
     if (b)
     {
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Self);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_Self);
     }
     else
     {
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 
@@ -104,11 +104,11 @@ void FaderTaskBase::pauseCalcRec(bool b)
 {
     if (b)
     {
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
     }
     else
     {
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 
@@ -116,11 +116,11 @@ void FaderTaskBase::pauseCalcChild(bool b)
 {
     if (b)
     {
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Child);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_Child);
     }
     else
     {
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 
@@ -143,7 +143,7 @@ void FaderTaskBase::attachCalcImpl()
     getTaskMgr()->mCalcDestructionTreeNode.pushBackChild(&mCalcDestructionNode);
 
     attachMethodWithCheck(1, &mCalcNode);
-    mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+    mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
 }
 
 void FaderTaskBase::detachCalcImpl()
@@ -168,7 +168,7 @@ bool FaderTaskBase::startCreate_()
 {
     ScopedLock<CriticalSection> lock(&mTaskMgr->mCriticalSection);
 
-    if (mType == Type::cTakeover)
+    if (mType == cTakeover)
     {
         mTaskMgr->doDestroyTask_(mSrcTask);
         mSrcTask = nullptr;
@@ -185,9 +185,9 @@ void FaderTaskBase::onCreateDone_(TaskBase* task)
 
     switch (mType)
     {
-        case Type::cCreate:
-        case Type::cTakeover:
-        case Type::cPush:
+        case cCreate:
+        case cTakeover:
+        case cPush:
             fadein_();
 
         default:
@@ -197,28 +197,28 @@ void FaderTaskBase::onCreateDone_(TaskBase* task)
 
 void FaderTaskBase::enter()
 {
-    setFaderState_(FaderState::cWait);
+    setFaderState_(cWait);
 }
 
 void FaderTaskBase::calc()
 {
     switch (mFaderState)
     {
-        case FaderState::cFadeout:
+        case cFadeout:
             mBlackness = mFadeoutFrame > 0 ? static_cast<f32>(mFrame) / static_cast<f32>(mFadeoutFrame + 1) : 0.0f;
 
             if (mFrame == 0)
-                onFadeEvent_(FadeEvent::cFadeoutStarted);
+                onFadeEvent_(cFadeoutStarted);
 
             doCalc_();
             break;
 
-        case FaderState::cLoop:
+        case cLoop:
             doCalc_();
             mBlackness = 1.0f;
             break;
 
-        case FaderState::cFadein:
+        case cFadein:
             doCalc_();
 
             if (mFadeinFrame != mLoopFrame)
@@ -237,7 +237,7 @@ void FaderTaskBase::calcCore_()
 {
     switch (mFaderState)
     {
-        case FaderState::cFadeout:
+        case cFadeout:
             if (mFrame > mFadeoutFrame)
             {
                 CriticalSection& cs = mTaskMgr->mCriticalSection;
@@ -246,16 +246,16 @@ void FaderTaskBase::calcCore_()
 
                 if (cs.tryLock())
                 {
-                    onFadeEvent_(FadeEvent::cFadeoutEnded);
-                    setFaderState_(FaderState::cLoop);
+                    onFadeEvent_(cFadeoutEnded);
+                    setFaderState_(cLoop);
 
                     switch (mType)
                     {
-                        case Type::cTakeover:
+                        case cTakeover:
                             startCreate_();
                             break;
 
-                        case Type::cTransit:
+                        case cTransit:
                             SEAD_ASSERT(mSrcTask);
                             SEAD_ASSERT(mDstTask);
 
@@ -271,7 +271,7 @@ void FaderTaskBase::calcCore_()
                             fadein_();
                             break;
 
-                        case Type::cPush:
+                        case cPush:
                             SEAD_ASSERT(mSrcTask);
 
                             mSrcTask->pauseCalc(true);
@@ -279,7 +279,7 @@ void FaderTaskBase::calcCore_()
 
                             break;
 
-                        case Type::cPop:
+                        case cPop:
                         {
                             TaskBase* nextTask = mSrcTask->getParentTask();
                             SEAD_ASSERT(nextTask);
@@ -322,18 +322,18 @@ void FaderTaskBase::calcCore_()
 
             break;
 
-        case FaderState::cLoop:
+        case cLoop:
             if (mFrame > mLoopFrame)
             {
                 mFrame = mLoopFrame + 1;
 
                 if (mFinishing)
                 {
-                    if (mType == Type::cTakeover)
+                    if (mType == cTakeover)
                         mDstTask->onEvent(TaskEvent::cTakeoverIn);
 
-                    onFadeEvent_(FadeEvent::cFadeinStarted);
-                    setFaderState_(FaderState::cFadein);
+                    onFadeEvent_(cFadeinStarted);
+                    setFaderState_(cFadein);
                 }
                 else
                 {
@@ -343,14 +343,14 @@ void FaderTaskBase::calcCore_()
 
             break;
 
-        case FaderState::cFadein:
+        case cFadein:
             if (mFrame > mFadeinFrame)
             {
-                onFadeEvent_(FadeEvent::cFadeinEnded);
+                onFadeEvent_(cFadeinEnded);
 
                 mFrame = mFadeinFrame + 1;
 
-                setFaderState_(FaderState::cWait);
+                setFaderState_(cWait);
 
                 if (mSrcTask)
                     mSrcTask->resetFlag_(1);
@@ -370,7 +370,7 @@ void FaderTaskBase::setFaderState_(FaderState s)
 {
     mFaderState = s;
 
-    if (mFaderState == FaderState::cWait)
+    if (mFaderState == cWait)
         detachCalcDraw();
 }
 
@@ -378,10 +378,10 @@ bool FaderTaskBase::startAsCreate_(const CreateArg& createArg)
 {
     ScopedLock<CriticalSection> lock(&mTaskMgr->mCriticalSection);
 
-    if (mFaderState != FaderState::cWait)
+    if (mFaderState != cWait)
         return false;
 
-    mType = Type::cCreate;
+    mType = cCreate;
     mCreateArg = createArg;
 
     if (!startCreate_())
@@ -390,7 +390,7 @@ bool FaderTaskBase::startAsCreate_(const CreateArg& createArg)
     mSrcTask = nullptr;
     mFrame = mFadeoutFrame;
 
-    setFaderState_(FaderState::cLoop);
+    setFaderState_(cLoop);
 
     mFinishing = false;
     mBlackness = 1.0f;
@@ -404,12 +404,12 @@ bool FaderTaskBase::startAsTakeover_(TaskBase* destroyTask, const CreateArg& cre
 {
     ScopedLock<CriticalSection> lock(&mTaskMgr->mCriticalSection);
 
-    if (mFaderState != FaderState::cWait)
+    if (mFaderState != cWait)
         return false;
 
-    mType = Type::cTakeover;
+    mType = cTakeover;
 
-    if (!mTaskMgr->changeTaskState_(destroyTask, State::cDying))
+    if (!mTaskMgr->changeTaskState_(destroyTask, cDying))
         return false;
 
     mSrcTask = destroyTask;
@@ -419,7 +419,7 @@ bool FaderTaskBase::startAsTakeover_(TaskBase* destroyTask, const CreateArg& cre
     mCreateArg = createArg;
     mFrame = 0;
 
-    setFaderState_(FaderState::cFadeout);
+    setFaderState_(cFadeout);
 
     mFinishing = false;
     mBlackness = 0.0f;
@@ -433,10 +433,10 @@ bool FaderTaskBase::startAsTransit_(TaskBase* from, TaskBase* to)
 {
     ScopedLock<CriticalSection> lock(&mTaskMgr->mCriticalSection);
 
-    if (mFaderState != FaderState::cWait)
+    if (mFaderState != cWait)
         return false;
 
-    mType = Type::cTransit;
+    mType = cTransit;
 
     mSrcTask = from;
     mDstTask = to;
@@ -446,7 +446,7 @@ bool FaderTaskBase::startAsTransit_(TaskBase* from, TaskBase* to)
 
     mFrame = 0;
 
-    setFaderState_(FaderState::cFadeout);
+    setFaderState_(cFadeout);
 
     mFinishing = false;
     mBlackness = 0.0f;
@@ -460,10 +460,10 @@ bool FaderTaskBase::startAsPush_(TaskBase* sleepTask, const CreateArg& createArg
 {
     ScopedLock<CriticalSection> lock(&mTaskMgr->mCriticalSection);
 
-    if (mFaderState != FaderState::cWait)
+    if (mFaderState != cWait)
         return false;
 
-    mType = Type::cPush;
+    mType = cPush;
     mCreateArg = createArg;
 
     if (!startCreate_())
@@ -474,7 +474,7 @@ bool FaderTaskBase::startAsPush_(TaskBase* sleepTask, const CreateArg& createArg
 
     mFrame = 0;
 
-    setFaderState_(FaderState::cFadeout);
+    setFaderState_(cFadeout);
 
     mFinishing = false;
     mBlackness = 0.0f;
@@ -488,10 +488,10 @@ bool FaderTaskBase::startAsPop_(TaskBase* sleepTask, TaskBase* toTask)
 {
     ScopedLock<CriticalSection> lock(&mTaskMgr->mCriticalSection);
 
-    if (mFaderState != FaderState::cWait)
+    if (mFaderState != cWait)
         return false;
 
-    mType = Type::cPop;
+    mType = cPop;
 
     mSrcTask = sleepTask;
     mSrcTask->setFlag_(1);
@@ -500,7 +500,7 @@ bool FaderTaskBase::startAsPop_(TaskBase* sleepTask, TaskBase* toTask)
 
     mFrame = 0;
 
-    setFaderState_(FaderState::cFadeout);
+    setFaderState_(cFadeout);
 
     mFinishing = false;
     mBlackness = 0.0f;
@@ -515,7 +515,7 @@ FaderTask::FaderTask(const TaskConstructArg& arg, const char* name):
     mDrawNode(nullptr)
 {
     mDrawNode.setName(name);
-    mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+    mDrawNode.setPauseFlag(MethodTreeNode::cPause_Both);
 
     mDrawNode.bind(this, &FaderTask::draw, name);
 }
@@ -528,11 +528,11 @@ void FaderTask::pauseDraw(bool b)
 {
     if (b)
     {
-        mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Self);
+        mDrawNode.setPauseFlag(MethodTreeNode::cPause_Self);
     }
     else
     {
-        mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 
@@ -540,11 +540,11 @@ void FaderTask::pauseDrawRec(bool b)
 {
     if (b)
     {
-        mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+        mDrawNode.setPauseFlag(MethodTreeNode::cPause_Both);
     }
     else
     {
-        mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 
@@ -552,11 +552,11 @@ void FaderTask::pauseDrawChild(bool b)
 {
     if (b)
     {
-        mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Child);
+        mDrawNode.setPauseFlag(MethodTreeNode::cPause_Child);
     }
     else
     {
-        mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 
@@ -564,7 +564,7 @@ void FaderTask::attachDrawImpl()
 {
     attachMethodWithCheck(4, &mDrawNode);
 
-    mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+    mDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
 }
 
 void FaderTask::detachDrawImpl()

@@ -11,7 +11,7 @@ UlcdTask::UlcdTask(const TaskConstructArg& arg):
     DualScreenTask(arg),
     mRightNode(NULL)
 {
-    mRightNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+    mRightNode.setPauseFlag(MethodTreeNode::cPause_None);
 
     mRightNode.bind(this, &UlcdTask::drawRight, "Task");
 }
@@ -20,7 +20,7 @@ UlcdTask::UlcdTask(const TaskConstructArg& arg, const char* name):
     DualScreenTask(arg, name),
     mRightNode(NULL)
 {
-    mRightNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+    mRightNode.setPauseFlag(MethodTreeNode::cPause_None);
 
     mRightNode.bind(this, &UlcdTask::drawRight, name);
 }
@@ -34,11 +34,11 @@ void UlcdTask::pauseDraw(bool b)
     DualScreenTask::pauseDraw(b);
     if(b)
     {
-        mRightNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Self);
+        mRightNode.setPauseFlag(MethodTreeNode::cPause_Self);
     }
     else
     {
-        mRightNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mRightNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 
@@ -47,11 +47,11 @@ void UlcdTask::pauseDrawRec(bool b)
     DualScreenTask::pauseDrawRec(b);
     if(b)
     {
-        mRightNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+        mRightNode.setPauseFlag(MethodTreeNode::cPause_Both);
     }
     else
     {
-        mRightNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mRightNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 
@@ -65,13 +65,13 @@ void UlcdTask::attachDrawImpl()
 
     switch(getTag())
     {
-    case Tag::cSystem:
+    case cSystem:
         attachMethodWithCheck(14, &mRightNode);
         break;
     default:
         SEAD_ASSERT_MSG(false, "Undefined Tag(%d).", getTag());
         //! Fallthrough
-    case Tag::cApp:
+    case cApp:
         if (!p)
         {
             attachMethodWithCheck(15, &mRightNode);
@@ -93,7 +93,7 @@ void UlcdTask::detachDrawImpl()
     mRightNode.detachAll();
 }
 
-const RuntimeTypeInfo::Interface* DualScreenTask::getCorrespondingMethodTreeMgrTypeInfo() const
+const RuntimeTypeInfo::Interface* UlcdTask::getCorrespondingMethodTreeMgrTypeInfo() const
 {
     return UlcdMethodTreeMgr::getRuntimeTypeInfoStatic();
 }

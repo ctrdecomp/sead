@@ -9,9 +9,9 @@ class PrintConfig
 public:
     struct PrintEventArg
     {
-        PrintEventArg(const char* str_, s32 len_)
-            : str(str_)
-            , len(len_)
+        PrintEventArg(const char* str_, s32 len_): 
+            str(str_), 
+            len(len_)
         {
         }
         
@@ -19,7 +19,7 @@ public:
         s32 len;
     };
 
-    using PrintEvent = DelegateEvent<const PrintEventArg&>;
+    typedef DelegateEvent<const PrintEventArg&> PrintEvent;
 
 public:
     static void registerCallback(PrintEvent::Slot& slot);

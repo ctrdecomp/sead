@@ -73,10 +73,6 @@ public:
     virtual void createSystemTasks(TaskBase*, const CreateSystemTaskArg&);
     virtual FrameBuffer* getMethodFrameBuffer(s32) const = 0;
     virtual const LogicalFrameBuffer* getMethodLogicalFrameBuffer(s32 methodType) const{ { return getMethodFrameBuffer(methodType); } }
-    virtual bool setProcessPriority(ProcessPriority);
-    virtual void reserveReset(void*);
-
-    MethodTreeMgr* getMethodTreeMgr() const { return mMethodTreeMgr; }
 
     virtual bool setProcessPriority(ProcessPriority priority)
     {
@@ -95,7 +91,7 @@ public:
         return mTaskMgr;
     }
 
-    MethodTreeMgr* getMethodTreeMgr()
+    MethodTreeMgr* getMethodTreeMgr() const
     {
         return mMethodTreeMgr;
     }

@@ -24,7 +24,7 @@ public:
 
 public:
     ProcessMeterBarBase(Section* buffer, s32 sectionNum, const SafeString& name, const Color4f& color);
-    ~ProcessMeterBarBase() override;
+    virtual ~ProcessMeterBarBase();
 
     void measureBegin();
     void measureBegin(const TickTime& t);

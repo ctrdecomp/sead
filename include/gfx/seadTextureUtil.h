@@ -2,7 +2,8 @@
 #define SEAD_TEXTURE_UTIL_H_
 
 #include <nn/gx.h>
-#include "math/seadVector.h"
+#include <math/seadBoundBox.h>
+#include <math/seadVector.h>
 
 namespace sead {
 

@@ -23,14 +23,25 @@ template <typename T>
 class Matrix22 : public Policies<T>::Mtx22Base
 {
 private:
+    typedef typename Policies<T>::Mtx22Base Base;
+
     typedef Matrix22<T> Self;
 
 public:
-    Matrix22() {}
+    Matrix22():
+        Base()
+    {
+    }
 
-    Matrix22(const Self& n) = default;
+    Matrix22(const Self& n): 
+        Base(n)
+    {
+    }
 
-    Matrix22(T a00, T a01, T a10, T a11);
+    Matrix22(T a00, T a01, T a10, T a11):
+        Base(a00, a01, a10, a11)
+    {
+    }
 
     T operator()(s32 i, s32 j) const;
     T& operator()(s32 i, s32 j);
@@ -53,17 +64,28 @@ template <typename T>
 class Matrix33 : public Policies<T>::Mtx33Base
 {
 private:
+    typedef typename Policies<T>::Mtx33Base Base;
+
     typedef Matrix33<T> Self;
     typedef Matrix34<T> Mtx34;
 
     typedef Vector3<T> Vec3;
 
 public:
-    Matrix33() {}
+    Matrix33():
+        Base()
+    {
+    }
 
-    Matrix33(const Self& n) = default;
+    Matrix33(const Self& n): 
+        Base(n)
+    {
+    }
 
-    Matrix33(T a00, T a01, T a02, T a10, T a11, T a12, T a20, T a21, T a22);
+    Matrix33(T a00, T a01, T a02, T a10, T a11, T a12, T a20, T a21, T a22):
+        Base(a00, a01, a02, a10, a11, a12, a20, a21, a22)
+    {
+    }
 
     Matrix33(const Mtx34& mtx34);
 
@@ -109,6 +131,8 @@ template <typename T>
 class Matrix34 : public Policies<T>::Mtx34Base
 {
 private:
+    typedef typename Policies<T>::Mtx34Base Base;
+
     typedef Matrix34<T> Self;
     typedef Matrix33<T> Mtx33;
     typedef Matrix44<T> Mtx44;
@@ -118,11 +142,20 @@ private:
     typedef Quat<T> QuatT;
 
 public:
-    Matrix34() {}
+    Matrix34():
+        Base()
+    {
+    }
 
-    Matrix34(const Self& n) = default;
+    Matrix34(const Self& n)
+        : Base(n)
+    {
+    }
 
-    Matrix34(T _00, T _01, T _02, T _03, T _10, T _11, T _12, T _13, T _20, T _21, T _22, T _23);
+    Matrix34(T _00, T _01, T _02, T _03, T _10, T _11, T _12, T _13, T _20, T _21, T _22, T _23):
+        Base(_00, _01, _02, _03, _10, _11, _12, _13, _20, _21, _22, _23)
+    {
+    }
 
     Matrix34(const Mtx33& mtx33, const Vec3& t = Vec3::zero);
     Matrix34(const Mtx44& mtx44);
@@ -217,6 +250,8 @@ template <typename T>
 class Matrix44 : public Policies<T>::Mtx44Base
 {
 private:
+    typedef typename Policies<T>::Mtx44Base Base;
+
     typedef Matrix44<T> Self;
     typedef Matrix33<T> Mtx33;
     typedef Matrix34<T> Mtx34;
@@ -225,14 +260,21 @@ private:
     typedef Vector4<T> Vec4;
 
 public:
-    Matrix44() {}
+    Matrix44():
+        Base()
+    {
+    }
 
-    Matrix44(const Self& n)
+    Matrix44(const Self& n):
+        Base(n)
     {
     }
 
     Matrix44(T _00, T _01, T _02, T _03, T _10, T _11, T _12, T _13, T _20, T _21, T _22, T _23,
-             T _30, T _31, T _32, T _33);
+             T _30, T _31, T _32, T _33):
+        Base(_00, _01, _02, _03, _10, _11, _12, _13, _20, _21, _22, _23, _30, _31, _32, _33)
+    {
+    }
 
     Matrix44(const Mtx33& mtx33, const Vec3& t = Vec3::zero, const Vec4& vw = Vec4::ew);
     Matrix44(const Mtx34& mtx34, const Vec4& vw = Vec4::ew);

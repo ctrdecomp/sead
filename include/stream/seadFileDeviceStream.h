@@ -28,7 +28,7 @@ public:
 private:
     FileHandle* mFileHandle;
     u32 mStartingPos;
-    FileHandle _18;
+    FileHandle mHandleTemp;
     bool mIsHandleOpen;
     u32 mFileSize;
 };

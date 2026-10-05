@@ -21,8 +21,8 @@ private:
     StreamSrc* mSrc;
     void* mBuffer;
     u32 mBufferSize;
-    u32 mCurrentSize = 0;
-    u32 mCurrentPos = 0;
+    u32 mCurrentSize;
+    u32 mCurrentPos;
 };
 
 class BufferReadStream : public ReadStream
@@ -48,11 +48,11 @@ public:
     virtual bool isEOF() { return mSrc->isEOF(); }
     virtual bool flush();
 
-private:
+protected:
     StreamSrc* mSrc;
     void* mBuffer;
-    u32 mBufferSize = 0;
-    u32 mCurrentPos = 0;
+    u32 mBufferSize;
+    u32 mCurrentPos;
 };
 
 class BufferWriteStream : public WriteStream
@@ -86,6 +86,10 @@ private:
 class BufferMultiByteNullTerminatedTextWriteStreamSrc : public BufferMultiByteTextWriteStreamSrc
 {
 public:
+    BufferMultiByteNullTerminatedTextWriteStreamSrc(StreamSrc* src, void* start, u32 size): 
+        BufferMultiByteTextWriteStreamSrc(src, start, size - 1)
+    {
+    }
     virtual ~BufferMultiByteNullTerminatedTextWriteStreamSrc(){}
     virtual bool flush();
 };

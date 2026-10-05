@@ -106,7 +106,13 @@ class Color4f
 {
 public:
     Color4f(){ };
-    Color4f(f32 r, f32 g, f32 b, f32 a) : r(r), g(g), b(b), a(a) {}
+    Color4f(f32 r, f32 g, f32 b, f32 a)
+    {
+        cl.r = r;
+        cl.g = g;
+        cl.b = b;
+        cl.a = a;
+    }
 
     static Color4f lerp(const Color4f& color1, const Color4f& color2, f32 t);
 
@@ -127,7 +133,7 @@ public:
     operator Color4u8() const
     { 
         Color4u8 c;
-        c.setf(r, g, b, a);
+        c.setf(cl.r, cl.g, cl.b, cl.a);
         return c;
     }
 
@@ -156,18 +162,19 @@ public:
 
     union
     {
+        // C++03 Gags at anonymous structs, go figure amirite?
         struct
         {
             f32 r;
             f32 g;
             f32 b;
             f32 a;
-        };
+        } cl;
 
         struct
         {
             f32 c[4];
-        };
+        } c;
     };
 };
 }  // namespace sead

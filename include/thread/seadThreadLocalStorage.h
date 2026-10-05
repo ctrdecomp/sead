@@ -17,8 +17,8 @@ public:
     ThreadLocalStorage(const ThreadLocalStorage&){ };
     ThreadLocalStorage& operator=(const ThreadLocalStorage&){ };
 
-    void setValue(uptr value){}
-    uptr getValue() const{}
+    void setValue(uptr value);
+    uptr getValue() const;
 
 private:
     nn::os::ThreadLocalStorage mTlsSlot;

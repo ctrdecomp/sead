@@ -90,10 +90,7 @@ s32 ExceptionScreenCtr::putBackTraceString(BufferedSafeString* string, size_t si
         memoryMap.open(path);
     }
 
-    s32 length;
-{
-    length = string->copy(" back trace:\n", size);
-}
+    s32 length = string->copy(" back trace:\n", size);
 
     for (s32 i = 0; i < trace.size(); ++i)
     {

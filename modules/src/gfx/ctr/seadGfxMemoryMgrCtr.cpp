@@ -3,6 +3,7 @@
 // Project: StandardEAD C++ Library for CTR
 
 #include "gfx/ctr/seadGfxMemoryMgrCtr.h"
+#include "math/seadMathCalcCommon.h"
 #include <nn/gx.h>
 
 namespace sead
@@ -12,7 +13,7 @@ GfxMemoryMgrCtr::GfxMemoryMgrCtr():
 {
 }
 
-DefaultGfxMemoryMgrCtr(Heap* heap):
+DefaultGfxMemoryMgrCtr::DefaultGfxMemoryMgrCtr(Heap* heap):
     GfxMemoryMgrCtr(),
     mGfxHeap(heap),
     mMemVramAStart(0),
@@ -45,7 +46,7 @@ u32 GfxMemoryMgrCtr::aimToAlignment(u32 alignment)
     case NN_GX_MEM_DISPLAYBUFFER:
     case NN_GX_MEM_COMMANDBUFFER:
     {
-        return newAlignMent = 16;
+        return newAlignment = 16;
     }
     default:
     {
@@ -54,65 +55,93 @@ u32 GfxMemoryMgrCtr::aimToAlignment(u32 alignment)
     }
 }
 
-int DefaultGfxMemoryMgrCtr::allocate(u32 area, u32 alignment, u32 buf,s32 size, Heap* heap)
+DefaultGfxMemoryMgrCtr::~DefaultGfxMemoryMgrCtr()
 {
-    u32 aligned = aimToAlignment(alignment);
-
-    if (area == reinterpret_cast<u32>(&DeleteArray<void>))
-    {
-        return new (mGfxHeap) u8[size];
-    }
-
-    if (area == NN_GX_MEM_VRAMB)
-    {
-        int start = MathCalcCommon<int>::roundUpN(mMemVramAStart, aligned);
-
-        void* end = PtrUtil::addOffset(start, size );
-
-        if (PtrUtil::diff(end, mMemVramAEnd) < 0)
-        {
-            SEAD_ASSERT_MSG(false, "out of memory VRAM-A");
-
-            return nullptr;
-        }
-
-        mMemVramAStart = reinterpret_cast<uintptr_t>(end);
-
-        return start;
-    }
-
-    if (area == NN_GX_MEM_VRAMB)
-    {
-        int start = MathCalcCommon<int>::roundUpN(mMemVramBStart, aligned);
-
-        void* end = PtrUtil::addOffset(start, size);
-
-        if (PtrUtil::diff(end, mMemVramBEnd) < 0)
-        {
-            SEAD_ASSERT_MSG(false, "out of memory on VRAM-B.");
-
-            return nullptr;
-        }
-
-        mMemVramBStart = reinterpret_cast<uintptr_t>(end);
-
-        return start;
-    }
-
-    SEAD_ASSERT_MSG(false, "undefined area(%d).", area);
-
-    return nullptr;
+    // Empty just like your love life [Literally def of a STRAIGHT WHITE MAN]
 }
 
-void DefaultGfxMemoryMgrCtr::deallocate(u32 area, u32 alignment, u32 buf,s32 size, void* obj)
+s32 DefaultGfxMemoryMgrCtr::allocate(size_t area, u32 alignment, u32 size, Heap* heap)
+{
+    alignment = GfxMemoryMgrCtr::aimToAlignment(alignment);
+
+    if (alignment == 0)
+    {
+        if (area == 0x10000)
+        {
+            if (size != 0)
+                mMemVramAStart += size;
+        }
+        else if (area == NN_GX_MEM_VRAMA)
+        {
+            if (size != 0)
+                mMemVramBStart += size;
+        }
+    }
+    else if (alignment == 1)
+    {
+        if (area == NN_GX_MEM_FCRAM)
+        {
+            if (size != 0)
+                mMemVramAStart += size;
+        }
+        else if (area == NN_GX_MEM_VRAMA)
+        {
+            if (size != 0)
+                mMemVramBStart += size;
+        }
+    }
+
+    uptr start = 0;
+
+    if (area == NN_GX_MEM_FCRAM)
+    {
+        start = reinterpret_cast<uintptr_t>(new (mGfxHeap) u8[size]);
+    }
+    else if (area == NN_GX_MEM_VRAMA)
+    {
+        start = MathCalcCommon<int>::roundUpN(alignment, mMemVramAStart);
+
+        const void* end = PtrUtil::addOffset(reinterpret_cast<const void*>(start), size);
+
+        if (PtrUtil::diff(reinterpret_cast<const void*>(mMemVramAEnd), end) < 0)
+        {
+            SEAD_ASSERT_MSG(false, "out of memory on VRAM-A.");
+            return 0;
+        }
+
+        mMemVramAStart = (uptr)end;
+    }
+    else if (area == NN_GX_MEM_VRAMB)
+    {
+        start = MathCalcCommon<int>::roundUpN(alignment, mMemVramBStart);
+
+        const void* end = PtrUtil::addOffset(reinterpret_cast<const void*>(start), size);
+
+        if (PtrUtil::diff(reinterpret_cast<PtrUtil*>(mMemVramBEnd), end) < 0)
+        {
+            SEAD_ASSERT_MSG(false, "out of memory on VRAM-B.");
+            return 0;
+        }
+
+        mMemVramBStart = (uptr)end;
+    }
+    else
+    {
+        SEAD_ASSERT_MSG(false, "undefined area(%d).", area);
+    }
+
+    return start;
+}
+
+void DefaultGfxMemoryMgrCtr::deallocate(size_t area, u32 alignment, u32 buf, void* obj)
 {
     if(area == NN_GX_MEM_FCRAM)
     {
         delete obj;
     }
-    else if((alignment != NN_GX_MEM_VRAMA) && (alignment != NN_GX_MEM_VRAMB))
+    else if(area != NN_GX_MEM_VRAMA && area != NN_GX_MEM_VRAMB)
     {
-        SEAD_ASSERT_MSG(false, "undefined area(%d).", alignment);
+        SEAD_ASSERT_MSG(false, "undefined area(%d).", area);
     }
 }
 

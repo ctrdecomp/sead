@@ -15,9 +15,25 @@ void* MemUtil::copyAlign32(void* dst, const void* src, size_t size)
 
 // TODO: MemUtil::isStack (in platform specific .cpp)
 
-bool MemUtil::isHeap(const void* addr)
+bool MemUtil::isHeap(const void* ptr)
 {
-    return HeapMgr::instance() && HeapMgr::isContainedInAnyHeap(addr);
+    HeapMgr* heapMgr = HeapMgr::instance();
+
+    if (!ptr)
+        return false;
+
+    for (u32 i = 0; i < heapMgr->getRootHeapNum(); ++i)
+    {
+        Heap* heap = heapMgr->getRootHeap(i);
+
+        if (!heap)
+            return false;
+
+        if (heap->isInclude(ptr))
+            return true;
+    }
+
+    return false;
 }
 
 // NON_MATCHING: Clang optimizes the if (ptr) return false; into if (ptr) return ptr;

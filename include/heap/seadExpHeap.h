@@ -12,40 +12,37 @@ class ExpHeap : public Heap
 public:
     enum AllocMode
     {
-        FirstFit = 0,
-        BestFit = 1,
+        cAllocFirstFit = 0,
+        cAllocBestFit = 1,
     };
 
     enum FindFreeBlockMode
     {
-        Auto = 0,
-        FromFreeList = 1,
-        ByIteratingMemBlock = 2,
+        cAuto = 0,
+        cFromFreeList = 1,
+        cByIteratingMemBlock = 2,
     };
 
     enum FindMode
     {
-        cFirstFit = 0,
-        cBestFit,
-        cMaxSize
+        cFindFirstFit = 0,
+        cFindBestFit,
+        cFindMaxSize
     };
 
-    static ExpHeap* create(size_t size, const SafeString& name, Heap* parent,
-                           s32 alignment = sizeof(void*),
-                           HeapDirection direction = cHeapDirection_Forward,
-                           bool enable_lock = false);
-    static ExpHeap* create(void* address, size_t size, const SafeString& name,
-                           bool enable_lock = false);
+    static ExpHeap* create(size_t size, const SafeString& name, Heap* parent, HeapDirection direction = cHeapDirection_Forward, bool enableLock = false);
 
-    static ExpHeap* tryCreate(size_t size, const SafeString& name, Heap* parent,
-                              s32 alignment = sizeof(void*),
-                              HeapDirection direction = cHeapDirection_Forward,
-                              bool enable_lock = false);
-    static ExpHeap* tryCreate(void* address, size_t size, const SafeString& name,
-                              bool enable_lock = false);
+    static ExpHeap* create(void* start, size_t size, const SafeString& name, bool enableLock = false)
+    {
+        ExpHeap* heap = ExpHeap::tryCreate(start, size, name, enableLock);
+        SEAD_ASSERT_MSG(heap, "heap create failed. [%s] start: 0x%p, size: %zu", name.cstr(), start, size);
+        return heap;
+    }
 
-    static size_t getManagementAreaSize(s32);
+    static ExpHeap* tryCreate(size_t size, const SafeString& name, Heap* parent, HeapDirection direction = cHeapDirection_Forward, bool enableLock = false);
+    static ExpHeap* tryCreate(void* start, size_t size, const SafeString& name, bool enableLock = false);
 
+    static size_t getManagementAreaSize(s32 alignment = cDefaultAlignment);
     virtual void destroy();
     virtual size_t adjust();
     virtual void* tryAlloc(size_t size, s32 alignment);
@@ -58,18 +55,13 @@ public:
     virtual uintptr_t getEndAddress() const;
     virtual size_t getSize() const;
     virtual size_t getFreeSize() const;
-    virtual size_t getMaxAllocatableSize(s32 alignment = cDefaultAlignment) const = 0;
+    virtual size_t getMaxAllocatableSize(s32 alignment = cDefaultAlignment) const;
     virtual bool isInclude(const void* p_void) const;
     virtual bool isEmpty() const;
     virtual bool isFreeable() const;
     virtual bool isResizable() const;
     virtual bool isAdjustable() const;
     virtual void dump() const;
-    virtual void dumpYAML(WriteStream& stream, int i) const;
-    virtual void genInformation_(hostio::Context* context);
-
-    virtual s32 destroyAndGetAllocatableSize(s32);
-    virtual void setFindFreeBlockMode(FindFreeBlockMode mode);
 
     AllocMode getAllocMode() const { return mAllocMode; }
     void setAllocMode(AllocMode mode) { mAllocMode = mode; }
@@ -100,6 +92,10 @@ protected:
     MemBlock* findLastMemBlockIfFree_();
     MemBlock* findFirstMemBlockIfFree_();
 
+    void* realloc_(void* ptr, u8* oldMem, size_t copySize, size_t newSize, s32 alignment);
+
+    friend class PrintFormatter;
+
     void pushToUseList_(MemBlock*);
     void pushToFreeList_(MemBlock*);
 
@@ -117,5 +113,6 @@ protected:
     SizedEnum<FindFreeBlockMode, u8> mFindFreeBlockMode;
     MemBlockList mFreeList;
     MemBlockList mUseList;
+    size_t mFreeSize; // MAYBE HERE..?
 };
 }  // namespace sead

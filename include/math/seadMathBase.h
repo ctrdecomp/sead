@@ -1,7 +1,5 @@
 #pragma once
 
-#include <array>
-
 namespace sead
 {
 template <typename T>
@@ -9,12 +7,13 @@ struct BaseVec2
 {
     union
     {
-        union
+        struct
         {
             T x;
             T y;
         };
-        std::array<T, 2> e;
+
+        T e[2];
     };
 };
 
@@ -23,13 +22,14 @@ struct BaseVec3
 {
     union
     {
-        union
+        struct
         {
             T x;
             T y;
             T z;
         };
-        std::array<T, 3> e;
+
+        T e[3];
     };
 };
 
@@ -38,14 +38,15 @@ struct BaseVec4
 {
     union
     {
-        union
+        struct
         {
             T x;
             T y;
             T z;
             T w;
         };
-        std::array<T, 4> e;
+
+        T e[4];
     };
 };
 
@@ -74,7 +75,7 @@ struct BaseMtx33
     union
     {
         T m[3][3];
-        std::array<T, 9> a;
+        T a[9];
     };
 };
 
@@ -84,7 +85,7 @@ struct BaseMtx34
     union
     {
         T m[3][4];
-        std::array<T, 12> a;
+        T a[12];
     };
 };
 
@@ -94,7 +95,7 @@ struct BaseMtx44
     union
     {
         T m[4][4];
-        std::array<T, 16> a;
+        T a[16];
     };
 };
 

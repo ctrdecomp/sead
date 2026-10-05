@@ -104,7 +104,7 @@ void setSphereVertex(Vertex* vtx, u16* idx, s32 sizeX, s32 sizeY)
 
                 vtx[pos].pos.set(pos_x, pos_y, pos_z);
                 vtx[pos].uv.set(pos_y + 0.5f, static_cast<f32>(x) / sizeX);
-                vtx[pos].color.r = -pos_y + 0.5f;
+                vtx[pos].color.cl.r = -pos_y + 0.5f;
             }
         }
 
@@ -113,7 +113,7 @@ void setSphereVertex(Vertex* vtx, u16* idx, s32 sizeX, s32 sizeY)
 
             vtx[pos].pos.set(0.0f, -0.5f, 0.0f);
             vtx[pos].uv.set(0.0f, 0.5f);
-            vtx[pos].color.r = 1.0f;
+            vtx[pos].color.cl.r = 1.0f;
         }
 
         {
@@ -121,7 +121,7 @@ void setSphereVertex(Vertex* vtx, u16* idx, s32 sizeX, s32 sizeY)
 
             vtx[pos].pos.set(0.0f, 0.5f, 0.0f);
             vtx[pos].uv.set(1.0f, 0.5f);
-            vtx[pos].color.r = 0.0f;
+            vtx[pos].color.cl.r = 0.0f;
         }
     }
 
@@ -174,7 +174,7 @@ void setDiskVertex(Vertex* vtx, u16* idx, s32 div)
             vtx[i].pos.z = 0.0f;
             vtx[i].uv.x = vtx[i].pos.x;
             vtx[i].uv.y = 1.0f - vtx[i].pos.y;
-            vtx[i].color.r = 1.0f;
+            vtx[i].color.cl.r = 1.0f;
         }
 
         {
@@ -185,7 +185,7 @@ void setDiskVertex(Vertex* vtx, u16* idx, s32 div)
             vtx[i].pos.z = 0.0f;
             vtx[i].uv.x = 0.5f;
             vtx[i].uv.y = 0.5f;
-            vtx[i].color.r = 0.0f;
+            vtx[i].color.cl.r = 0.0f;
         }
     }
 
@@ -211,7 +211,7 @@ void setCylinderVertex(Vertex* vtx, u16* idx, s32 div)
             vtx[i].pos.y = 0.5f;
             vtx[i].uv.x = vtx[i].pos.x;
             vtx[i].uv.y = 1.0f - vtx[i].pos.z;
-            vtx[i].color.r = 0.0f;
+            vtx[i].color.cl.r = 0.0f;
 
             s32 pos = i + div + 1;
 
@@ -220,7 +220,7 @@ void setCylinderVertex(Vertex* vtx, u16* idx, s32 div)
             vtx[pos].pos.y = -0.5f;
             vtx[pos].uv.x = vtx[i].pos.x;
             vtx[pos].uv.y = 1.0f - vtx[i].pos.z;
-            vtx[pos].color.r = 1.0f;
+            vtx[pos].color.cl.r = 1.0f;
         }
 
         {
@@ -231,7 +231,7 @@ void setCylinderVertex(Vertex* vtx, u16* idx, s32 div)
             vtx[pos].pos.z = 0.0f;
             vtx[pos].uv.x = 0.5f;
             vtx[pos].uv.y = 0.5f;
-            vtx[pos].color.r = 0.0f;
+            vtx[pos].color.cl.r = 0.0f;
         }
 
         {
@@ -242,7 +242,7 @@ void setCylinderVertex(Vertex* vtx, u16* idx, s32 div)
             vtx[pos].pos.z = 0.0f;
             vtx[pos].uv.x = 0.5f;
             vtx[pos].uv.y = 0.5f;
-            vtx[pos].color.r = 1.0f;
+            vtx[pos].color.cl.r = 1.0f;
         }
     }
 

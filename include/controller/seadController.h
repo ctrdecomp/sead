@@ -81,13 +81,16 @@ private:
 template <typename T>
 T Controller::getAddonAs() const
 {
-    for (sead::ControllerAddon& addon : mAddons){
-        T result = DynamicCast<typename std::remove_pointer<T>>(addon);
+    for (OffsetList<ControllerAddon>::iterator it = mAddons.begin(); it != mAddons.end(); ++it)
+    {
+        ControllerAddon& addon = *it;
+        T result = DynamicCast<typename RemovePointer<T>::Type>(&addon);
+        
         if (result)
             return result;
     }
 
-    return nullptr;
+    return NULL;
 }
 
 }  // namespace sead

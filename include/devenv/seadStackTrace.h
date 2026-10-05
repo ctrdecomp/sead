@@ -14,7 +14,8 @@ public:
     virtual uintptr_t get(s32 index) const = 0;
     virtual s32 size() const = 0;
 
-    void trace(const void*);
+    void trace(void* stack);
+    u32 findThreadStackBottomByStackAddr_(uptr ptr);
 
 protected:
     virtual void clear_() = 0;

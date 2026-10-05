@@ -7,10 +7,11 @@
 
 namespace sead 
 {
+
 template <typename T>
-inline Vector2<T>::Vector2(T x_, T y_) 
+inline T Vector2<T>::length() const
 {
-    Vector2CalcCtr<T>::set(*this, x_, y_);
+    return Vector2CalcCommon<T>::length(*this);
 }
 
 template <typename T>
@@ -65,7 +66,7 @@ inline void Vector2<T>::set(T x_, T y_)
 template <typename T>
 inline void Vector2<T>::setAdd(const Vector2& x, const Vector2& y) 
 {
-    Vector2CalcCommon<T>::add(x, y);
+    Vector2CalcCommon<T>::add(*this, x, y);
 }
 
 template <typename T>
@@ -211,27 +212,56 @@ inline void Vector3<T>::setCross(const Vector3<T>& a, const Vector3<T>& b) {
 }
 
 template <typename T>
-inline void Vector3<T>::setScaleAdd(T t, const Vector3<T>& a, const Vector3<T>& b) {
+inline void Vector3<T>::setScaleAdd(T t, const Vector3<T>& a, const Vector3<T>& b) 
+{
     Vector3CalcCtr<T>::multScalarAdd(*this, t, a, b);
 }
 
 template <typename T>
-inline void Vector3<T>::setMul(const Mtx33& m, const Vector3<T>& a) {
+inline void Vector3<T>::setMul(const Mtx33& m, const Vector3<T>& a) 
+{
     Vector3CalcCtr<T>::mul(*this, m, a);
 }
 
 template <typename T>
-inline void Vector3<T>::setMul(const Mtx34& m, const Vector3<T>& a) {
+inline void Vector3<T>::setMul(const Mtx34& m, const Vector3<T>& a) 
+{
     Vector3CalcCtr<T>::mul(*this, m, a);
 }
 
 template <typename T>
-inline Vector4<T>::Vector4(T x_, T y_, T z_, T w_) {
+inline void Vector3<T>::setMulAndDivByW(const Mtx44& m, const Self& v)
+{
+    Vector3CalcCommon<T>::mulAndDivByW(*this, m, v);
+}
+
+template <typename T>
+inline Vector4<T>::Vector4(T x_, T y_, T z_, T w_) 
+{
     Vector4CalcCtr<T>::set(*this, x_, y_, z_, w_);
 }
 
 template <typename T>
-inline Vector4<T>& Vector4<T>::operator+=(const Vector4<T>& other) {
+inline T Vector4<T>::dot(const Self& t) const
+{
+    return Vector4CalcCommon<T>::dot(*this, t);
+}
+
+template <typename T>
+inline T Vector4<T>::length() const
+{
+    return Vector4CalcCommon<T>::length(*this);
+}
+
+template <typename T>
+inline T Vector4<T>::normalize()
+{
+    return Vector4CalcCommon<T>::normalize(*this);
+}
+
+template <typename T>
+inline Vector4<T>& Vector4<T>::operator+=(const Vector4<T>& other) 
+{
     this->x += other.x;
     this->y += other.y;
     this->z += other.z;
@@ -240,7 +270,8 @@ inline Vector4<T>& Vector4<T>::operator+=(const Vector4<T>& other) {
 }
 
 template <typename T>
-inline Vector4<T>& Vector4<T>::operator-=(const Vector4<T>& other) {
+inline Vector4<T>& Vector4<T>::operator-=(const Vector4<T>& other) 
+{
     this->x -= other.x;
     this->y -= other.y;
     this->z -= other.z;
@@ -249,7 +280,8 @@ inline Vector4<T>& Vector4<T>::operator-=(const Vector4<T>& other) {
 }
 
 template <typename T>
-inline Vector4<T>& Vector4<T>::operator*=(T t) {
+inline Vector4<T>& Vector4<T>::operator*=(T t) 
+{
     this->x *= t;
     this->y *= t;
     this->z *= t;
@@ -258,7 +290,8 @@ inline Vector4<T>& Vector4<T>::operator*=(T t) {
 }
 
 template <typename T>
-inline Vector4<T>& Vector4<T>::operator/=(T t) {
+inline Vector4<T>& Vector4<T>::operator/=(T t) 
+{
     this->x /= t;
     this->y /= t;
     this->z /= t;
@@ -267,18 +300,21 @@ inline Vector4<T>& Vector4<T>::operator/=(T t) {
 }
 
 template <typename T>
-inline Vector4<T>& Vector4<T>::operator=(const Vector4<T>& other) {
+inline Vector4<T>& Vector4<T>::operator=(const Vector4<T>& other) 
+{
     Vector4CalcCtr<T>::set(*this, other);
     return *this;
 }
 
 template <typename T>
-inline void Vector4<T>::set(const Vector4<T>& other) {
+inline void Vector4<T>::set(const Vector4<T>& other) 
+{
     Vector4CalcCtr<T>::set(*this, other);
 }
 
 template <typename T>
-inline void Vector4<T>::set(T x_, T y_, T z_, T w_) {
+inline void Vector4<T>::set(T x_, T y_, T z_, T w_) 
+{
     Vector4CalcCtr<T>::set(*this, x_, y_, z_, w_);
 }
 

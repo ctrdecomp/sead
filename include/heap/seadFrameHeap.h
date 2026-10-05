@@ -53,7 +53,7 @@ public:
 protected:
     FrameHeap(const SafeString& name, Heap* parent, void* address, size_t size,
               HeapDirection direction, bool);
-    virtual ~FrameHeap() override;
+    virtual ~FrameHeap();
 
     void initialize_();
     void* getAreaStart_() const;

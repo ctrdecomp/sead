@@ -47,9 +47,9 @@ protected:
         SEAD_UNUSED(bufferSize);
         SEAD_UNUSED(heap);
     }
-    u8* mRawData = 0;
-    u32 mRawSize = 0;
-    u32 mBufferSize = 0;
+    u8* mRawData;
+    u32 mRawSize;
+    u32 mBufferSize;
     BitFlag32 mSettingFlag;
 };
 

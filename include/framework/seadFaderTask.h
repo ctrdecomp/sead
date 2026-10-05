@@ -8,7 +8,7 @@ namespace sead
 class FaderTaskBase : public TaskBase
 {
 public:
-    enum class Type
+    enum Type
     {
         cCreate = 0,
         cTakeover,
@@ -18,7 +18,7 @@ public:
         cInvalid
     };
 
-    enum class FaderState
+    enum FaderState
     {
         cWait = 0,
         cFadeout,
@@ -26,8 +26,7 @@ public:
         cFadein
     };
 
-    // TODO: SEAD_ENUM(FadeEvent)
-    enum class FadeEvent
+    enum FadeEvent
     {
         cFadeinStarted = 0,
         cFadeinEnded,

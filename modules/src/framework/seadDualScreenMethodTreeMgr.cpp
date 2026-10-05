@@ -41,19 +41,19 @@ DualScreenMethodTreeMgr::DualScreenMethodTreeMgr():
     mBtmRootDrawNode.pushBackChild(&mBtmAppDrawFinalNode);
     mBtmRootDrawNode.pushBackChild(&mBtmSysDrawNode);
 
-    mSysCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mTopSysDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mBtmSysDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+    mSysCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mTopSysDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mBtmSysDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
 
-    mAppCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mTopAppDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mTopAppDrawFinalNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mBtmAppDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mBtmAppDrawFinalNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+    mAppCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mTopAppDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mTopAppDrawFinalNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mBtmAppDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mBtmAppDrawFinalNode.setPauseFlag(MethodTreeNode::cPause_None);
 
-    mRootCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
-    mTopRootDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
-    mBtmRootDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+    mRootCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
+    mTopRootDrawNode.setPauseFlag(MethodTreeNode::cPause_Both);
+    mBtmRootDrawNode.setPauseFlag(MethodTreeNode::cPause_Both);
 }
 
 DualScreenMethodTreeMgr::~DualScreenMethodTreeMgr()
@@ -219,15 +219,15 @@ void DualScreenMethodTreeMgr::pauseAll(bool p)
 {
     if (p)
     {
-        mRootCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
-        mTopRootDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
-        mBtmRootDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+        mRootCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
+        mTopRootDrawNode.setPauseFlag(MethodTreeNode::cPause_Both);
+        mBtmRootDrawNode.setPauseFlag(MethodTreeNode::cPause_Both);
     }
     else
     {
-        mRootCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-        mTopRootDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-        mBtmRootDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mRootCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
+        mTopRootDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
+        mBtmRootDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 
@@ -235,11 +235,11 @@ void DualScreenMethodTreeMgr::pauseAppCalc(bool p)
 {
     if (p)
     {
-        mAppCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+        mAppCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
     }
     else
     {
-        mAppCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mAppCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 

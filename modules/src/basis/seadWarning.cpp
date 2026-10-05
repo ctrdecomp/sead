@@ -9,7 +9,8 @@ bool sIsWarningEnable;
 
 void Warning(const char* file, int line, const char* msg, ...)
 {
-    if(sIsWarningEnable){
+    if(sIsWarningEnable)
+    {
         va_list list;
         va_start(list, msg);
 

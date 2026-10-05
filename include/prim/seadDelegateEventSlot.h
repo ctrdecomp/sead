@@ -1,3 +1,4 @@
+
 #pragma once
 
 // DelegateEvent is used to implement a Qt-style signal/slot mechanism.
@@ -7,37 +8,46 @@
 #include <prim/seadDelegate.h>
 #include <prim/seadStorageFor.h>
 
-#if defined(__cplusplus) && __cplusplus >= 201103L
-
 namespace sead
 {
+
 /// Manages signal and slots for an event.
 template <typename T>
 class DelegateEvent
 {
 public:
     class Slot;
-    using SlotList = TList<Slot*>;
-    using SlotListNode = TListNode<Slot*>;
+    typedef TList<Slot*> SlotList;
+    typedef TListNode<Slot*> SlotListNode;
 
     /// A Slot is a wrapper around a Delegate that is invoked when a signal is emitted.
     class Slot : public IDisposer
     {
     public:
         template <typename TDelegate>
-        Slot(TDelegate delegate)  // NOLINT(google-explicit-constructor)
+        Slot(TDelegate delegate)
+            : mNode(this)
+            , mDelegatePtr(NULL)
+            , mConnectedToDelegateEvent(false)
         {
-            mDelegate.construct(std::move(delegate));
-            // NOLINTNEXTLINE(cppcoreguidelines-prefer-member-initializer)
+            mDelegate.construct(delegate);
             mDelegatePtr = mDelegate->getDelegate();
         }
 
         template <typename C>
-        Slot(C* instance, void (C::*func)(T)) : Slot(Delegate1<C, T>(instance, func))
+        Slot(C* instance, void (C::*func)(T))
+            : mNode(this)
+            , mDelegatePtr(NULL)
+            , mConnectedToDelegateEvent(false)
         {
+            mDelegate.construct(Delegate1<C, T>(instance, func));
+            mDelegatePtr = mDelegate->getDelegate();
         }
 
-        ~Slot() override { release(); }
+        virtual ~Slot()
+        {
+            release();
+        }
 
         void release()
         {
@@ -49,7 +59,7 @@ public:
         }
 
     private:
-        friend class DelegateEvent;
+        friend class DelegateEvent<T>;
 
         void invoke_(T arg)
         {
@@ -57,20 +67,19 @@ public:
                 (*mDelegatePtr)(arg);
         }
 
-        SlotListNode mNode{this};
-        IDelegate1<T>* mDelegatePtr = nullptr;
+        SlotListNode mNode;
+        IDelegate1<T>* mDelegatePtr;
         StorageFor<AnyDelegate1<T>, true> mDelegate;
-        bool mConnectedToDelegateEvent = false;
+        bool mConnectedToDelegateEvent;
     };
 
     virtual ~DelegateEvent()
     {
-        auto it = mList.begin();
-        while (it != mList.end())
+        for (typename SlotList::iterator it = mList.begin(); it != mList.end(); )
         {
-            Slot* ptr = *it;
+            Slot* s = *it;
             ++it;
-            ptr->release();
+            s->release();
         }
     }
 
@@ -79,7 +88,7 @@ public:
         connect(slot);
         return *this;
     }
-    
+
     void connect(Slot& slot)
     {
         slot.release();
@@ -87,29 +96,33 @@ public:
         slot.mConnectedToDelegateEvent = true;
     }
 
-    void disconnect(Slot& slot) { slot.release(); }
+    void disconnect(Slot& slot)
+    {
+        slot.release();
+    }
 
     void emit(T arg)
     {
-        for (TList<T>::RobustRange& slot_node : mList.robustRange())
-            slot_node.mData->invoke_(arg);
-    }
-
-    void fire(T arg)
-    {   
-        for(TList<Slot*>::robustIterator it = mSlotList.robustBegin(); it != mSlotList.robustEnd(); ++it)
+        for (typename SlotList::robustIterator it = mList.robustBegin(); it != mList.robustEnd(); )
         {
-            Slot* slot = *it;
-            slot->invoke_(arg);
+            Slot* s = it->mData;
+            ++it;
+            s->release();
         }
     }
 
-    int getNumSlots() const { return mList.size(); }
+    void fire(T arg)
+    {
+        emit(arg);
+    }
+
+    int getNumSlots() const
+    {
+        return mList.size();
+    }
 
 protected:
     SlotList mList;
 };
 
-}  // namespace sead
-
-#endif
+} // namespace sead

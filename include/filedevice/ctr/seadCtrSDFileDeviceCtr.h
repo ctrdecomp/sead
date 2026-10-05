@@ -12,8 +12,8 @@ public:
         CtrFileStreamFileDevice("sd")
     {
     }
-protected:
     virtual ~CtrSDFileDevice(){ }
+protected:
     virtual bool doIsExistFile_(bool* exists, const SafeString& path);
     virtual const char* getArchiveName_() const;
 };

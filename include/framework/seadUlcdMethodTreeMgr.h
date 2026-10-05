@@ -13,7 +13,6 @@ public:
     virtual void attachMethod(s32 methodType, MethodTreeNode* node);
     virtual MethodTreeNode* getRootMethodTreeNode(s32 methodType);
     virtual void pauseAll(bool p);
-    virtual void pauseAppCalc(bool p);
 
     void calc();
     void drawRight();

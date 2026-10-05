@@ -20,7 +20,7 @@ class ProcessMeter : public Task
     SEAD_TASK_SINGLETON_DISPOSER(ProcessMeter);
 
 public:
-    using BarList = OffsetList<ProcessMeterBarBase>;
+    typedef OffsetList<ProcessMeterBarBase> BarList;
 
 public:
     explicit ProcessMeter(const TaskConstructArg& arg);

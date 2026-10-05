@@ -198,7 +198,7 @@ TaskBase* TaskMgr::createTaskSync(const TaskBase::CreateArg& arg)
     if (arg.instance_cb)
         arg.instance_cb(task);
 
-    task->mState = TaskBase::State::cPrepare;
+    task->mState = TaskBase::cPrepare;
 
     {
         ScopedCurrentHeapSetter setter(ha.getPrimaryHeap());
@@ -213,8 +213,8 @@ TaskBase* TaskMgr::createTaskSync(const TaskBase::CreateArg& arg)
             task->adjustHeapWithSlackWithoutLock_(i, p.adjust_slack);
     }
 
-    changeTaskState_(task, TaskBase::State::cPrepareDone);
-    changeTaskState_(task, TaskBase::State::cRunning);
+    changeTaskState_(task, TaskBase::cPrepareDone);
+    changeTaskState_(task, TaskBase::cRunning);
 
     if (arg.create_callback)
     {
@@ -398,9 +398,11 @@ TaskBase* TaskMgr::findTask(const TaskClassID& classID)
 {
     ScopedLock<CriticalSection> lock(&mCriticalSection);
 
-    for (TaskBase* o : mActiveList)
+    for (TaskBase::List::iterator it = mActiveList.begin(); it != mActiveList.end(); ++it)
     {
-        if (o->mState == TaskBase::State::cRunning && o->mClassID == classID)
+        TaskBase* o = *it;
+
+        if (o->mState == TaskBase::cRunning && o->mClassID == classID)
             return o;
     }
 
@@ -438,7 +440,7 @@ void TaskMgr::doInit_()
     mPrepareThread = new(heap) DelegateThread("Prepare Thread",
                                               new(heap) Delegate2<TaskMgr, Thread*, MessageQueue::Element>(this, &TaskMgr::prepare_),
                                               heap, mInitializeArg.prepare_priority != -1 ? mInitializeArg.prepare_priority : Thread::cDefaultPriority,
-                                              MessageQueue::BlockType::Blocking, Thread::cDefaultQuitMsg, mInitializeArg.prepare_stack_size);
+                                              MessageQueue::cBlock, Thread::cDefaultQuitMsg, mInitializeArg.prepare_stack_size);
     mPrepareThread->start();
 
     {
@@ -449,7 +451,7 @@ void TaskMgr::doInit_()
         mNullFaderTask = new(heap) NullFaderTask(arg);
 
         mNullFaderTask->setName("NullFader");
-        mNullFaderTask->mState = TaskBase::State::cRunning;
+        mNullFaderTask->mState = TaskBase::cRunning;
     }
 
     mTaskCreateContextMgr = new(heap) TaskCreateContextMgr(mMaxCreateQueueSize, heap);
@@ -461,8 +463,10 @@ void TaskMgr::appendToList_(TaskBase::List& ls, TaskBase* task)
 
     task->mTaskListNode.erase();
 
-    for (TaskBase* o : ls)
+    for (TaskBase::List::iterator it = ls.begin(); it != ls.end(); ++it)
     {
+        TaskBase* o = *it;
+
         if (o->mTag < task->mTag)
         {
             o->mTaskListNode.insertFront(&task->mTaskListNode);
@@ -517,7 +521,7 @@ void TaskMgr::createHeap_(HeapArray* ha, const TaskBase::CreateArg& arg)
 
         SEAD_ASSERT_MSG(parentHeap->getFreeSize() > 0, "[%d] parentHeap(%s) freeSize is 0", i, parentHeap->getName().cstr());
 
-        Heap::HeapDirection direction = !policy.temporary ? Heap::HeapDirection::cHeapDirection_Forward : Heap::HeapDirection::cHeapDirection_Reverse;
+        Heap::HeapDirection direction = !policy.temporary ? Heap::cHeapDirection_Forward : Heap::cHeapDirection_Reverse;
 
         Heap* heap = nullptr;
         if (policy.create_slack == 0 || policy.size != 0)
@@ -605,7 +609,7 @@ void TaskMgr::doDestroyTask_(TaskBase* task)
         doDestroyTask_(task->child()->val());
     }
 
-    if (changeTaskState_(task, TaskBase::State::cDead))
+    if (changeTaskState_(task, TaskBase::cDead))
     {
         task->detachAll();
 
@@ -623,7 +627,7 @@ void TaskMgr::doDestroyTask_(TaskBase* task)
 
 bool TaskMgr::changeTaskState_(TaskBase* task, TaskBase::State state)
 {
-    sead::ScopedLock<CriticalSection> lock{&mCriticalSection};
+    sead::ScopedLock<CriticalSection> lock(&mCriticalSection);
 
     if (task->mState == state)
         return false;
@@ -638,7 +642,7 @@ bool TaskMgr::changeTaskState_(TaskBase* task, TaskBase::State state)
         appendToList_(mPrepareList, task);
 
         if (mPrepareThread == nullptr ||
-            mPrepareThread->sendMessage(1, MessageQueue::BlockType::NonBlocking))
+            mPrepareThread->sendMessage(1, MessageQueue::cNoBlock))
         {
             return true;
         }
@@ -717,15 +721,15 @@ void TaskMgr::calcCreation_()
 
                 cc->mCreatedTask = task;
 
-                bool b = changeTaskState_(task, TaskBase::State::cPrepare);
+                bool b = changeTaskState_(task, TaskBase::cPrepare);
                 SEAD_ASSERT_MSG(b, "failed to changeState to prepare\n");
             }
             else
             {
                 TaskBase* task = cc->mCreatedTask;
-                if (task->mState == TaskBase::State::cPrepareDone)
+                if (task->mState == TaskBase::cPrepareDone)
                 {
-                    changeTaskState_(task, TaskBase::State::cRunning);
+                    changeTaskState_(task, TaskBase::cRunning);
 
                     if (cc->mArg.created_task)
                         *cc->mArg.created_task = task;
@@ -754,7 +758,7 @@ void TaskMgr::calcDestruction_()
         ++it;
 
         if (task->checkFlag_(2) && destroyable_(task))
-            changeTaskState_(task, TaskBase::State::cDestroyable);
+            changeTaskState_(task, TaskBase::cDestroyable);
     }
 
     for (TaskBase::List::iterator it = mDestroyableList.begin(); it != mDestroyableList.end(); )
@@ -785,7 +789,7 @@ void TaskMgr::prepare_(Thread*, MessageQueue::Element msg)
 
     if (task)
     {
-        SEAD_ASSERT(task->mState == TaskBase::State::cPrepare);
+        SEAD_ASSERT(task->mState == TaskBase::cPrepare);
 
         Heap* primaryHeap = task->mHeapArray.getPrimaryHeap();
         ScopedCurrentHeapSetter setter(primaryHeap);
@@ -805,7 +809,7 @@ void TaskMgr::prepare_(Thread*, MessageQueue::Element msg)
                     task->adjustHeapWithSlackWithoutLock_(i, p.adjust_slack);
             }
 
-            changeTaskState_(task, TaskBase::State::cPrepareDone);
+            changeTaskState_(task, TaskBase::cPrepareDone);
         }
     }
 
@@ -818,7 +822,7 @@ void TaskMgr::beginCreateRootTask_()
 
     mRootTaskCreateArg.fader = nullptr;
     mRootTaskCreateArg.created_task = &mRootTask;
-    mRootTaskCreateArg.tag = TaskBase::Tag::cApp;
+    mRootTaskCreateArg.tag = TaskBase::cApp;
 
     requestCreateTask(mRootTaskCreateArg);
 }
@@ -827,7 +831,7 @@ bool TaskMgr::destroyable_(TaskBase* task)
 {
     ScopedLock<CriticalSection> lock(&mCriticalSection);
 
-    if (!task->checkFlag_(2) || !task->checkFlag_(4) || task->mState != TaskBase::State::cRunning)
+    if (!task->checkFlag_(2) || !task->checkFlag_(4) || task->mState != TaskBase::cRunning)
         return false;
 
     while (task->child())

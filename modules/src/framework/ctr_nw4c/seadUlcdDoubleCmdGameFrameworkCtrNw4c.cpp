@@ -1,4 +1,4 @@
-// Filename: seadUlcdDoubleGameFrameworkCtrNw4c.cpp
+// Filename: seadUlcdDoubleCmdGameFrameworkCtrNw4c.cpp
 //
 // Project: StandardEAD C++ Library for CTR
 
@@ -176,4 +176,4 @@ FrameBuffer* UlcdDoubleCmdGameFrameworkCtrNw4c::getMethodFrameBuffer(s32 methodT
     }
 }
 
-}
+} // namespace sead

@@ -59,7 +59,9 @@ public:
             load_data_buffer_size(0), 
             factory(nullptr), 
             device(nullptr), 
-            div_size(0)
+            div_size(0),
+            assert_on_alloc_fail(true),
+            has_tried_create_with_decomp(NULL)
         {
         }
 
@@ -74,6 +76,8 @@ public:
         ResourceFactory* factory;
         FileDevice* device;
         u32 div_size;
+        bool assert_on_alloc_fail;
+        bool* has_tried_create_with_decomp;
     };
 
 public:

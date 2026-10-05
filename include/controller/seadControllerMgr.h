@@ -69,8 +69,6 @@ public:
     template <typename T>
     T getControllerAddonAs(s32 index) const;
 
-    s32 findControllerPort(const Controller* controller) const;
-
     Framework* getFramework() const;
 
     Controller* getController(int port) { return mControllers[port]; }
@@ -79,16 +77,13 @@ private:
     OffsetList<ControlDevice> mDevices;
     PtrArray<Controller> mControllers;
 };
-#ifdef cafe
-static_assert(sizeof(ControllerMgr) == 0xE8, "sead::ControllerMgr size mismatch");
-#endif  // cafe
 
 template <typename T>
 T ControllerMgr::getControllerByOrderAs(s32 index) const
 {
     for (PtrArray<Controller>::iterator it = mControllers.begin(); it != mControllers.end(); ++it)
     {
-        T controller = DynamicCast<typename std::remove_pointer<T>::type>(&(*it));
+        T controller = DynamicCast<typename RemovePointer<T>::Type>(&(*it));
         if (controller)
         {
             if (index == 0)
@@ -98,7 +93,7 @@ T ControllerMgr::getControllerByOrderAs(s32 index) const
         }
     }
 
-    return nullptr;
+    return NULL;
 }
 
 template <typename T>
@@ -106,12 +101,12 @@ T ControllerMgr::getControlDeviceAs() const
 {
     for (OffsetList<ControlDevice>::iterator it = mDevices.begin(); it != mDevices.end(); ++it)
     {
-        T device = DynamicCast<typename std::remove_pointer<T>::type>(&(*it));
+        T device = DynamicCast<typename RemovePointer<T>::Type>(&(*it));
         if (device)
             return device;
     }
 
-    return nullptr;
+    return NULL;
 }
 
 template <typename T>
@@ -121,7 +116,7 @@ T ControllerMgr::getControllerAddonAs(s32 index) const
     if (controller)
         return controller->getAddonAs<T>();
 
-    return nullptr;
+    return NULL;
 }
 
 }  // namespace sead

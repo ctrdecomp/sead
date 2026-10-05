@@ -4,11 +4,15 @@
 #include <basis/seadWarning.h>
 #include <heap/seadHeap.h>
 #include <heap/seadHeapMgr.h>
+#include <stdlib.h>
 
-namespace sead{
-namespace system{
+namespace sead
+{
+namespace system
+{
     
-void* NewImpl(Heap* heap, size_t size, s32 alignment, bool abortOnFailure){
+void* NewImpl(Heap* heap, size_t size, s32 alignment, bool abortOnFailure)
+{
     if (!HeapMgr::sInstancePtr)
     {
         SEAD_WARNING("alloced[%zu] before sead system initialize", size);
@@ -74,6 +78,8 @@ void AllocFailAssert(Heap* heap, size_t size, u32 alignment)
 
 // operator new(size_t)
 
+#if !defined(SEAD_PLATFORM_CTR)
+
 void* operator new(size_t size)
 {
     return sead::system::NewImpl(nullptr, size, 8, true);
@@ -93,6 +99,8 @@ void* operator new[](size_t size, const std::nothrow_t&)
 {
     return sead::system::NewImpl(nullptr, size, 8, false);
 }
+
+#endif
 
 // operator new(size_t, s32 alignment)
 

@@ -20,7 +20,7 @@ public:
         SEAD_RTTI_OVERRIDE(Parameter, TaskParameter);
 
     public:
-        Parameter(); // TODO
+        Parameter();
 
         hostio::Config* getConfig()
         {

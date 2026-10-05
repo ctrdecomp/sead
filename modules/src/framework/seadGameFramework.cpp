@@ -37,7 +37,7 @@ namespace sead {
 
 GameFramework::GameFramework(): 
     Framework(), 
-    mDisplayState(DisplayState::cHide),
+    mDisplayState(cHide),
     mCalcMeter("calc", Color4f::cRed), 
     mDrawMeter("draw", Color4f::cGreen), 
     mGPUMeter("waitGPU", Color4f::cMagenta), 
@@ -87,7 +87,6 @@ void GameFramework::initialize(const InitializeArg& arg)
 
 #if defined(SEAD_DEBUG)
     {
-#if defined(CTRSDK)
         ExpHeap* hostioHeap = ExpHeap::create(heap->getMaxAllocatableSize(), "sead::HostIO", heap)
 
         CurrentHeapSetter chs(hostioHeap);
@@ -95,10 +94,6 @@ void GameFramework::initialize(const InitializeArg& arg)
         nn::hio::CTR::Initialize(hostioHeap->alloc(0x14020, 4));
 
         hostioHeap->adjust();
-
-#else
-#error "Unsupported platform"
-#endif // CTRSDK
     }
 #endif // SEAD_DEBUG
 
@@ -107,8 +102,8 @@ void GameFramework::initialize(const InitializeArg& arg)
 
 void GameFramework::startDisplay()
 {
-    if (mDisplayState == DisplayState::cHide)
-        mDisplayState = DisplayState::cReady;
+    if (mDisplayState == cHide)
+        mDisplayState = cReady;
 }
 
 void GameFramework::lockFrameDrawContext()
@@ -220,7 +215,7 @@ void GameFramework::waitStartDisplayLoop_()
         }
         Graphics::instance()->unlockDrawContext();
 
-        if (getTaskMgr()->getRootTask() || mDisplayState != DisplayState::cHide)
+        if (getTaskMgr()->getRootTask() || mDisplayState != cHide)
             break;
 
         Thread::sleep(TickSpan::makeFromMilliSeconds(10));

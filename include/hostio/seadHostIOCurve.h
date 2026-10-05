@@ -1,13 +1,13 @@
 #pragma once
 
-#include <array>
 #include "basis/seadAssert.h"
 #include "basis/seadTypes.h"
 #include "math/seadVector.h"
 
 namespace sead
 {
-namespace hostio{
+namespace hostio
+{
 class ICurve
 {
 public:
@@ -17,19 +17,18 @@ public:
 
 enum CurveType
 {
-    Linear = 0,
-    Hermit = 1,
-    Step = 2,
-    Sin = 3,
-    Cos = 4,
-    SinPow2 = 5,
-    Linear2D = 6,
-    Hermit2D = 7,
-    Step2D = 8,
-    NonUniformSpline = 9,
-    Hermit2DSmooth = 10,
+    cCurveLinear = 0,
+    cCurveHermit,
+    cCurveStep,
+    cCurveSin,
+    cCurveCos,
+    cCurveSinPow2,
+    cCurveLinear2D,
+    cCurveHermit2D,
+    cCurveStep2D,
+    cCurveNonuniformSpline,
+    cNumCurveType
 };
-inline constexpr int cNumCurveType = 11;
 
 struct CurveDataInfo
 {
@@ -45,7 +44,6 @@ struct CurveData
     u32 curveType;
     f32 f[30];
 };
-static_assert(sizeof(CurveData) == 0x80);
 
 template <typename T>
 class Curve : public ICurve
@@ -57,17 +55,20 @@ public:
         mInfo.numFloats = 0;
         mInfo.numUse = 0;
         mInfo._1 = 4;
-        mFloats = nullptr;
+        mFloats = NULL;
     }
 
-    f32 interpolateToF32(f32 t) override;
-    Vector2f interpolateToVec2f(f32 t) override;
+    virtual f32 interpolateToF32(f32 t);
+    virtual Vector2f interpolateToVec2f(f32 t);
 
-    CurveType getCurveType() const { return CurveType(mInfo.curveType); }
+    CurveType getCurveType() const
+    {
+        return CurveType(mInfo.curveType);
+    }
 
     void setData(CurveData* data, CurveType type, u32 num_floats, u32 num_use)
     {
-        data->curveType = u8(type);
+        data->curveType = u32(type);
         data->numUse = num_use;
         setCurveType(type);
         setFloats(data, num_floats);
@@ -76,20 +77,20 @@ public:
 
     void setFloats(CurveData* data, u32 num_floats)
     {
-        mInfo.numFloats = num_floats;
+        mInfo.numFloats = u8(num_floats);
         mFloats = data->f;
     }
 
     void setCurveType(CurveType type)
     {
-        SEAD_ASSERT(mInfo.curveType < cNumCurveType);
+        SEAD_ASSERT(type < cNumCurveType);
         mInfo.curveType = u8(type);
     }
 
     void setNumUse(u32 numUse)
     {
         SEAD_ASSERT(numUse <= 0xff);
-        mInfo.numUse = numUse;
+        mInfo.numUse = u8(numUse);
     }
 
     f32* mFloats;
@@ -103,7 +104,7 @@ T curveHermit_(f32 t, const CurveDataInfo* info, const T* f);
 template <typename T>
 T curveStep_(f32 t, const CurveDataInfo* info, const T* f);
 template <typename T>
-T curveSin_(f32 t_, const CurveDataInfo* info, const T* f);
+T curveSin_(f32 t, const CurveDataInfo* info, const T* f);
 template <typename T>
 T curveCos_(f32 t, const CurveDataInfo* info, const T* f);
 template <typename T>
@@ -118,12 +119,6 @@ template <typename T>
 T curveNonuniformSpline_(f32 t, const CurveDataInfo* info, const T* f);
 template <typename T>
 T curveHermit2DSmooth_(f32 t, const CurveDataInfo* info, const T* f);
-
-template <typename T>
-using CurveFunctionTable = std::array<decltype(curveLinear_<T>)*, cNumCurveType>;
-
-extern CurveFunctionTable<f32> sCurveFunctionTbl_f32;
-extern CurveFunctionTable<f64> sCurveFunctionTbl_f64;
 
 template <typename T>
 Vector2<T> curveLinearVec2_(f32 t, const CurveDataInfo* info, const T* f);
@@ -148,22 +143,22 @@ Vector2<T> curveNonuniformSplineVec2_(f32 t, const CurveDataInfo* info, const T*
 template <typename T>
 Vector2<T> curveHermit2DSmoothVec2_(f32 t, const CurveDataInfo* info, const T* f);
 
-template <typename T>
-using CurveFunctionTableVec2 = std::array<decltype(curveLinearVec2_<T>)*, cNumCurveType>;
-
-extern CurveFunctionTableVec2<f32> sCurveFunctionTbl_Vec2f;
-extern CurveFunctionTableVec2<f64> sCurveFunctionTbl_Vec2d;
+extern f32 (*sCurveFunctionTbl_f32[cNumCurveType])(f32, const CurveDataInfo*, const f32*);
+extern f64 (*sCurveFunctionTbl_f64[cNumCurveType])(f32, const CurveDataInfo*, const f64*);
+extern Vector2<f32> (*sCurveFunctionTbl_Vec2f[cNumCurveType])(f32, const CurveDataInfo*, const f32*);
+extern Vector2<f64> (*sCurveFunctionTbl_Vec2d[cNumCurveType])(f32, const CurveDataInfo*, const f64*);
 
 template <>
 inline f32 Curve<f32>::interpolateToF32(f32 t)
 {
-    return sCurveFunctionTbl_f32[u8(mInfo.curveType)](t, &mInfo, mFloats);
+    return sCurveFunctionTbl_f32[mInfo.curveType](t, &mInfo, mFloats);
 }
 
 template <>
 inline Vector2f Curve<f32>::interpolateToVec2f(f32 t)
 {
-    return sCurveFunctionTbl_Vec2f[u8(mInfo.curveType)](t, &mInfo, mFloats);
+    return sCurveFunctionTbl_Vec2f[mInfo.curveType](t, &mInfo, mFloats);
 }
+
 }  // namespace hostio
 }  // namespace sead

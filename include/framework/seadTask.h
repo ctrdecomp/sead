@@ -11,6 +11,10 @@ class Task : public TaskBase
     SEAD_RTTI_OVERRIDE(Task, TaskBase);
 
 public:
+    Task()
+    {
+    }
+    
     explicit Task(const TaskConstructArg& arg);
     Task(const TaskConstructArg& arg, const char* name);
     virtual ~Task();
@@ -26,8 +30,8 @@ public:
     virtual void detachDrawImpl();
     virtual const RuntimeTypeInfo::Interface* getCorrespondingMethodTreeMgrTypeInfo() const;
     virtual MethodTreeNode* getMethodTreeNode(s32 method_type);
-    virtual void calc() {}
-    virtual void draw() {}
+    virtual void calc();
+    virtual void draw();
 
 protected:
     MethodTreeNode mCalcNode;

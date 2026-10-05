@@ -12,7 +12,7 @@ template <typename T>
 class TList : public ListImpl
 {
 public:
-    using CompareCallback = int (*)(const T*, const T*);
+    typedef int (*CompareCallback)(const T*, const T*);
 
     TList() : ListImpl() {}
 
@@ -63,9 +63,6 @@ public:
     void swap(TListNode<T>* n1, TListNode<T>* n2) { ListImpl::swap(n1, n2); }
     void moveAfter(TListNode<T>* basis, TListNode<T>* n) { ListImpl::moveAfter(basis, n); }
     void moveBefore(TListNode<T>* basis, TListNode<T>* n) { ListImpl::moveBefore(basis, n); }
-
-    void sort(s32 offset, CompareCallback cmp) { ListImpl::sort<T>(offset, cmp); }
-    void mergeSort(s32 offset, CompareCallback cmp) { ListImpl::mergeSort<T>(offset, cmp); }
 
     TListNode<T>* find(const void* ptr, s32 offset, CompareCallback cmp) const
     {
@@ -209,7 +206,7 @@ public:
         robustIterator end() const { return mList.robustEnd(); }
         const TList& mList;
     };
-    RobustRange robustRange() const { return {*this}; }
+    RobustRange robustRange() const { return RobustRange(*this); }
 
     constIterator constBegin() const { return constIterator(static_cast<TListNode<T>*>(mStartEnd.next())); }
     constIterator constEnd() const { return constIterator(static_cast<TListNode<T>*>(const_cast<ListNode*>(&mStartEnd))); }

@@ -10,56 +10,62 @@
 
 namespace
 {
-__attribute__((naked)) s32 decodeSZSCtrAsm_(void* dst, const void* src)
+asm s32 decodeSZSCtrAsm_(void* dst, const void* src)
 {
-    asm("push {r4-r8,lr}\n");
-    asm("ldr r4, [r1,#4]\n");
-    asm("eor r5, r4, r4,ror#16\n");
-    asm("bic r5, r5, #0xff0000\n");
-    asm("mov r4, r4,ror#8\n");
-    asm("eor r4, r4, r5,lsr#8\n");
-    asm("mov r2, r4\n");
-    asm("add r1, r1, #0x10\n");
-    asm("mov r5, #0\n");
-    asm("mov lr, #0x1000\n");
-    asm("sub lr, lr, #1\n");
+    push {r4-r8,lr}
+    ldr r4, [r1,#4]
+    eor r5, r4, r4,ror#16
+    bic r5, r5, #0xff0000
+    mov r4, r4,ror#8
+    eor r4, r4, r5,lsr#8
+    mov r2, r4
+    add r1, r1, #0x10
+    mov r5, #0
+    mov lr, #0x1000
+    sub lr, lr, #1
 
-    asm("_decloop0: movs r5, r5,lsr#1\n");
-    asm("bne _decloop1\n");
-    asm("ldrb r6, [r1],#1\n");
-    asm("mov r5, #0x80\n");
+_decloop0
+    movs r5, r5,lsr#1
+    bne _decloop1
+    ldrb r6, [r1],#1
+    mov r5, #0x80
 
-    asm("_decloop1: tst r6, r5\n");
-    asm("bne _decloop5\n");
-    asm("ldrb r3, [r1],#1\n");
-    asm("ldrb r7, [r1],#1\n");
-    asm("add r3, r7, r3,lsl#8\n");
-    asm("movs r7, r3,lsr#12\n");
-    asm("and r3, r3, lr\n");
-    asm("add r3, r3, #1\n");
-    asm("add r7, r7, #2\n");
-    asm("bne _decloop2\n");
-    asm("ldrb r7, [r1],#1\n");
-    asm("add r7, r7, #0x12\n");
+_decloop1
+    tst r6, r5
+    bne _decloop5
+    ldrb r3, [r1],#1
+    ldrb r7, [r1],#1
+    add r3, r7, r3,lsl#8
+    movs r7, r3,lsr#12
+    and r3, r3, lr
+    add r3, r3, #1
+    add r7, r7, #2
+    bne _decloop2
+    ldrb r7, [r1],#1
+    add r7, r7, #0x12
 
-    asm("_decloop2: sub r4, r4, r7\n");
+_decloop2
+    sub r4, r4, r7
 
-    asm("_decloop3: ldrb r12, [r0,-r3]\n");
-    asm("subs r7, r7, #1\n");
-    asm("strb r12, [r0],#1\n");
-    asm("bne _decloop3\n");
-    asm("cmp r4, #0\n");
-    asm("bne _decloop0\n");
-    asm("b _decloop8\n");
+_decloop3
+    ldrb r12, [r0,-r3]
+    subs r7, r7, #1
+    strb r12, [r0],#1
+    bne _decloop3
+    cmp r4, #0
+    bne _decloop0
+    b _decloop8
 
-    asm("_decloop5: ldrb r12, [r1],#1\n");
-    asm("subs r4, r4, #1\n");
-    asm("strb r12, [r0],#1\n");
-    asm("bne _decloop0\n");
+_decloop5
+    ldrb r12, [r1],#1
+    subs r4, r4, #1
+    strb r12, [r0],#1
+    bne _decloop0
 
-    asm("_decloop8: pop {r4-r8,lr}\n");
-    asm("mov r0, r2\n");
-    asm("bx lr\n");
+_decloop8
+    pop {r4-r8,lr}
+    mov r0, r2
+    bx lr
 }
 }  // namespace
 
@@ -263,7 +269,7 @@ s32 SZSDecompressor::readHeader_(DecompContext* context, const u8* src, u32 src_
 
         src++;
         len += 1;
-        if (--srcSize == 0 && context->headerSize != 0)
+        if (--src_size == 0 && context->headerSize != 0)
             return len;
     }
 
@@ -284,14 +290,14 @@ s32 SZSDecompressor::streamDecomp(DecompContext* context, const void* src, u32 s
 
     if (context->headerSize != 0)
     {
-        s32 len = readHeader_(context, _src, srcSize);
+        s32 len = readHeader_(context, _src, src_size);
         if (len < 0)
             return len;
 
-        srcSize -= len;
+        src_size -= len;
         _src += len;
 
-        if (srcSize == 0)
+        if (src_size == 0)
         {
             if (context->headerSize == 0)
                 return context->destCount;
@@ -331,7 +337,7 @@ s32 SZSDecompressor::streamDecomp(DecompContext* context, const void* src, u32 s
             {
                 context->flags = *_src++;
                 context->flagMask = 0x80;
-                if (--srcSize == 0)
+                if (--src_size == 0)
                     break;
             }
 
@@ -350,13 +356,13 @@ s32 SZSDecompressor::streamDecomp(DecompContext* context, const void* src, u32 s
             context->flagMask >>= 1;
         }
 
-        if (--srcSize == 0)
+        if (--src_size == 0)
             break;
 
         _src++;
     }
 
-    if (context->destCount == 0 && context->forceDestCount == 0 && 0x20 < srcSize)
+    if (context->destCount == 0 && context->forceDestCount == 0 && 0x20 < src_size)
         return -1;
 
     else
@@ -376,11 +382,7 @@ s32 SZSDecompressor::decomp(void* dst, u32 dstSize, const void* src, u32 src_siz
     s32 error = -2;
     if (dstSize >= decompSize)
     {
-#ifdef CTRSDK
         error = decodeSZSCtrAsm_(dst, src);
-#else
-        SEAD_ASSERT_MSG(false, "SZSDecompressor::decomp not implemented");
-#endif  // cafe
     }
 
     return error;

@@ -26,7 +26,7 @@ void Controller::calc()
 
     bool is_idle = true;
 
-    for (sead::OffsetList<sead::ControllerAddon>::iterator it = mAddons.begin(); it != mAddons.end(); ++it){
+    for (OffsetList<ControllerAddon>::iterator it = mAddons.begin(); it != mAddons.end(); ++it){
         if (it->calc())
             is_idle = false;
     }
@@ -36,19 +36,26 @@ void Controller::calc()
     else
         mIdleFrame = 0;
 
-    for (sead::OffsetList<sead::ControllerWrapperBase>::iterator it = mWrappers.begin(); it != mWrappers.end(); ++it)
+    for (OffsetList<ControllerWrapperBase>::iterator it = mWrappers.begin(); it != mWrappers.end(); ++it)
         it->calc(prev_hold, prev_pointer_on);
 }
 
-ControllerAddon* Controller::getAddon(ControllerDefine::AddonId id) const{
+ControllerAddon* Controller::getAddon(ControllerDefine::AddonId id) const
+{
     return getAddonByOrder(id, 0);
 }
 
-ControllerAddon* Controller::getAddonByOrder(ControllerDefine::AddonId id, int index) const{
-    for (ControllerAddon& addon : mAddons){
-        if (addon.mId == id){
+ControllerAddon* Controller::getAddonByOrder(ControllerDefine::AddonId id, int index) const
+{
+    for (OffsetList<ControllerAddon>::iterator it = mAddons.begin(); it != mAddons.end(); ++it)
+    {
+        ControllerAddon& addon = *it;
+
+        if (addon.getId() == id)
+        {
             if (index == 0)
                 return &addon;
+
             index--;
         }
     }

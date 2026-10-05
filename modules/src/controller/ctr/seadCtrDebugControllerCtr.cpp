@@ -1,6 +1,8 @@
 // Filename: seadDebugCtrControllerCtr.cpp
 //
 // Project: StandardEAD C++ Library for CTR
+//
+// TODO: CHECK THIS
 
 #include <controller/ctr/seadCtrDebugControllerCtr.h>
 #include <controller/seadControllerMgr.h>
@@ -11,14 +13,14 @@ namespace sead
 CtrDebugController::CtrDebugController(ControllerMgr* mgr):
     Controller(mgr)
 {
-    mId = ControllerDefine::ControllerId::cController_CtrDebug;
-    mLeftStickCrossStartBit  = -nn::hid::CTR::AnalogStickClamper::STICK_CLAMP_MODE_CROSS;
-    mRightStickCrossStartBit = -nn::hid::CTR::AnalogStickClamper::STICK_CLAMP_MODE_CROSS;
+    mId = ControllerDefine::cController_CtrDebug;
+    mLeftStickCrossStartBit  = -1;
+    mRightStickCrossStartBit = -1;
 }
 
 void CtrDebugController::calcImpl_()
 {
-    CtrHidDevice* ctrDevice = DynamicCast<CtrHidDevice>(getMgr()->getControlDevice(ControllerDefine::DeviceId::cDevice_CtrHid));
+    CtrHidDevice* ctrDevice = DynamicCast<CtrHidDevice>(getMgr()->getControlDevice(ControllerDefine::cDevice_CtrHid));
 
     if (ctrDevice == nullptr)
         return;
@@ -118,7 +120,7 @@ void CtrDebugController::calcImpl_()
 
 bool CtrDebugController::isConnected() const
 {
-    CtrHidDevice* ctrDevice = DynamicCast<CtrHidDevice>(getMgr()->getControlDevice(ControllerDefine::DeviceId::cDevice_CtrHid));
+    CtrHidDevice* ctrDevice = DynamicCast<CtrHidDevice>(getMgr()->getControlDevice(ControllerDefine::cDevice_CtrHid));
 
     if (ctrDevice != nullptr)
     {

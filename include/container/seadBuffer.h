@@ -2,7 +2,6 @@
 #define SEAD_BUFFER_H_
 
 #include <algorithm>
-#include <type_traits>
 
 #include <basis/seadNew.h>
 #include <basis/seadRawPrint.h>
@@ -17,15 +16,15 @@ template <typename T>
 class Buffer
 {
 public:
-    Buffer() : 
-        mSize(0), 
-        mBuffer(NULL) 
+    Buffer(): 
+        mSize(0),
+        mBuffer(NULL)
     {
     }
 
-    Buffer(s32 size, T* buffer): 
-        mSize(size), 
-        mBuffer(buffer) 
+    Buffer(s32 size, T* bufferptr): 
+        mSize(size),
+        mBuffer(bufferptr)
     {
         if (size > 0 && bufferptr)
         {
@@ -37,12 +36,18 @@ public:
             SEAD_ASSERT_MSG(false, "illegal param: size[%d] bufferptr[" SEAD_FMT_UINTPTR "]", size, bufferptr);
         }
     }
+
     template <s32 N>
-    Buffer(T (&array)[N]) : Buffer(N, array)
+    Buffer(T (&array)[N]): 
+        mSize(N),
+        mBuffer(array)
     {
     }
 
-    Buffer(const Buffer& other) { *this = other; }
+    Buffer(const Buffer& other)
+    {
+        *this = other;
+    }
 
     Buffer& operator=(const Buffer& other)
     {
@@ -54,17 +59,28 @@ public:
     class iterator
     {
     public:
-        explicit iterator(T* buffer, s32 index = 0) : mIndex(index), mBuffer(buffer) {}
+        explicit iterator(T* buffer, s32 index = 0): 
+            mIndex(index), 
+            mBuffer(buffer)
+        {
+        }
+
         bool operator==(const iterator& rhs) const
         {
             return mIndex == rhs.mIndex && mBuffer == rhs.mBuffer;
         }
-        bool operator!=(const iterator& rhs) const { return !operator==(rhs); }
+
+        bool operator!=(const iterator& rhs) const
+        {
+            return !operator==(rhs);
+        }
+
         iterator& operator++()
         {
             ++mIndex;
             return *this;
         }
+
         T& operator*() const { return mBuffer[mIndex]; }
         T* operator->() const { return &mBuffer[mIndex]; }
         s32 getIndex() const { return mIndex; }
@@ -77,17 +93,28 @@ public:
     class constIterator
     {
     public:
-        explicit constIterator(const T* buffer, s32 index = 0) : mIndex(index), mBuffer(buffer) {}
+        explicit constIterator(const T* buffer, s32 index = 0): 
+            mIndex(index), 
+            mBuffer(buffer)
+        {
+        }
+
         bool operator==(const constIterator& rhs) const
         {
             return mIndex == rhs.mIndex && mBuffer == rhs.mBuffer;
         }
-        bool operator!=(const constIterator& rhs) const { return !operator==(rhs); }
+
+        bool operator!=(const constIterator& rhs) const
+        {
+            return !operator==(rhs);
+        }
+
         constIterator& operator++()
         {
             ++mIndex;
             return *this;
         }
+
         const T& operator*() const { return mBuffer[mIndex]; }
         const T* operator->() const { return &mBuffer[mIndex]; }
         s32 getIndex() const { return mIndex; }
@@ -98,6 +125,7 @@ public:
     };
 
     iterator begin() { return iterator(mBuffer); }
+
     iterator begin(s32 idx)
     {
         if (u32(size()) < u32(idx))
@@ -105,10 +133,12 @@ public:
             SEAD_ASSERT_MSG(false, "range over [0,%d] : %d", size(), idx);
             return end();
         }
+
         return iterator(mBuffer, idx);
     }
 
     constIterator begin() const { return constIterator(mBuffer); }
+
     constIterator begin(s32 idx) const
     {
         if (u32(size()) < u32(idx))
@@ -116,6 +146,7 @@ public:
             SEAD_ASSERT_MSG(false, "range over [0,%d] : %d", size(), idx);
             return end();
         }
+
         return constIterator(mBuffer, idx);
     }
 
@@ -125,14 +156,27 @@ public:
     class reverseIterator
     {
     public:
-        explicit reverseIterator(T* buffer, s32 index = 0) : mIndex(index), mBuffer(buffer) {}
-        bool operator==(const reverseIterator& rhs) const { return mIndex == rhs.mIndex; }
-        bool operator!=(const reverseIterator& rhs) const { return !operator==(rhs); }
+        explicit reverseIterator(T* buffer, s32 index = 0)
+            : mIndex(index), mBuffer(buffer)
+        {
+        }
+
+        bool operator==(const reverseIterator& rhs) const
+        {
+            return mIndex == rhs.mIndex;
+        }
+
+        bool operator!=(const reverseIterator& rhs) const
+        {
+            return !operator==(rhs);
+        }
+
         reverseIterator& operator++()
         {
             --mIndex;
             return *this;
         }
+
         T& operator*() const { return mBuffer[mIndex]; }
         T* operator->() const { return &mBuffer[mIndex]; }
         s32 getIndex() const { return mIndex; }
@@ -148,14 +192,17 @@ public:
 
     void allocBuffer(s32 size, s32 alignment)
     {
-        SEAD_ASSERT(mBuffer == nullptr);
+        SEAD_ASSERT(mBuffer == NULL);
+
         if (size > 0)
         {
             T* buffer = new (alignment) T[size];
+
             if (buffer)
             {
                 mSize = size;
                 mBuffer = buffer;
+
                 SEAD_ASSERT_MSG(PtrUtil::isAlignedPow2(mBuffer, abs(alignment)),
                                 "don't set alignment for a class with destructor");
             }
@@ -168,14 +215,17 @@ public:
 
     void allocBuffer(s32 size, Heap* heap, s32 alignment = sizeof(void*))
     {
-        SEAD_ASSERT(mBuffer == nullptr);
+        SEAD_ASSERT(mBuffer == NULL);
+
         if (size > 0)
         {
             T* buffer = new (heap, alignment) T[size];
+
             if (buffer)
             {
                 mSize = size;
                 mBuffer = buffer;
+
                 SEAD_ASSERT_MSG(PtrUtil::isAlignedPow2(mBuffer, abs(alignment)),
                                 "don't set alignment for a class with destructor");
             }
@@ -188,40 +238,52 @@ public:
 
     bool tryAllocBuffer(s32 size, s32 alignment = sizeof(void*))
     {
-        SEAD_ASSERT(mBuffer == nullptr);
+        SEAD_ASSERT(mBuffer == NULL);
+
         if (size > 0)
         {
             T* buffer = new (alignment, std::nothrow) T[size];
+
             if (buffer)
             {
                 mSize = size;
                 mBuffer = buffer;
+
                 SEAD_ASSERT_MSG(PtrUtil::isAlignedPow2(mBuffer, abs(alignment)),
                                 "don't set alignment for a class with destructor");
+
                 return true;
             }
+
             return false;
         }
+
         SEAD_ASSERT_MSG(false, "size[%d] must be larger than zero", size);
         return false;
     }
 
     bool tryAllocBuffer(s32 size, Heap* heap, s32 alignment = sizeof(void*))
     {
-        SEAD_ASSERT(mBuffer == nullptr);
+        SEAD_ASSERT(mBuffer == NULL);
+
         if (size > 0)
         {
             T* buffer = new (heap, alignment, std::nothrow) T[size];
+
             if (buffer)
             {
                 mSize = size;
                 mBuffer = buffer;
+
                 SEAD_ASSERT_MSG(PtrUtil::isAlignedPow2(mBuffer, abs(alignment)),
                                 "don't set alignment for a class with destructor");
+
                 return true;
             }
+
             return false;
         }
+
         SEAD_ASSERT_MSG(false, "size[%d] must be larger than zero", size);
         return false;
     }
@@ -230,6 +292,7 @@ public:
     {
         if (tryAllocBuffer(size, heap, alignment))
             return true;
+
         AllocFailAssert(heap, sizeof(T) * size, alignment);
         return false;
     }
@@ -239,7 +302,7 @@ public:
         if (mBuffer)
         {
             delete[] mBuffer;
-            mBuffer = nullptr;
+            mBuffer = NULL;
             mSize = 0;
         }
     }
@@ -251,16 +314,18 @@ public:
             SEAD_ASSERT_MSG(false, "size[%d] must be larger than zero", size);
             return;
         }
+
         if (!bufferptr)
         {
             SEAD_ASSERT_MSG(false, "bufferptr is null");
             return;
         }
+
         mSize = size;
         mBuffer = bufferptr;
     }
 
-    bool isBufferReady() const { return mBuffer != nullptr; }
+    bool isBufferReady() const { return mBuffer != NULL; }
 
     bool isIndexValid(s32 idx) const { return u32(idx) < u32(mSize); }
 
@@ -274,6 +339,7 @@ public:
             SEAD_ASSERT_MSG(false, "index exceeded [%d/%d]", idx, mSize);
             return mBuffer[0];
         }
+
         return mBuffer[idx];
     }
 
@@ -284,6 +350,7 @@ public:
             SEAD_ASSERT_MSG(false, "index exceeded [%d/%d]", idx, mSize);
             return mBuffer[0];
         }
+
         return mBuffer[idx];
     }
 
@@ -292,8 +359,9 @@ public:
         if (u32(mSize) <= u32(idx))
         {
             SEAD_ASSERT_MSG(false, "index exceeded [%d/%d]", idx, mSize);
-            return nullptr;
+            return NULL;
         }
+
         return &mBuffer[idx];
     }
 
@@ -302,8 +370,9 @@ public:
         if (u32(mSize) <= u32(idx))
         {
             SEAD_ASSERT_MSG(false, "index exceeded [%d/%d]", idx, mSize);
-            return nullptr;
+            return NULL;
         }
+
         return &mBuffer[idx];
     }
 
@@ -312,6 +381,7 @@ public:
         SEAD_ASSERT_MSG(u32(idx) < u32(mSize), "index exceeded [%d/%d]", idx, mSize);
         return &mBuffer[idx];
     }
+
     const T* unsafeGet(s32 idx) const
     {
         SEAD_ASSERT_MSG(u32(idx) < u32(mSize), "index exceeded [%d/%d]", idx, mSize);
@@ -338,9 +408,12 @@ public:
             mBuffer[i] = v;
     }
 
-    using CompareCallback = s32 (*)(const T* lhs, const T* rhs);
+    typedef s32 (*CompareCallback)(const T* lhs, const T* rhs);
 
-    s32 binarySearch(const T& item) const { return binarySearch(item, compareT); }
+    s32 binarySearch(const T& item) const
+    {
+        return binarySearch(item, compareT);
+    }
 
     s32 binarySearch(const T& item, CompareCallback cmp) const
     {
@@ -349,12 +422,15 @@ public:
 
         s32 a = 0;
         s32 b = mSize - 1;
+
         while (a < b)
         {
             const s32 m = (a + b) / 2;
             const s32 c = cmp(&mBuffer[m], &item);
+
             if (c == 0)
                 return m;
+
             if (c < 0)
                 a = m + 1;
             else
@@ -375,12 +451,15 @@ public:
 
         s32 a = 0;
         s32 b = mSize - 1;
+
         while (a < b)
         {
             const s32 m = (a + b) / 2;
             const s32 c = cmp(mBuffer[m], key);
+
             if (c == 0)
                 return m;
+
             if (c < 0)
                 a = m + 1;
             else
@@ -401,12 +480,15 @@ public:
 
         s32 a = 0;
         s32 b = mSize - 1;
+
         while (a < b)
         {
             const s32 m = (a + b) / 2;
             const s32 c = cmp(mBuffer[m]);
+
             if (c == 0)
                 return m;
+
             if (c < 0)
                 a = m + 1;
             else
@@ -424,20 +506,38 @@ public:
     {
         if (start_idx >= mSize || end_idx >= mSize || end_idx - start_idx < 1)
             return;
+
         // FIXME: Nintendo implemented heap sort manually without using <algorithm>
-        std::make_heap(mBuffer + start_idx, mBuffer + end_idx);
-        std::sort_heap(mBuffer + start_idx, mBuffer + end_idx);
+        std::make_heap(mBuffer + start_idx, mBuffer + end_idx + 1);
+        std::sort_heap(mBuffer + start_idx, mBuffer + end_idx + 1);
     }
+
+    class HeapSortCompare
+    {
+    public:
+        explicit HeapSortCompare(CompareCallback cmp): 
+            mCompare(cmp)
+        {
+        }
+
+        bool operator()(const T& a, const T& b) const
+        {
+            return mCompare(&a, &b) < 0;
+        }
+
+    private:
+        CompareCallback mCompare;
+    };
 
     /// Sort elements with indices in [start_idx .. end_idx] using heapsort.
     void heapSort(s32 start_idx, s32 end_idx, CompareCallback cmp)
     {
         if (start_idx >= mSize || end_idx >= mSize || end_idx - start_idx < 1)
             return;
-        // FIXME: Nintendo implemented heap sort manually without using <algorithm>
-        const CompareCallback cmp_ = [cmp](const T& a, const T& b) { return cmp(&a, &b) < 0; };
-        std::make_heap(mBuffer + start_idx, mBuffer + end_idx, cmp_);
-        std::sort_heap(mBuffer + start_idx, mBuffer + end_idx, cmp_);
+
+        HeapSortCompare cmp_(cmp);
+        std::make_heap(mBuffer + start_idx, mBuffer + end_idx + 1, cmp_);
+        std::sort_heap(mBuffer + start_idx, mBuffer + end_idx + 1, cmp_);
     }
 
 protected:
@@ -447,12 +547,16 @@ protected:
             return -1;
         if (*rhs < *lhs)
             return 1;
+
         return 0;
     }
 
     // This is duplicated from Mathi::abs to avoid having to include the MathCalcCommon header;
     // this limits the number of files we have to rebuild downstream whenever maths code is updated.
-    static s32 abs(s32 x) { return (x ^ x >> 31) - (x >> 31); }
+    static s32 abs(s32 x)
+    {
+        return (x ^ x >> 31) - (x >> 31);
+    }
 
     s32 mSize;
     T* mBuffer;

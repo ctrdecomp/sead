@@ -81,14 +81,6 @@ public:
 
     typedef int (*CompareCallback)(const T*, const T*);
 
-    void sort() { sort(compareT); }
-
-    void sort(CompareCallback cmp) { ListImpl::sort<T>(mOffset, cmp); }
-
-    void mergeSort() { mergeSort(compareT); }
-
-    void mergeSort(CompareCallback cmp) { ListImpl::mergeSort<T>(mOffset, cmp); }
-
     T* find(const T* obj) const { return find(obj, compareT); }
 
     T* find(const T* obj, CompareCallback cmp) const {
@@ -98,6 +90,30 @@ public:
     void uniq() { uniq(compareT); }
 
     void uniq(CompareCallback cmp) { ListImpl::uniq(mOffset, cmp); }
+
+    class iterator 
+    {
+    public:
+        iterator(T* ptr, s32 offset) : mPtr(ptr), mOffset(offset) {}
+
+        bool operator==(const iterator& other) const { return mPtr == other.mPtr; }
+
+        bool operator!=(const iterator& other) const { return !(*this == other); }
+
+        iterator& operator++() {
+            ListNode* node = static_cast<ListNode*>(PtrUtil::addOffset(mPtr, mOffset))->next();
+            mPtr = static_cast<T*>(PtrUtil::addOffset(node, -mOffset));
+            return *this;
+        }
+
+        T& operator*() const { return *mPtr; }
+
+        T* operator->() const { return mPtr; }
+
+    private:
+        T* mPtr;
+        s32 mOffset;
+    };
 
     class constIterator
     {
@@ -135,29 +151,6 @@ public:
     constIterator constBegin() const { return constIterator(listNodeToObj(mStartEnd.next()), mOffset); }
     constIterator constEnd() const { return constIterator(listNodeToObj(&mStartEnd), mOffset); }
     constIterator toConstIterator(const T* obj) const { return constIterator(obj, mOffset); }
-
-    class iterator {
-    public:
-        iterator(T* ptr, s32 offset) : mPtr(ptr), mOffset(offset) {}
-
-        bool operator==(const iterator& other) const { return mPtr == other.mPtr; }
-
-        bool operator!=(const iterator& other) const { return !(*this == other); }
-
-        iterator& operator++() {
-            ListNode* node = static_cast<ListNode*>(PtrUtil::addOffset(mPtr, mOffset))->next();
-            mPtr = static_cast<T*>(PtrUtil::addOffset(node, -mOffset));
-            return *this;
-        }
-
-        T& operator*() const { return *mPtr; }
-
-        T* operator->() const { return mPtr; }
-
-    private:
-        T* mPtr;
-        s32 mOffset;
-    };
 
     iterator begin() const { return iterator(listNodeToObj(mStartEnd.next()), mOffset); }
 

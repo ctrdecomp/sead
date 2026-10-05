@@ -1,7 +1,5 @@
 #pragma once
 
-#include <type_traits>
-
 #include "basis/seadTypes.h"
 #include "heap/seadDisposer.h"
 #ifdef SEAD_DEBUG
@@ -23,12 +21,20 @@ class LifeCheckable
 #ifdef SEAD_DEBUG
 public:
     LifeCheckable()
+        : mCreateID(0)
+        , mPrev(NULL)
+        , mNext(NULL)
+        , mDisposer(NULL)
     {
         mDisposer = mDisposerBuf.construct(this);
         initialize_();
     }
 
     LifeCheckable(Heap* disposer_heap, IDisposer::HeapNullOption option)
+        : mCreateID(0)
+        , mPrev(NULL)
+        , mNext(NULL)
+        , mDisposer(NULL)
     {
         mDisposer = mDisposerBuf.construct(this, disposer_heap, option);
         initialize_();
@@ -43,14 +49,16 @@ public:
             mDisposer->~DisposeHostIOCaller();
             disposeHostIOImpl_();
         }
-        mDisposer = nullptr;
+
+        mDisposer = NULL;
     }
 
     u32 getCreateID() const { return mCreateID; }
+
     static LifeCheckable* searchInstanceFromCreateID(u32 createID);
 
-    LifeCheckable(const LifeCheckable&) = delete;
-    LifeCheckable& operator=(const LifeCheckable&) = delete;
+    LifeCheckable(const LifeCheckable&);
+    LifeCheckable& operator=(const LifeCheckable&);
 
 protected:
     virtual void disposeHostIO() { disposeHostIOImpl_(); }
@@ -59,16 +67,30 @@ private:
     class DisposeHostIOCaller : public IDisposer
     {
     public:
-        explicit DisposeHostIOCaller(LifeCheckable* instance) : mInstance(instance) {}
-        DisposeHostIOCaller(LifeCheckable* instance, Heap* disposer_heap, HeapNullOption option)
-            : IDisposer(disposer_heap, option), mInstance(instance)
+        explicit DisposeHostIOCaller(LifeCheckable* instance)
+            : mInstance(instance)
+        {
+        }
+
+        DisposeHostIOCaller(LifeCheckable* instance,
+                            Heap* disposer_heap,
+                            HeapNullOption option)
+            : IDisposer(disposer_heap, option)
+            , mInstance(instance)
         {
         }
 
         virtual ~DisposeHostIOCaller();
 
-        bool hasInstance() const { return mInstance != nullptr; }
-        void clearInstance() { mInstance = nullptr; }
+        bool hasInstance() const
+        {
+            return mInstance != NULL;
+        }
+
+        void clearInstance()
+        {
+            mInstance = NULL;
+        }
 
     private:
         LifeCheckable* mInstance;
@@ -77,10 +99,10 @@ private:
     void initialize_();
     void disposeHostIOImpl_();
 
-    u32 mCreateID = 0;
-    LifeCheckable* mPrev = nullptr;
-    LifeCheckable* mNext = nullptr;
-    DisposeHostIOCaller* mDisposer = nullptr;
+    u32 mCreateID;
+    LifeCheckable* mPrev;
+    LifeCheckable* mNext;
+    DisposeHostIOCaller* mDisposer;
     StorageFor<DisposeHostIOCaller> mDisposerBuf;
 
     static u32 sCurrentCreateID;
@@ -88,23 +110,44 @@ private:
 #endif
 };
 
+
 class PropertyEventListener : public LifeCheckable
 {
 #ifdef SEAD_DEBUG
 public:
-    using LifeCheckable::LifeCheckable;
+    PropertyEventListener()
+        : LifeCheckable()
+    {
+    }
+
+    PropertyEventListener(Heap* disposer_heap,
+                          IDisposer::HeapNullOption option)
+        : LifeCheckable(disposer_heap, option)
+    {
+    }
 
     virtual void listenPropertyEvent(const PropertyEvent* event) = 0;
 #endif
 };
 
+
 class NodeEventListener : public PropertyEventListener
 {
 #ifdef SEAD_DEBUG
 public:
-    using PropertyEventListener::PropertyEventListener;
+    NodeEventListener()
+        : PropertyEventListener()
+    {
+    }
+
+    NodeEventListener(Heap* disposer_heap,
+                      IDisposer::HeapNullOption option)
+        : PropertyEventListener(disposer_heap, option)
+    {
+    }
 
     virtual void listenPropertyEvent(const PropertyEvent* event) {}
+
     virtual void listenNodeEvent(const NodeEvent* event) {}
 #endif
 };

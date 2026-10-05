@@ -51,17 +51,6 @@ public:
 protected:
     typedef int (*CompareCallbackImpl)(const void*, const void*);
 
-    template <class T, class ComparePredicate>
-    void sort(s32 offset, const ComparePredicate& cmp) {
-        this->mergeSort<T, ComparePredicate>(offset, cmp);
-    }
-
-    template <class T, class ComparePredicate>
-    void mergeSort(s32 offset, const ComparePredicate& cmp) {
-        this->mergeSortImpl_<T, ComparePredicate>(mStartEnd.mNext, mStartEnd.mPrev, size(), offset,
-                                                  cmp);
-    }
-
     void pushBack(ListNode* item) {
         mStartEnd.insertFront_(item);
         ++mCount;
@@ -105,11 +94,6 @@ protected:
     void uniq(s32 offset, CompareCallbackImpl cmp);
 
     void clear();
-
-    // FIXME: this should take an rvalue reference for predicate.
-    template <class T, class ComparePredicate>
-    static void mergeSortImpl_(ListNode* front, ListNode* back, s32 num, s32 offset,
-                               const ComparePredicate& predicate);
 
 protected:
     ListNode mStartEnd;

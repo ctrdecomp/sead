@@ -124,7 +124,7 @@ inline void GameFrameworkCtrNw4c::saveScreenShot(const SafeString& filename)
     mScreenshotBuf = filename.cstr();
 }
 
-inline void setCaption(SafeString const& caption)
+inline void GameFrameworkCtrNw4c::setCaption(SafeString const& caption)
 {
     SEAD_PRINT("%s\n", caption.cstr());
 }

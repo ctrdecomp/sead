@@ -63,36 +63,6 @@ bool FileDevice::tryClose(FileHandle* handle)
     return closed;
 }
 
-bool FileDevice::tryFlush(FileHandle* handle)
-{
-    SEAD_ASSERT_MSG(mPermission, "Device permission error.");
-    if (!mPermission)
-        return false;
-
-    if (!handle)
-    {
-        SEAD_ASSERT_MSG(false, "handle is null");
-        return false;
-    }
-
-    if (!isMatchDevice_(handle))
-    {
-        SEAD_ASSERT_MSG(false, "handle device miss match");
-        return false;
-    }
-
-    return doFlush_(handle);
-}
-
-bool FileDevice::tryRemove(const SafeString& str)
-{
-    SEAD_ASSERT_MSG(mPermission, "Device permission error.");
-    if (!mPermission)
-        return false;
-
-    return doRemove_(str);
-}
-
 bool FileDevice::tryRead(u32* bytesRead, FileHandle* handle, u8* outBuffer, u32 bytesToRead)
 {
     SEAD_ASSERT_MSG(mPermission, "Device permission error.");
@@ -519,26 +489,6 @@ bool FileHandle::tryClose()
     return mOriginalDevice->tryClose(this);
 }
 
-bool FileHandle::flush()
-{
-    if (!mOriginalDevice)
-    {
-        SEAD_ASSERT_MSG(false, "handle not opened");
-        return false;
-    }
-    return mOriginalDevice->flush(this);
-}
-
-bool FileHandle::tryFlush()
-{
-    if (!mOriginalDevice)
-    {
-        SEAD_ASSERT_MSG(false, "handle not opened");
-        return false;
-    }
-    return mOriginalDevice->tryFlush(this);
-}
-
 u32 FileHandle::read(u8* outBuffer, u32 bytesToRead)
 {
     if (!mDevice)
@@ -711,7 +661,7 @@ u8* FileDevice::doLoad_(LoadArg& arg)
         return nullptr;
 
     u32 bytesToRead = arg.buffer_size;
-    if (!arg.buffer || arg.check_read_entire_file)
+    if (!arg.buffer || arg.check_read_whole)
     {
         u32 fileSize = 0;
         if (!tryGetFileSize(&fileSize, &handle))
@@ -768,7 +718,7 @@ u8* FileDevice::doLoad_(LoadArg& arg)
         void* raw_buf = heap->tryAlloc(bytesToRead, alignment);
         if (!raw_buf)
         {
-            if (arg.assert_on_alloc_fail)
+            if (arg.enable_alloc_assert)
             {
                 SEAD_ASSERT_MSG(false, "alloc size[%u] failed in heap[%s] for file[%s]",
                                 bytesToRead, heap->getName().cstr(), arg.path.cstr());
@@ -824,10 +774,10 @@ bool FileDevice::doSave_(FileDevice::SaveArg& arg)
 
 void FileDevice::doTracePath_(const SafeString& path) const
 {
-    SEAD_DEBUG_PRINT("[%s] %s\n", mDriveName.cstr(), path.cstr());
+    SEAD_PRINT("[%s] %s\n", mDriveName.cstr(), path.cstr());
     FixedSafeString<512> out;
     doResolvePath_(&out, path);
-    SEAD_DEBUG_PRINT("  -> %s\n", out.cstr());
+    SEAD_PRINT("  -> %s\n", out.cstr());
 }
 
 void FileDevice::doResolvePath_(BufferedSafeString* out, const SafeString& path) const

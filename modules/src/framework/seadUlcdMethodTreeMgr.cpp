@@ -18,10 +18,10 @@ UlcdMethodTreeMgr::UlcdMethodTreeMgr():
     mRightRootDrawNode.pushBackChild(&mRightAppDrawFinalNode);
     mRightRootDrawNode.pushBackChild(&mRightSysDrawNode);
 
-    mRightSysDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mRightAppDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mRightAppDrawFinalNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mRightRootDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+    mRightSysDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mRightAppDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mRightAppDrawFinalNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mRightRootDrawNode.setPauseFlag(MethodTreeNode::cPause_Both);
 }
 
 UlcdMethodTreeMgr::~UlcdMethodTreeMgr()
@@ -94,11 +94,11 @@ void UlcdMethodTreeMgr::pauseAll(bool p)
     DualScreenMethodTreeMgr::pauseAll(p);
     if (p)
     {
-        mRightRootDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+        mRightRootDrawNode.setPauseFlag(MethodTreeNode::cPause_Both);
     }
     else
     {
-        mRightRootDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mRightRootDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 

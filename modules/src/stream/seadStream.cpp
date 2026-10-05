@@ -5,19 +5,31 @@
 
 namespace sead
 {
-BinaryStreamFormat sBinaryStreamInstance;
+// TODO: ADD TextStreamFormat
+
+/*BinaryStreamFormat sBinaryStreamInstance;
 TextStreamFormat sTextStreamInstance;
 
-StreamFormat* Stream::BASIC_STREAM_FORMAT[2]{
+StreamFormat* Stream::BASIC_STREAM_FORMAT[2] = {
     &sBinaryStreamInstance,
     &sTextStreamInstance,
+};*/
+
+BinaryStreamFormat sBinaryStreamInstance;
+
+StreamFormat* Stream::BASIC_STREAM_FORMAT[1] = {
+    &sBinaryStreamInstance,
 };
 
-Stream::Stream()
+Stream::Stream():
+    mFormat(NULL),
+    mSrc(NULL),
+    mEndian(Endian::getHostEndian())
 {
 }
 
-Stream::Stream(StreamSrc* src, StreamFormat* format)
+Stream::Stream(StreamSrc* src, StreamFormat* format):
+    mEndian(Endian::getHostEndian())
 {
     mSrc = src;
     mFormat = format;
@@ -275,7 +287,7 @@ void WriteStream::flush()
 void WriteStream::writeF32BitImpl_(f32 value, u32 integerBits, u32 fractionalBits)
 {
     u32 rawValue = static_cast<u32>(value * (1 << fractionalBits) + 0.5f);
-    rawValue = Endian::fromHostU32(Endian::Types::cLittle, rawValue);
+    rawValue = Endian::fromHostU32(Endian::cLittle, rawValue);
 
     writeBit(&rawValue, integerBits + fractionalBits);
 }
@@ -283,7 +295,7 @@ void WriteStream::writeF32BitImpl_(f32 value, u32 integerBits, u32 fractionalBit
 void WriteStream::writeF64BitImpl_(f64 value, u32 integerBits, u32 fractionalBits)
 {
     u64 rawValue = static_cast<u64>(value * (1 << fractionalBits) + 0.5f);
-    rawValue = Endian::fromHostU64(Endian::Types::cLittle, rawValue);
+    rawValue = Endian::fromHostU64(Endian::cLittle, rawValue);
 
     writeBit(&rawValue, integerBits + fractionalBits);
 }

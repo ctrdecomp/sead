@@ -11,6 +11,9 @@
 #include <thread/seadCriticalSection.h>
 #include <time/seadTickSpan.h>
 
+#define NUM_ROOT_HEAPS_MAX        4
+#define NUM_INDEPENDENT_HEAPS_MAX 4
+
 namespace sead
 {
 class HeapMgr : public hostio::Node
@@ -47,13 +50,8 @@ public:
     void initHostIO();
 
     Heap* findContainHeap(const void* ptr) const;
-    static bool isContainedInAnyHeap(const void* ptr);
-    static void dumpTreeYAML(WriteStream& stream);
     void setAllocFromNotSeadThreadHeap(Heap* heap);
-    static void removeFromFindContainHeapCache_(Heap* heap);
 
-    Heap* findHeapByName(const SafeString& name, int index) const;
-    static Heap* findHeapByName_(Heap*, const SafeString&, int* index);
     Heap* getCurrentHeap() const;
 
     static void removeRootHeap(Heap*);
@@ -66,30 +64,51 @@ public:
 
     static Heap* getRootHeap(s32 index) { return sRootHeaps[index]; }
 
-    // TODO: these should be private
-    static Arena* sArena;
+    static u32 getHeapCheckTag() { return sHeapCheckTag.increment(); }
+    static u32 peekHeapCheckTag() { return sHeapCheckTag.getValue(); }
+
+    typedef FixedPtrArray<Heap, NUM_ROOT_HEAPS_MAX> RootHeaps;
+    typedef FixedPtrArray<Heap, NUM_INDEPENDENT_HEAPS_MAX> IndependentHeaps;
+
     static HeapMgr sInstance;
     static HeapMgr* sInstancePtr;
+    static Arena* sArena;
+    static Arena sDefaultArena;
+    static AtomicU32 sHeapCheckTag;
+    static RootHeaps sRootHeaps;
+    static CriticalSection sHeapTreeLockCS;
+    static IndependentHeaps sIndependentHeaps;
 
-    typedef FixedPtrArray<Heap, 4> RootHeaps;
-    typedef FixedPtrArray<Heap, 4> IndependentHeaps;
+protected:
+
+    friend class ExpHeap;
+    friend class FrameHeap;
+    friend class UnboundHeap;
+    friend class CurrentHeapSetter;
 
 private:
     friend class ScopedCurrentHeapSetter;
 
     /// Set the current heap to the specified heap and returns the previous "current heap".
     Heap* setCurrentHeap_(Heap* heap);
-
-    static Arena sDefaultArena;
-    static RootHeaps sRootHeaps;
-    static IndependentHeaps sIndependentHeaps;
-    static CriticalSection sHeapTreeLockCS;
-    static Atomic<u32> sHeapCheckTag;
-    static TickSpan sSleepSpanAtRemoveCacheFailure;
-
-    /// fallback heap that is returned when getting the current heap outside of an sead::Thread
-    Heap* mAllocFromNotSeadThreadHeap;
+#if defined(SEAD_DEBUG)
+    u8 mDebugFillHeapCreate;
+    u8 mDebugFillAlloc;
+    u8 mDebugFillFree;
+    u8 mDebugFillHeapDestroy;
+    bool mIsEnableDebugFillHeapCreate;
+    bool mIsEnableDebugFillAlloc;
+    bool mIsEnableDebugFillFree;
+    bool mIsEnableDebugFillHeapDestroy;
+    IAllocCallback* mAllocCallback;
     IAllocFailedCallback* mAllocFailedCallback;
+    IFreeCallback* mFreeCallback;
+    ICreateCallback* mCreateCallback;
+    IDestroyCallback* mDestroyCallback;
+#else
+    IAllocFailedCallback* mAllocFailedCallback;
+#endif // SEAD_DEBUG
+    Heap* mAllocFromNotSeadThreadHeap;
 };
 
 /// Sets the "current heap" to the specified heap and restores the previous "current heap"
@@ -146,7 +165,7 @@ public:
     void setHeap(Heap* heap) { mHeap.storeNonAtomic(uintptr_t(heap)); }
     void resetHeap() { mHeap.fetchAnd(~1LL); }
 
-    Atomic<uintptr_t> mHeap;
+    Atomic<u32> mHeap;
 };
 
 }  // namespace sead

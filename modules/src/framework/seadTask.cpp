@@ -10,8 +10,8 @@ Task::Task(const TaskConstructArg& arg):
     mCalcNode(nullptr), 
     mDrawNode(nullptr)
 {
-    mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
-    mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+    mCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
+    mDrawNode.setPauseFlag(MethodTreeNode::cPause_Both);
 
     mCalcNode.bind(this, &Task::calc, "Task");
     mDrawNode.bind(this, &Task::draw, "Task");
@@ -22,8 +22,8 @@ Task::Task(const TaskConstructArg& arg, const char* name):
     mCalcNode(nullptr), 
     mDrawNode(nullptr)
 {
-    mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
-    mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+    mCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
+    mDrawNode.setPauseFlag(MethodTreeNode::cPause_Both);
 
     mCalcNode.bind(this, &Task::calc, name);
     mDrawNode.bind(this, &Task::draw, name);
@@ -49,7 +49,7 @@ void Task::attachCalcImpl()
 
     switch (getTag())
     {
-        case Tag::cSystem:
+        case cSystem:
             attachMethodWithCheck(0, &mCalcNode);
             break;
 
@@ -57,7 +57,7 @@ void Task::attachCalcImpl()
             SEAD_ASSERT_MSG(false, "Undefined Tag(%d).", getTag());
             //! Fallthrough
 
-        case Tag::cApp:
+        case cApp:
             if (!p)
             {
                 attachMethodWithCheck(1, &mCalcNode);
@@ -82,7 +82,7 @@ void Task::attachDrawImpl()
 
     switch (getTag())
     {
-        case Tag::cSystem:
+        case cSystem:
             attachMethodWithCheck(2, &mDrawNode);
             break;
 
@@ -90,7 +90,7 @@ void Task::attachDrawImpl()
             SEAD_ASSERT_MSG(false, "Undefined Tag(%d).", getTag());
             //! Fallthrough
 
-        case Tag::cApp:
+        case cApp:
             if (!p)
             {
                 attachMethodWithCheck(3, &mDrawNode);
@@ -120,49 +120,49 @@ void Task::detachDrawImpl()
 void Task::pauseCalc(bool b)
 {
     if (b)
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Self);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_Self);
     else
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
 }
 
 void Task::pauseDraw(bool b)
 {
     if (b)
-        mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Self);
+        mDrawNode.setPauseFlag(MethodTreeNode::cPause_Self);
     else
-        mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
 }
 
 void Task::pauseCalcRec(bool b)
 {
     if (b)
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
     else
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
 }
 
 void Task::pauseDrawRec(bool b)
 {
     if (b)
-        mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+        mDrawNode.setPauseFlag(MethodTreeNode::cPause_Both);
     else
-        mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
 }
 
 void Task::pauseCalcChild(bool b)
 {
     if (b)
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Child);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_Child);
     else
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
 }
 
 void Task::pauseDrawChild(bool b)
 {
     if (b)
-        mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Child);
+        mDrawNode.setPauseFlag(MethodTreeNode::cPause_Child);
     else
-        mDrawNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mDrawNode.setPauseFlag(MethodTreeNode::cPause_None);
 }
 
 const RuntimeTypeInfo::Interface* Task::getCorrespondingMethodTreeMgrTypeInfo() const

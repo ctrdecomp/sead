@@ -8,6 +8,8 @@ class GfxMemoryMgrCtr
 {
     SEAD_RTTI_BASE(GfxMemoryMgrCtr);
 public:
+    GfxMemoryMgrCtr();
+    
     virtual s32  allocate(size_t area, u32 alignment, u32 size, Heap* heap) = 0;
     virtual void deallocate(size_t area, u32 alignment, u32 size, void* obj) = 0;
 
@@ -25,26 +27,27 @@ public:
     DefaultGfxMemoryMgrCtr()
     {
     }
+    
     DefaultGfxMemoryMgrCtr(Heap* heap);
 
-    virtual int  allocate(size_t area, u32 alignment, u32 size, Heap* heap);
+    virtual s32  allocate(size_t area, u32 alignment, u32 size, Heap* heap);
     virtual void deallocate(size_t area, u32 alignment, u32 size, void* obj);
     virtual ~DefaultGfxMemoryMgrCtr();
 
     struct State
     {
-        uintptr_t mVramAStart;
-        uintptr_t mVramBStart;
+        uptr mVramAStart;
+        uptr mVramBStart;
     };
 
     void loadCurrentState(const State& dst);
     void saveCurrentState(State* dst) const;
 
     Heap* mGfxHeap;
-    uintptr_t mMemVramAStart;
-    uintptr_t mMemVramBStart;
-    uintptr_t mMemVramAEnd;
-    uintptr_t mMemVramBEnd;
+    uptr mMemVramAStart;
+    uptr mMemVramBStart;
+    uptr mMemVramAEnd;
+    uptr mMemVramBEnd;
     s32 _1C;
     s32 _20;
 };

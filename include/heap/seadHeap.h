@@ -28,9 +28,48 @@ class PropertyEvent;
 
 class Heap : public IDisposer, public INamable, public hostio::Reflexible
 {
+protected:
+#if defined(SEAD_DEBUG)
+protected:
+    class ScopedDebugFillSystemDisabler
+    {
+    public:
+        ScopedDebugFillSystemDisabler(Heap* heap)
+            : mHeap(heap)
+        {
+            SEAD_ASSERT(mHeap);
+
+            if (mHeap->isEnableLock())
+                mHeap->mCS.lock();
+
+            SEAD_ASSERT(Heap::isEnableDebugFillSystem_(mHeap));
+
+            Heap::setEnableDebugFillSystem_(mHeap, false);
+        }
+
+        ~ScopedDebugFillSystemDisabler()
+        {
+            Heap::setEnableDebugFillSystem_(mHeap, true);
+
+            if (mHeap->isEnableLock())
+                mHeap->mCS.unlock();
+        }
+
+    private:
+        Heap* mHeap;
+    };
+#endif // SEAD_DEBUG
 public:
-    SEAD_ENUM(Flag, cEnableLock, cDisposing, cEnableWarning, cEnableDebugFillSystem,
-              cEnableDebugFillUser)
+    enum Flag
+    {
+        cEnableLock = 0,
+        cDisposing,
+        cEnableWarning,
+#if defined(SEAD_DEBUG)
+        cEnableDebugFillSystem,
+        cEnableDebugFillUser
+#endif // SEAD_DEBUG
+    };
 
     enum HeapDirection
     {
@@ -64,15 +103,17 @@ public:
     virtual bool isAdjustable() const = 0;
 
     virtual void dump() const {}
-    virtual void dumpYAML(WriteStream& stream, int) const;
-    void dumpTreeYAML(WriteStream& stream, int) const;
+
+    static const s32 cMinAlignment = sizeof(void*);
+    static const size_t cMinAllocSize = cPtrSize;
 
 #ifdef SEAD_DEBUG
     virtual void listenPropertyEvent(const hostio::PropertyEvent* event);
     virtual void genMessage(hostio::Context*);
-#endif
+
     virtual void genInformation_(hostio::Context*);
     virtual void makeMetaString_(BufferedSafeString*);
+#endif
 
     virtual void pushBackChild_(Heap* child);
 
@@ -89,15 +130,37 @@ public:
         return ptr;
     }
 
-    void enableLock(bool on) { mFlag.changeBit(Flag::cEnableLock, on); }
-    void enableWarning(bool on) { mFlag.changeBit(Flag::cEnableWarning, on); }
-    void enableDebugFillSystem(bool on) { mFlag.changeBit(Flag::cEnableDebugFillSystem, on); }
-    void enableDebugFillUser(bool on) { mFlag.changeBit(Flag::cEnableDebugFillUser, on); }
+    void enableLock(bool on) { mFlag.changeBit(cEnableLock, on); }
+    void enableWarning(bool on) { mFlag.changeBit(cEnableWarning, on); }
 
-    bool isLockEnabled() const { return mFlag.isOnBit(Flag::cEnableLock); }
-    bool isWarningEnabled() const { return mFlag.isOnBit(Flag::cEnableWarning); }
-    bool isDebugFillSystemEnabled() const { return mFlag.isOnBit(Flag::cEnableDebugFillSystem); }
-    bool isDebugFillUserEnabled() const { return mFlag.isOnBit(Flag::cEnableDebugFillUser); }
+    bool isLockEnabled() const { return mFlag.isOnBit(cEnableLock); }
+    bool isWarningEnabled() const { return mFlag.isOnBit(cEnableWarning); }
+#ifdef SEAD_DEBUG
+    bool isDebugFillSystemEnabled() const { return mFlag.isOnBit(cEnableDebugFillSystem); }
+    bool isDebugFillUserEnabled() const { return mFlag.isOnBit(cEnableDebugFillUser); }
+
+    void enableDebugFillSystem(bool on) { mFlag.changeBit(cEnableDebugFillSystem, on); }
+    void enableDebugFillUser(bool on) { mFlag.changeBit(cEnableDebugFillUser, on); }
+
+    bool isEnableDebugFillAlloc_() const;
+    bool isEnableDebugFillFree_() const;
+    bool isEnableDebugFillHeapDestroy_() const;
+#endif
+
+    friend class IDisposer;
+    friend class HeapMgr;
+    friend class PrintFormatter;
+
+    void destruct_();
+    void dispose_(const void* begin, const void* end);
+    void eraseChild_(Heap* child);
+    void checkAccessThread_() const;
+
+    Heap* getParent() const { return mParent; }
+    HeapDirection getDirection() const { return mDirection; }
+
+    void setEnableLock(bool enable) { mFlag.changeBit(cEnableLock, enable); }
+    bool isEnableLock() const { return mFlag.isOnBit(cEnableLock); }
 
     sead::CriticalSection& getCriticalSection() { return mCS; }
 
@@ -111,7 +174,7 @@ public:
     ListNode mListNode;
     DisposerList mDisposerList;
     HeapDirection mDirection;
-    CriticalSection mCS;
+    mutable CriticalSection mCS;
     BitFlag16 mFlag;
     u16 mHeapCheckTag;
 #ifdef SEAD_DEBUG

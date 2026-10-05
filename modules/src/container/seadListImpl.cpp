@@ -1,4 +1,5 @@
 #include <basis/seadAssert.h>
+#include <basis/seadWarning.h>
 #include <container/seadListImpl.h>
 
 namespace sead
@@ -125,6 +126,77 @@ void ListImpl::swap(ListNode* n1, ListNode* n2)
         n2->erase_();
         n1_prev->insertBack_(n2);
     }
+}
+
+bool ListImpl::checkLinks() const
+{
+    if (!mStartEnd.mNext)
+    {
+        SEAD_WARNING("mStartEnd.mNext is null");
+        return false;
+    }
+
+    ListNode* node;
+
+    s32 count = 0;
+    for (node = mStartEnd.mNext; node != &mStartEnd; node = node->mNext)
+    {
+        if (!node->mNext)
+        {
+            SEAD_WARNING("node->mNext is null. count = %d", count);
+            return false;
+        }
+
+        if (node->mNext->mPrev != node)
+        {
+            SEAD_WARNING(
+                "node->mNext->mPrev[" SEAD_FMT_UINTPTR "] is not equal to node[" SEAD_FMT_UINTPTR "]. count = %d",
+                node->mNext->mPrev, node, count
+            );
+            return false;
+        }
+
+        count++;
+    }
+
+    if (!mStartEnd.mPrev)
+    {
+        SEAD_WARNING("mStartEnd.mPrev is null");
+        return false;
+    }
+
+    s32 countR = 0;
+    for (node = mStartEnd.mPrev; node != &mStartEnd; node = node->mPrev)
+    {
+        if (!node->mPrev)
+        {
+            SEAD_WARNING("node->mPrev is null. countR = %d", countR);
+            return false;
+        }
+
+        if (node->mPrev->mNext != node)
+        {
+            SEAD_WARNING(
+                "node->mPrev->mNext[" SEAD_FMT_UINTPTR "] is not equal to node[" SEAD_FMT_UINTPTR "]. countR = %d",
+                node->mPrev->mNext, node, countR
+            );
+            return false;
+        }
+
+        countR++;
+    }
+
+    if (mCount != count)
+    {
+        SEAD_WARNING("count[%d] is not equal to mCount[%d]", count, mCount);
+    }
+
+    if (mCount != countR)
+    {
+        SEAD_WARNING("countR[%d] is not equal to mCount[%d]", countR, mCount);
+    }
+
+    return count == countR && mCount == countR;
 }
 
 }  // namespace sead

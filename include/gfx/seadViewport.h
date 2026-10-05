@@ -23,6 +23,7 @@ public:
 
     void setByFrameBuffer(const LogicalFrameBuffer& buffer);
     void apply(const LogicalFrameBuffer& buffer) const;
+    void apply() const;
     void getOnFrameBufferPos(Vector2f* out, const LogicalFrameBuffer& buffer) const;
     void getOnFrameBufferSize(Vector2f* out, const LogicalFrameBuffer& buffer) const;
     void applyViewport(const LogicalFrameBuffer& buffer) const;
@@ -31,6 +32,8 @@ public:
     void project(Vector2f*, const Vector2f&) const;
     void unproject(Vector3f*, const Vector2f&, const Projection&, const Camera&) const;
     void unproject(Ray<Vector3f>*, const Vector2f&, const Projection&, const Camera&) const;
+
+    Graphics::DevicePosture getDevicePosture() const{ return mDevicePosture; }
 
 private:
     Graphics::DevicePosture mDevicePosture;

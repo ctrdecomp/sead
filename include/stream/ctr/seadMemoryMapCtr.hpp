@@ -235,7 +235,7 @@ u32 MemoryMapCtr::Stream::readNumber()
     }
 
     SafeString str(buffer);
-    StringUtil::tryParseU32(&result, str, StringUtil::CardinalNumber::Base16);
+    StringUtil::tryParseU32(&result, str, StringUtil::Base16);
 
     return result;
 }

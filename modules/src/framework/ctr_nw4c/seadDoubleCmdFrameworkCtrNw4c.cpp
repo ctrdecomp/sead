@@ -51,7 +51,7 @@ void DoubleCmdGameFrameworkCtrNw4c::initializeGraphicsSystem(Heap* heap, const V
         {
             ExpHeap* gfxHeap = ExpHeap::create(mGameArg.cmdMemSize, "sead::DefaultGfxMemoryMgrCtr", heap);
 
-            GfxMemoryMgrCtr* mem = new(gfxHeap) DefaultGfxMemoryMgrCtr();
+            GfxMemoryMgrCtr* mem = new(gfxHeap) DefaultGfxMemoryMgrCtr(gfxHeap);
             mem->setInitialize(true);
             initNngx_(mem);
             mem->setInitialize(false);

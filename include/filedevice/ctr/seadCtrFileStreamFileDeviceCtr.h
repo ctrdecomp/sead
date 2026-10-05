@@ -14,6 +14,7 @@ public:
 protected:
 
     virtual ~CtrFileStreamFileDevice(){ }
+protected:
     virtual bool doIsAvailable_() const;
     virtual FileDevice* doOpen_(FileHandle* handle, const SafeString& path, FileOpenFlag flag);
     virtual bool doClose_(FileHandle* handle);
@@ -33,23 +34,27 @@ protected:
     virtual void doResolvePath_(BufferedSafeString* out, const SafeString& path) const;
     virtual const char* getArchiveName_() const = 0;
 
-    nn::Result openDirectryImpl_(nn::fs::Directory* dir, SafeString const& pathInner, SafeString const& pathOutter);
-    nn::Result openFileStreamImpl_(nn::fs::FileStream* fs, SafeString const& pathInner, SafeString const& pathOutter, u32 mode);
-    class FileStreamFileHandle;
-
-    FileStreamFileHandle* getFileStreamFileHandle_(FileHandle* h) const;
-    Directory* getNnFsDirectory_(DirectoryHandle* h) const;
-
-    nn::Result nn_result;
-    bool mDoFlush;
-
     struct FileStreamFileHandle : public FileStream
     {
     public:
-        FileStreamFileHandle(){ }
+        FileStreamFileHandle():
+            FileStream()
+        {
+        }
+
         ~FileStreamFileHandle(){ }
 
         FileOpenFlag mFlag;
     };
+protected:
+
+    nn::Result openDirectryImpl_(nn::fs::Directory* dir, SafeString const& pathInner, SafeString const& pathOutter);
+    nn::Result openFileStreamImpl_(nn::fs::FileStream* fs, SafeString const& pathInner, SafeString const& pathOutter, u32 mode);
+    FileStreamFileHandle* getFileStreamFileHandle_(FileHandle* h) const;
+    Directory* getNnFsDirectory_(DirectoryHandle* h) const;
+protected:
+
+    nn::Result nn_result;
+    bool mDoFlush;
 };
 }

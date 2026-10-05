@@ -20,15 +20,18 @@ public:
     {
         cReflexible = 0,
         cNode = 1,
-        cOther = 2,
+        cOther = 2
     };
 
-    virtual NodeClassType getNodeClassType() const { return NodeClassType::cReflexible; }
+    virtual NodeClassType getNodeClassType() const
+    {
+        return cReflexible;
+    }
 
     enum AllocFlg
     {
-        Name = 1u << 0u,
-        Meta = 1u << 1u,
+        Name = 1u << 0,
+        Meta = 1u << 1
     };
 
 #ifdef SEAD_DEBUG
@@ -36,13 +39,15 @@ public:
     Reflexible(Heap* heap, IDisposer::HeapNullOption heap_null_option);
     virtual ~Reflexible() { disposeHostIOImpl_(); }
 
-    virtual void listenNodeEvent([[maybe_unused]] const NodeEvent* event) {}
-    virtual void genMessage([[maybe_unused]] Context* context) {}
+    virtual void listenNodeEvent(const NodeEvent* event) {}
+    virtual void genMessage(Context* context) {}
     virtual SafeString getMetaFilename() { return SafeString::cEmptyString; }
     virtual void genObjectInfo(const GenEvent* event, u32);
-    virtual Reflexible* searchNode([[maybe_unused]] const SafeString& name) { return nullptr; }
+    virtual Reflexible* searchNode(const SafeString& name) { return NULL; }
     virtual void calcURL(BufferedSafeString* url) const { url->copy(""); }
-    virtual void calcNodeURL(const Reflexible* reflexible, BufferedSafeString* url)
+
+    virtual void calcNodeURL(const Reflexible* reflexible,
+                             BufferedSafeString* url)
     {
         return reflexible->calcURL(url);
     }
@@ -66,22 +71,27 @@ protected:
         disposeHostIOImpl_();
         NodeEventListener::disposeHostIO();
     }
+
     virtual void genChildNode(Context* context);
     virtual bool isHaveChild() const { return false; }
 
 private:
-    using ApplyEventDataToMemoryCallback = bool (*)(const PropertyEvent* event);
+    typedef bool (*ApplyEventDataToMemoryCallback)(const PropertyEvent* event);
 
     void safeDelete_(AllocFlg flag);
-    const char* createStringBuffer_(AllocFlg flag, const SafeString& name, Heap* heap);
+    const char* createStringBuffer_(AllocFlg flag,
+                                    const SafeString& name,
+                                    Heap* heap);
     void disposeHostIOImpl_();
 
     const char* mName;
     const char* mMeta;
-    bool mIsGenerated = false;
+    bool mIsGenerated;
     BitFlag8 mAllocFlg;
+
     static ApplyEventDataToMemoryCallback sApplyEventDataToMemoryCallback;
 #endif
 };
+
 }  // namespace hostio
 }  // namespace sead

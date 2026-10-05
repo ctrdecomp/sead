@@ -11,14 +11,18 @@ namespace sead
 SEAD_TASK_SINGLETON_DISPOSER_IMPL(ControllerMgr);
 
 // NON_MATCHING: storing too much 00s into stack (for ConstructArg)
-ControllerMgr::ControllerMgr(): 
-    CalculateTask(ConstructArg(), "sead::ControllerMgr")
+ControllerMgr::ControllerMgr():
+    CalculateTask(ConstructArg(), "sead::ControllerMgr"),
+    mDevices(), 
+    mControllers()
 {
     mDevices.initOffset(offsetof(ControlDevice, mListNode));
 }
 
-ControllerMgr::ControllerMgr(const TaskConstructArg& arg)
-    : CalculateTask(arg, "sead::ControllerMgr")
+ControllerMgr::ControllerMgr(const TaskConstructArg& arg): 
+    CalculateTask(arg, "sead::ControllerMgr"),
+    mDevices(), 
+    mControllers()
 {
     mDevices.initOffset(offsetof(ControlDevice, mListNode));
 }
@@ -52,32 +56,15 @@ void ControllerMgr::initializeDefault(Heap* heap)
 {
     s32 controller_max;
 
-    // Ctr Bros are cooked...
-    //
-    // 1 fucking controller, ref do something
     controller_max = 1;
 
     initialize(controller_max, heap);
 
-#ifdef NNSDK
-    mDevices.pushBack(new (heap) NinJoyNpadDevice(this, heap));
-#endif
+    mDevices.pushBack(new (heap) CtrHidDevice(this));
 }
 
 void ControllerMgr::finalizeDefault()
 {
-#ifdef cafe
-    for (ControlDevice& device : mDevices)
-    {
-        if (device.getId() == 13)
-        {
-            mDevices.erase(&device);
-            delete &device;
-            break;
-        }
-    }
-#endif  // cafe
-
     finalize();
 }
 
@@ -92,8 +79,9 @@ void ControllerMgr::calc()
 
 Controller* ControllerMgr::getControllerByOrder(ControllerDefine::ControllerId id, s32 index) const
 {
-    for (Controller& controller : mControllers)
+    for (PtrArray<sead::Controller>::iterator it = mControllers.begin(); it != mControllers.end(); ++it)
     {
+        Controller& controller = *it;
         if (controller.mId == id)
         {
             if (index == 0)
@@ -103,18 +91,19 @@ Controller* ControllerMgr::getControllerByOrder(ControllerDefine::ControllerId i
         }
     }
 
-    return nullptr;
+    return NULL;
 }
 
 ControlDevice* ControllerMgr::getControlDevice(ControllerDefine::DeviceId id) const
 {
-    for (ControlDevice& device : mDevices)
+    for (OffsetList<sead::ControlDevice>::iterator it = mDevices.begin(); it != mDevices.end(); ++it)
     {
-        if (device.mId == id)
-            return &device;
+        ControlDevice* device = &*it;
+        if (device->mId == id)
+            return device;
     }
 
-    return nullptr;
+    return NULL;
 }
 
 ControllerAddon* ControllerMgr::getControllerAddon(s32 index, ControllerDefine::AddonId id) const
@@ -135,20 +124,6 @@ ControllerAddon* ControllerMgr::getControllerAddonByOrder(s32 controller_index,
         return controller->getAddonByOrder(id, addon_index);
 
     return nullptr;
-}
-
-s32 ControllerMgr::findControllerPort(const Controller* controller) const
-{
-    SEAD_ASSERT(controller);
-
-    s32 i = 0;
-    for (Controller& controller_it : mControllers)
-    {
-        if (&controller_it == controller)
-            return i;
-        i++;
-    }
-    return -1;
 }
 
 Framework* ControllerMgr::getFramework() const

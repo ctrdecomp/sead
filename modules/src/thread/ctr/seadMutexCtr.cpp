@@ -10,7 +10,10 @@ Mutex::Mutex():
     IDisposer(), 
     mMutexInner(false)
 {
-    
+}
+
+Mutex::~Mutex()
+{
 }
 
 bool Mutex::tryLock()

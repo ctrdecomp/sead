@@ -7,9 +7,9 @@ namespace sead
 DualScreenTask::DualScreenTask(const TaskConstructArg& arg):
     TaskBase(arg), mCalcNode(NULL), mTopNode(NULL),mBtmNode(NULL)
 {
-    mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mTopNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mBtmNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+    mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mTopNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mBtmNode.setPauseFlag(MethodTreeNode::cPause_None);
 
     mCalcNode.bind(this, &DualScreenTask::calc, "Task");
     mTopNode.bind(this, &DualScreenTask::drawTop, "Task");
@@ -19,9 +19,9 @@ DualScreenTask::DualScreenTask(const TaskConstructArg& arg):
 DualScreenTask::DualScreenTask(const TaskConstructArg& arg, const char* name):
     TaskBase(arg, name), mCalcNode(NULL), mTopNode(NULL),mBtmNode(NULL)
 {
-    mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mTopNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-    mBtmNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+    mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mTopNode.setPauseFlag(MethodTreeNode::cPause_None);
+    mBtmNode.setPauseFlag(MethodTreeNode::cPause_None);
 
     mCalcNode.bind(this, &DualScreenTask::calc, name);
     mTopNode.bind(this, &DualScreenTask::drawTop, name);
@@ -36,11 +36,11 @@ void DualScreenTask::pauseCalc(bool b)
 {
     if(b)
     {
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Self);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_Self);
     }
     else
     {
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 
@@ -48,13 +48,27 @@ void DualScreenTask::pauseDraw(bool b)
 {
     if(b)
     {
-        mTopNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Self);
-        mBtmNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Self);
+        mTopNode.setPauseFlag(MethodTreeNode::cPause_Self);
+        mBtmNode.setPauseFlag(MethodTreeNode::cPause_Self);
     }
     else
     {
-        mTopNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
-        mBtmNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mTopNode.setPauseFlag(MethodTreeNode::cPause_None);
+        mBtmNode.setPauseFlag(MethodTreeNode::cPause_None);
+    }
+}
+
+void DualScreenTask::pauseDrawRec(bool b)
+{
+    if(b)
+    {
+        mTopNode.setPauseFlag(MethodTreeNode::cPause_Both);
+        mBtmNode.setPauseFlag(MethodTreeNode::cPause_Both);
+    }
+    else
+    {
+        mTopNode.setPauseFlag(MethodTreeNode::cPause_None);
+        mBtmNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 
@@ -62,11 +76,11 @@ void DualScreenTask::pauseCalcRec(bool b)
 {
     if(b)
     {
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_Both);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_Both);
     }
     else
     {
-        mCalcNode.setPauseFlag(MethodTreeNode::PauseFlag::cPause_None);
+        mCalcNode.setPauseFlag(MethodTreeNode::cPause_None);
     }
 }
 
@@ -89,14 +103,14 @@ void DualScreenTask::attachCalcImpl()
 
     switch(getTag())
     {
-    case Tag::cSystem:
+    case cSystem:
         attachMethodWithCheck(0, &mCalcNode);
         break;
     default:
         SEAD_ASSERT_MSG(false, "Undefined Tag(%d).", getTag());
         //! Fallthrough
         
-    case Tag::cApp:
+    case cApp:
         if (!p)
         {
             attachMethodWithCheck(1, &mCalcNode);
@@ -120,14 +134,14 @@ void DualScreenTask::attachDrawImpl()
 
     switch(getTag())
     {
-    case Tag::cSystem:
+    case cSystem:
         attachMethodWithCheck(5, &mTopNode);
         attachMethodWithCheck(8, &mBtmNode);
         break;
     default:
         SEAD_ASSERT_MSG(false, "Undefined Tag(%d).", getTag());
         //! Fallthrough
-    case Tag::cApp:
+    case cApp:
         if (!p)
         {
             attachMethodWithCheck(6, &mTopNode);

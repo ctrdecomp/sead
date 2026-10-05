@@ -63,7 +63,7 @@ bool ArchiveFileDevice::doGetFileSize_(u32* fileSize, const SafeString& path)
         return false;
     }
 
-    ArchiveRes::FileInfo info{};
+    ArchiveRes::FileInfo info;
     if (!mArchive->getFile(path, &info))
         return false;
 
@@ -115,11 +115,9 @@ bool ArchiveFileDevice::doIsExistFile_(bool* exists, const SafeString& path)
         return false;
     }
 
-#if SEAD_ARCHIVERES_ISEXISTFILEIMPL
-    *exists = mArchive->isExistFile(path);
-#else
+
     *exists = mArchive->getFile(path) != nullptr;
-#endif
+
     return true;
 }
 
@@ -159,7 +157,7 @@ u8* ArchiveFileDevice::doLoadWithEntryID_(s32 entry_id, LoadArg& arg)
     if (arg.buffer || arg.heap)
     {
         FileHandle handle;
-        if (!tryOpenWithEntryID(&handle, entry_id, {}, arg.div_size))
+        if (!tryOpenWithEntryID(&handle, entry_id, cFileOpenFlag_ReadOnly, arg.div_size)) /* I think this uses cFileOpenFlag_ReadOnly */
             return nullptr;
 
         // Determine the buffer size.
@@ -204,7 +202,7 @@ u8* ArchiveFileDevice::doLoadWithEntryID_(s32 entry_id, LoadArg& arg)
         return buffer;
     }
 
-    ArchiveRes::FileInfo info{};
+    ArchiveRes::FileInfo info;
     const void* ret = mArchive->getFileFast(entry_id, &info);
     if (!ret)
         return nullptr;
@@ -234,7 +232,7 @@ u8* ArchiveFileDevice::doLoad_(LoadArg& arg)
     if (arg.buffer || arg.heap)
         return FileDevice::doLoad_(arg);
 
-    ArchiveRes::FileInfo info{};
+    ArchiveRes::FileInfo info;
     const void* ret = mArchive->getFile(arg.path, &info);
     if (!ret)
         return nullptr;

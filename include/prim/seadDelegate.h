@@ -375,16 +375,19 @@ public:
     Delegate2RFunc* clone(Heap* heap) const { return new (heap) Delegate2RFunc(*this); }
 };
 
-#if defined(__cplusplus) && __cplusplus >= 201103L
-
 template <typename Lambda>
 class LambdaDelegate : public IDelegate
 {
 public:
     explicit LambdaDelegate(Lambda l) : mLambda(l) {}
-    void invoke() { mLambda(); }
+
+    virtual void invoke() { mLambda(); }
     void operator()() const { mLambda(); }
-    LambdaDelegate* clone(Heap* heap) const { return new (heap) LambdaDelegate(*this); }
+
+    LambdaDelegate* clone(Heap* heap) const
+    {
+        return new (heap) LambdaDelegate(*this);
+    }
 
 protected:
     Lambda mLambda;
@@ -395,9 +398,14 @@ class LambdaDelegateR : public IDelegateR<R>
 {
 public:
     explicit LambdaDelegateR(Lambda l) : mLambda(l) {}
+
     R invoke() { return mLambda(); }
     R operator()() const { return mLambda(); }
-    LambdaDelegateR* clone(Heap* heap) const { return new (heap) LambdaDelegateR(*this); }
+
+    LambdaDelegateR* clone(Heap* heap) const
+    {
+        return new (heap) LambdaDelegateR(*this);
+    }
 
 protected:
     Lambda mLambda;
@@ -408,9 +416,14 @@ class LambdaDelegate1 : public IDelegate1<A1>
 {
 public:
     explicit LambdaDelegate1(Lambda l) : mLambda(l) {}
+
     void invoke(A1 a1) { mLambda(a1); }
     void operator()(A1 a1) const { mLambda(a1); }
-    LambdaDelegate1* clone(Heap* heap) const { return new (heap) LambdaDelegate1(*this); }
+
+    LambdaDelegate1* clone(Heap* heap) const
+    {
+        return new (heap) LambdaDelegate1(*this);
+    }
 
 protected:
     Lambda mLambda;
@@ -421,8 +434,10 @@ class LambdaDelegate1R : public IDelegate1R<A1, R>
 {
 public:
     explicit LambdaDelegate1R(Lambda l) : mLambda(l) {}
+
     R invoke(A1 a1) { return mLambda(a1); }
     R operator()(A1 a1) const { return mLambda(a1); }
+
     LambdaDelegate1R* clone(Heap* heap) const
     {
         return new (heap) LambdaDelegate1R(*this);
@@ -437,9 +452,14 @@ class LambdaDelegate2 : public IDelegate2<A1, A2>
 {
 public:
     explicit LambdaDelegate2(Lambda l) : mLambda(l) {}
+
     void invoke(A1 a1, A2 a2) { mLambda(a1, a2); }
     void operator()(A1 a1, A2 a2) const { mLambda(a1, a2); }
-    LambdaDelegate2* clone(Heap* heap) const { return new (heap) LambdaDelegate2(*this); }
+
+    LambdaDelegate2* clone(Heap* heap) const
+    {
+        return new (heap) LambdaDelegate2(*this);
+    }
 
 protected:
     Lambda mLambda;
@@ -450,8 +470,10 @@ class LambdaDelegate2R : public IDelegate2R<A1, A2, R>
 {
 public:
     explicit LambdaDelegate2R(Lambda l) : mLambda(l) {}
+
     R invoke(A1 a1, A2 a2) { return mLambda(a1, a2); }
     R operator()(A1 a1, A2 a2) const { return mLambda(a1, a2); }
+
     LambdaDelegate2R* clone(Heap* heap) const
     {
         return new (heap) LambdaDelegate2R(*this);
@@ -461,7 +483,6 @@ protected:
     Lambda mLambda;
 };
 
-// To work around the lack of CTAD.
 template <typename Lambda>
 static LambdaDelegate<Lambda> makeLambdaDelegate(const Lambda& l)
 {
@@ -469,7 +490,8 @@ static LambdaDelegate<Lambda> makeLambdaDelegate(const Lambda& l)
 }
 
 template <typename Lambda>
-static LambdaDelegateR<Lambda, typename Lambda::result_type> makeLambdaDelegateR(const Lambda& l)
+static LambdaDelegateR<Lambda, typename Lambda::result_type>
+makeLambdaDelegateR(const Lambda& l)
 {
     return LambdaDelegateR<Lambda, typename Lambda::result_type>(l);
 }
@@ -481,7 +503,8 @@ static LambdaDelegate1<Lambda, A1> makeLambdaDelegate1(const Lambda& l)
 }
 
 template <typename A1, typename Lambda>
-static LambdaDelegate1R<Lambda, A1, typename Lambda::result_type> makeLambdaDelegate1R(const Lambda& l)
+static LambdaDelegate1R<Lambda, A1, typename Lambda::result_type>
+makeLambdaDelegate1R(const Lambda& l)
 {
     return LambdaDelegate1R<Lambda, A1, typename Lambda::result_type>(l);
 }
@@ -493,14 +516,11 @@ static LambdaDelegate2<Lambda, A1, A2> makeLambdaDelegate2(const Lambda& l)
 }
 
 template <typename A1, typename A2, typename Lambda>
-static LambdaDelegate2R<Lambda, A1, A2, typename Lambda::result_type> makeLambdaDelegate2R(const Lambda& l)
+static LambdaDelegate2R<Lambda, A1, A2, typename Lambda::result_type>
+makeLambdaDelegate2R(const Lambda& l)
 {
     return LambdaDelegate2R<Lambda, A1, A2, typename Lambda::result_type>(l);
 }
-
-#endif
-
-#if defined(__cplusplus) && __cplusplus >= 201103L
 
 namespace detail
 {
@@ -512,174 +532,248 @@ template <typename Interface, typename AnyClass, size_t StorageSize>
 class AnyDelegateImpl
 {
 public:
-    AnyDelegateImpl() { new (&mStorage) typename AnyClass::UnbindDummy(); }
-
-    template <typename DelegateType>
-    AnyDelegateImpl(DelegateType other)
+    AnyDelegateImpl()
     {
-        *this = other;
+        new (&mStorage) typename AnyClass::UnbindDummy();
     }
 
-    template <typename DelegateType>
-    AnyDelegateImpl& operator=(DelegateType other)
+    Interface* getDelegate()
     {
-        this->mStorage = other;
-        return *this;
+        return reinterpret_cast<Interface*>(mStorage.bytes);
     }
 
-    template <typename... Args>
-    typename Interface::R operator()(Args&&... args)
+    const Interface* getDelegate() const
     {
-        return getDelegate()->invoke(args...);
+        return reinterpret_cast<const Interface*>(mStorage.bytes);
     }
-
-    template <typename... Args>
-    typename Interface::R operator()(Args&&... args) const
-    {
-        return getDelegate()->invoke(args...);
-    }
-
-#if SEAD_DELEGATE_ISNODUMMY
-    explicit operator bool() const { return getDelegate()->isNoDummy(); }
-#endif
-
-    Interface* getDelegate() { return reinterpret_cast<Interface*>(&mStorage); }
-    const Interface* getDelegate() const { return reinterpret_cast<const Interface*>(&mStorage); }
 
 protected:
     typedef Interface Interface_;
-    struct StorageType
+
+    union StorageType
     {
-        unsigned char bytes[StorageSize];
+        char bytes[StorageSize];
+        long double alignment;
+        void* pointer;
     } mStorage;
+
+    template <typename DelegateType>
+    void copyFrom(const DelegateType& other)
+    {
+        new (&mStorage) DelegateType(other);
+    }
 };
 }  // namespace detail
 
 /// A type-erased delegate that can store either a Delegate or a LambdaDelegate
 /// without heap allocations.
-class AnyDelegate : public detail::AnyDelegateImpl<IDelegate, AnyDelegate,
-                                                   sizeof(Delegate<detail::DummyClassForDelegate>)>
+class AnyDelegate
+    : public detail::AnyDelegateImpl<
+          IDelegate, AnyDelegate,
+          sizeof(Delegate<detail::DummyClassForDelegate>)>
 {
 public:
-    typedef detail::AnyDelegateImpl<IDelegate, AnyDelegate,
-                                  sizeof(Delegate<detail::DummyClassForDelegate>)> Base;
+    typedef detail::AnyDelegateImpl<
+        IDelegate, AnyDelegate,
+        sizeof(Delegate<detail::DummyClassForDelegate>)> Base;
 
     class UnbindDummy : public Base::Interface_
     {
     public:
         void invoke() {}
-#if SEAD_DELEGATE_ISNODUMMY
-        bool isNoDummy() const { return false; }
-#endif
     };
+
+    AnyDelegate() : Base() {}
 
     template <typename T>
     void bind(T* obj, typename Delegate<T>::PTMF method)
     {
-        this->mStorage = Delegate<T>(obj, method);
+        this->copyFrom(Delegate<T>(obj, method));
+    }
+
+    template <typename DelegateType>
+    AnyDelegate& operator=(const DelegateType& other)
+    {
+        this->copyFrom(other);
+        return *this;
+    }
+
+    void invoke()
+    {
+        if (getDelegate())
+            getDelegate()->invoke();
+    }
+
+    void operator()()
+    {
+        return invoke();
     }
 };
 
 template <typename R>
 class AnyDelegateR
-    : public detail::AnyDelegateImpl<IDelegateR<R>, AnyDelegateR<R>,
-                                     sizeof(DelegateR<detail::DummyClassForDelegate, R>)>
+    : public detail::AnyDelegateImpl<
+          IDelegateR<R>, AnyDelegateR<R>,
+          sizeof(DelegateR<detail::DummyClassForDelegate, R>)>
 {
 public:
-    typedef detail::AnyDelegateImpl<IDelegateR<R>, AnyDelegateR<R>,
-                                   sizeof(DelegateR<detail::DummyClassForDelegate, R>)> Base;
+    typedef detail::AnyDelegateImpl<
+        IDelegateR<R>, AnyDelegateR<R>,
+        sizeof(DelegateR<detail::DummyClassForDelegate, R>)> Base;
 
     class UnbindDummy : public Base::Interface_
     {
     public:
-        UnbindDummy() {}
         R invoke() { return R(); }
-#if SEAD_DELEGATE_ISNODUMMY
-        bool isNoDummy() const { return false; }
-#endif
-    private:
-        s32 mUnk;
     };
 
     AnyDelegateR() : Base() {}
+
+    template <typename DelegateType>
+    AnyDelegateR& operator=(const DelegateType& other)
+    {
+        this->copyFrom(other);
+        return *this;
+    }
+
+    R operator()()
+    {
+        return this->getDelegate()->invoke();
+    }
 };
 
 template <typename A1>
 class AnyDelegate1
-    : public detail::AnyDelegateImpl<IDelegate1<A1>, AnyDelegate1<A1>,
-                                     sizeof(Delegate1<detail::DummyClassForDelegate, A1>)>
+    : public detail::AnyDelegateImpl<
+          IDelegate1<A1>, AnyDelegate1<A1>,
+          sizeof(Delegate1<detail::DummyClassForDelegate, A1>)>
 {
 public:
-    typedef detail::AnyDelegateImpl<IDelegate1<A1>, AnyDelegate1<A1>,
-                                   sizeof(Delegate1<detail::DummyClassForDelegate, A1>)> Base;
+    typedef detail::AnyDelegateImpl<
+        IDelegate1<A1>, AnyDelegate1<A1>,
+        sizeof(Delegate1<detail::DummyClassForDelegate, A1>)> Base;
 
     class UnbindDummy : public Base::Interface_
     {
     public:
         void invoke(A1) {}
-#if SEAD_DELEGATE_ISNODUMMY
-        bool isNoDummy() const { return false; }
-#endif
     };
+
+    AnyDelegate1() : Base() {}
+
+    template <typename DelegateType>
+    AnyDelegate1(const DelegateType& other) : Base()
+    {
+        this->copyFrom(other);
+    }
+
+    template <typename DelegateType>
+    AnyDelegate1& operator=(const DelegateType& other)
+    {
+        this->copyFrom(other);
+        return *this;
+    }
+
+    void operator()(A1 a1)
+    {
+        this->getDelegate()->invoke(a1);
+    }
 };
 
 template <typename A1, typename R>
 class AnyDelegate1R
-    : public detail::AnyDelegateImpl<IDelegate1R<A1, R>, AnyDelegate1R<A1, R>,
-                                     sizeof(Delegate1R<detail::DummyClassForDelegate, A1, R>)>
+    : public detail::AnyDelegateImpl<
+          IDelegate1R<A1, R>, AnyDelegate1R<A1, R>,
+          sizeof(Delegate1R<detail::DummyClassForDelegate, A1, R>)>
 {
 public:
-    typedef detail::AnyDelegateImpl<IDelegate1R<A1, R>, AnyDelegate1R<A1, R>,
-                                   sizeof(Delegate1R<detail::DummyClassForDelegate, A1, R>)> Base;
+    typedef detail::AnyDelegateImpl<
+        IDelegate1R<A1, R>, AnyDelegate1R<A1, R>,
+        sizeof(Delegate1R<detail::DummyClassForDelegate, A1, R>)> Base;
 
     class UnbindDummy : public Base::Interface_
     {
     public:
         R invoke(A1) { return R(); }
-#if SEAD_DELEGATE_ISNODUMMY
-        bool isNoDummy() const { return false; }
-#endif
     };
+
+    AnyDelegate1R() : Base() {}
+
+    template <typename DelegateType>
+    AnyDelegate1R& operator=(const DelegateType& other)
+    {
+        this->copyFrom(other);
+        return *this;
+    }
+
+    R operator()(A1 a1)
+    {
+        return this->getDelegate()->invoke(a1);
+    }
 };
 
 template <typename A1, typename A2>
 class AnyDelegate2
-    : public detail::AnyDelegateImpl<IDelegate2<A1, A2>, AnyDelegate2<A1, A2>,
-                                     sizeof(Delegate2<detail::DummyClassForDelegate, A1, A2>)>
+    : public detail::AnyDelegateImpl<
+          IDelegate2<A1, A2>, AnyDelegate2<A1, A2>,
+          sizeof(Delegate2<detail::DummyClassForDelegate, A1, A2>)>
 {
 public:
-    typedef detail::AnyDelegateImpl<IDelegate2<A1, A2>, AnyDelegate2<A1, A2>,
-                                   sizeof(Delegate2<detail::DummyClassForDelegate, A1, A2>)> Base;
+    typedef detail::AnyDelegateImpl<
+        IDelegate2<A1, A2>, AnyDelegate2<A1, A2>,
+        sizeof(Delegate2<detail::DummyClassForDelegate, A1, A2>)> Base;
 
     class UnbindDummy : public Base::Interface_
     {
     public:
         void invoke(A1, A2) {}
-#if SEAD_DELEGATE_ISNODUMMY
-        bool isNoDummy() const { return false; }
-#endif
     };
+
+    AnyDelegate2() : Base() {}
+
+    template <typename DelegateType>
+    AnyDelegate2& operator=(const DelegateType& other)
+    {
+        this->copyFrom(other);
+        return *this;
+    }
+
+    void operator()(A1 a1, A2 a2)
+    {
+        this->getDelegate()->invoke(a1, a2);
+    }
 };
 
 template <typename A1, typename A2, typename R>
 class AnyDelegate2R
-    : public detail::AnyDelegateImpl<IDelegate2R<A1, A2, R>, AnyDelegate2R<A1, A2, R>,
-                                     sizeof(Delegate2R<detail::DummyClassForDelegate, A1, A2, R>)>
+    : public detail::AnyDelegateImpl<
+          IDelegate2R<A1, A2, R>, AnyDelegate2R<A1, A2, R>,
+          sizeof(Delegate2R<detail::DummyClassForDelegate, A1, A2, R>)>
 {
 public:
-    typedef detail::AnyDelegateImpl<IDelegate2R<A1, A2, R>, AnyDelegate2R<A1, A2, R>,
-                                   sizeof(Delegate2R<detail::DummyClassForDelegate, A1, A2, R>)> Base;
+    typedef detail::AnyDelegateImpl<
+        IDelegate2R<A1, A2, R>, AnyDelegate2R<A1, A2, R>,
+        sizeof(Delegate2R<detail::DummyClassForDelegate, A1, A2, R>)> Base;
 
     class UnbindDummy : public Base::Interface_
     {
     public:
         R invoke(A1, A2) { return R(); }
-#if SEAD_DELEGATE_ISNODUMMY
-        bool isNoDummy() const { return false; }
-#endif
     };
-};
 
-#endif
+    AnyDelegate2R() : Base() {}
+
+    template <typename DelegateType>
+    AnyDelegate2R& operator=(const DelegateType& other)
+    {
+        this->copyFrom(other);
+        return *this;
+    }
+
+    R operator()(A1 a1, A2 a2)
+    {
+        return this->getDelegate()->invoke(a1, a2);
+    }
+};
 
 }  // namespace sead

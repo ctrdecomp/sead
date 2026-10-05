@@ -2,7 +2,7 @@
 
 namespace sead
 {
-AssertConfig::AssertEvent AssertConfig::sAssertEvent{};
+AssertConfig::AssertEvent AssertConfig::sAssertEvent;
 IDelegate1<const char*>* AssertConfig::sFinalCallback = nullptr;
 
 void AssertConfig::registerCallback(AssertEvent::Slot& slot)

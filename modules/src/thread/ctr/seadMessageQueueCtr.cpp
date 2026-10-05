@@ -39,7 +39,7 @@ void MessageQueue::free()
 
 bool MessageQueue::push(MessageQueue::Element message, MessageQueue::BlockType block_type)
 {
-    if (block_type == BlockType::Blocking)
+    if (block_type == cBlock)
     {
         mMessageQueueInner.Enqueue(message);
         return true;
@@ -52,7 +52,7 @@ MessageQueue::Element MessageQueue::pop(MessageQueue::BlockType block_type)
 {
     u32 message;
 
-    if (block_type == BlockType::Blocking)
+    if (block_type == cBlock)
     {
         mMessageQueueInner.Dequeue();
         return message;
@@ -69,7 +69,7 @@ MessageQueue::Element MessageQueue::peek(MessageQueue::BlockType block_type) con
 {
     u32 message;
 
-    if (block_type == BlockType::Blocking)
+    if (block_type == cBlock)
     {
         mMessageQueueInner.GetFront();
         return message;
@@ -84,7 +84,7 @@ MessageQueue::Element MessageQueue::peek(MessageQueue::BlockType block_type) con
 
 bool MessageQueue::jam(MessageQueue::Element message, MessageQueue::BlockType block_type)
 {
-    if (block_type == BlockType::Blocking)
+    if (block_type == cBlock)
     {
         mMessageQueueInner.Jam(message);
         return true;

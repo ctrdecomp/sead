@@ -31,10 +31,6 @@ protected:
 
     virtual bool doClose_(FileHandle* handle) { return mFileDevice->tryClose(handle); }
 
-    virtual bool doFlush_(FileHandle* handle) { return mFileDevice->tryFlush(handle); }
-
-    virtual bool doRemove_(const SafeString& str) { return mFileDevice->tryRemove(str); }
-
     virtual bool doRead_(u32* bytesRead, FileHandle* handle, u8* outBuffer, u32 bytesToRead)
     {
         return mFileDevice->tryRead(bytesRead, handle, outBuffer, bytesToRead);

@@ -13,17 +13,17 @@ TaskBase* TaskClassID::create(const TaskConstructArg& arg) const
 
     switch (mType)
     {
-        case Type::cInt:
+        case cInt:
             SEAD_ASSERT(sIntTaskCreator);
             if (sIntTaskCreator)
                 task = sIntTaskCreator(mID.mInt, arg);
             break;
 
-        case Type::cFactory:
+        case cFactory:
             task = mID.mFactory(arg);
             break;
 
-        case Type::cString:
+        case cString:
             SEAD_ASSERT(sStringTaskCreator);
             if (sStringTaskCreator)
                 task = sStringTaskCreator(mID.mString, arg);

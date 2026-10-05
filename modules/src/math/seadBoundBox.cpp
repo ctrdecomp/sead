@@ -9,7 +9,7 @@ static BoundBox2<T> getUndefined2()
 {
     Vector2<T> min(std::numeric_limits<T>::max(), std::numeric_limits<T>::max());
     Vector2<T> max(std::numeric_limits<T>::min(), std::numeric_limits<T>::min());
-    return {min, max};
+    return BoundBox2<T>(min, max);
 }
 
 template <typename T>
@@ -19,7 +19,7 @@ static BoundBox3<T> getUndefined3()
                    std::numeric_limits<T>::max());
     Vector3<T> max(std::numeric_limits<T>::min(), std::numeric_limits<T>::min(),
                    std::numeric_limits<T>::min());
-    return {min, max};
+    return BoundBox3<T>(min, max);
 }
 
 template <>

@@ -8,15 +8,6 @@
 
 namespace sead
 {
-template <typename T>
-inline Matrix22<T>::Matrix22(T a00, T a01, T a10, T a11)
-{
-    this->m[0][0] = a00;
-    this->m[0][1] = a01;
-
-    this->m[1][0] = a10;
-    this->m[1][1] = a11;
-}
 
 template <typename T>
 inline T Matrix22<T>::operator()(s32 i, s32 j) const
@@ -77,28 +68,6 @@ template <typename T>
 inline void Matrix22<T>::transpose()
 {
     Matrix22CalcCommon<T>::transpose(*this);
-}
-
-template <typename T>
-inline Matrix33<T>::Matrix33(T a00, T a01, T a02, T a10, T a11, T a12, T a20, T a21, T a22)
-{
-    this->m[0][0] = a00;
-    this->m[0][1] = a01;
-    this->m[0][2] = a02;
-
-    this->m[1][0] = a10;
-    this->m[1][1] = a11;
-    this->m[1][2] = a12;
-
-    this->m[2][0] = a20;
-    this->m[2][1] = a21;
-    this->m[2][2] = a22;
-}
-
-template <typename T>
-inline Matrix33<T>::Matrix33(const Mtx34& mtx34)
-{
-    Matrix33CalcCommon<T>::copy(*this, mtx34);
 }
 
 template <typename T>
@@ -273,32 +242,6 @@ template <typename T>
 inline void Matrix33<T>::setRow(s32 row, const Vec3& v)
 {
     Matrix33CalcCommon<T>::setRow(*this, v, row);
-}
-
-template <typename T>
-inline Matrix34<T>::Matrix34(T a00, T a01, T a02, T a03, T a10, T a11, T a12, T a13, T a20, T a21,
-                             T a22, T a23)
-{
-    this->m[0][0] = a00;
-    this->m[0][1] = a01;
-    this->m[0][2] = a02;
-    this->m[0][3] = a03;
-
-    this->m[1][0] = a10;
-    this->m[1][1] = a11;
-    this->m[1][2] = a12;
-    this->m[1][3] = a13;
-
-    this->m[2][0] = a20;
-    this->m[2][1] = a21;
-    this->m[2][2] = a22;
-    this->m[2][3] = a23;
-}
-
-template <typename T>
-inline Matrix34<T>::Matrix34(const Mtx33& mtx33, const Vec3& t)
-{
-    Matrix34CalcCommon<T>::copy(*this, mtx33, t);
 }
 
 template <typename T>
@@ -620,43 +563,6 @@ inline void Matrix34<T>::setTranslation(T x, T y, T z)
 }
 
 template <typename T>
-inline Matrix44<T>::Matrix44(T a00, T a01, T a02, T a03, T a10, T a11, T a12, T a13, T a20, T a21,
-                             T a22, T a23, T a30, T a31, T a32, T a33)
-{
-    this->m[0][0] = a00;
-    this->m[0][1] = a01;
-    this->m[0][2] = a02;
-    this->m[0][3] = a03;
-
-    this->m[1][0] = a10;
-    this->m[1][1] = a11;
-    this->m[1][2] = a12;
-    this->m[1][3] = a13;
-
-    this->m[2][0] = a20;
-    this->m[2][1] = a21;
-    this->m[2][2] = a22;
-    this->m[2][3] = a23;
-
-    this->m[3][0] = a30;
-    this->m[3][1] = a31;
-    this->m[3][2] = a32;
-    this->m[3][3] = a33;
-}
-
-template <typename T>
-inline Matrix44<T>::Matrix44(const Mtx33& mtx33, const Vec3& t, const Vec4& vw)
-{
-    Matrix44CalcCommon<T>::copy(*this, mtx33, t, vw);
-}
-
-template <typename T>
-inline Matrix44<T>::Matrix44(const Mtx34& mtx34, const Vec4& vw)
-{
-    Matrix44CalcCommon<T>::copy(*this, mtx34, vw);
-}
-
-template <typename T>
 inline T Matrix44<T>::operator()(s32 i, s32 j) const
 {
     return this->m[i][j];
@@ -802,7 +708,7 @@ inline void Matrix44<T>::setCol(s32 axis, const Vec4& v)
 template <typename T>
 inline void Matrix44<T>::setRow(s32 row, const Vec4& v)
 {
-    Matrix44CalcCommon<T>::setRow(*this, row, v);
+    Matrix44CalcCommon<T>::setRow(*this, v, row);
 }
 
 template <typename T>

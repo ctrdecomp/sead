@@ -23,7 +23,7 @@ void ConsoleFrameworkCtr::initialize(const InitializeArg& arg)
     Framework::initialize(arg);
 }
 
-void ConsoleFrameworkCtr::runImpl_()
+void ConsoleFrameworkCtr::runImpl()
 {
     SingleScreenMethodTreeMgr* methodTreeMgr = DynamicCast<SingleScreenMethodTreeMgr>(getMethodTreeMgr());
 

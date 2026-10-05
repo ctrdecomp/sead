@@ -42,7 +42,7 @@ public:
         f32*  mShapeColor;
     };
 
-    PrimitiveRendererCtr();
+    PrimitiveRendererCtr(Heap* heap);
 
     virtual void prepareFromBinaryImpl(Heap* heap, const void* bin_data, u32 bin_size);
     virtual void prepareImpl(Heap* heap, const SafeString& path);
@@ -81,8 +81,8 @@ protected:
     void loadQuadVertex_(Heap* heap);
     void loadSphereVertex_(Heap* heap, Shape* index, s32 height, s32 width);
     void loadWireCubeIndex_(Heap* heap);
-    void drawShape_(Shape const& shape);
-    void drawShape_(nn::gr::CTR::Vertex const& vert, nn::gr::CTR::Vertex::IndexStream const& vertIndex);
+    void drawShape_(const Shape& shape);
+    void drawShape_(const nn::gr::CTR::Vertex& vert, const nn::gr::CTR::Vertex::IndexStream& vertIndex);
     void checkCmdlist_();
 
 
@@ -146,10 +146,10 @@ private:
     Shape mCylinder16;
     Shape mCylinder32;
 
-    /* Lists */
+    /* Vertex Util */
 
-    s32 mCurrentList;
-    s32 mListCommand[2];
+    const Vertex* mCurrentVertex;
+    u32* mListCommand;
 
     /* Matrixes */
 

@@ -13,17 +13,17 @@ class TaskParameter;
 
 struct TaskConstructArg
 {
-    TaskConstructArg(): 
-        heap_array(nullptr), 
-        mgr(nullptr), 
-        param(nullptr)
+    TaskConstructArg()
+        : heap_array(NULL)
+        , mgr(NULL)
+        , param(NULL)
     {
     }
 
-    TaskConstructArg(HeapArray* heapArray_, TaskMgr* mgr_, TaskParameter* param_): 
-        heap_array(heapArray_), 
-        mgr(mgr_), 
-        param(param_)
+    TaskConstructArg(HeapArray* heapArray_, TaskMgr* mgr_, TaskParameter* param_)
+        : heap_array(heapArray_)
+        , mgr(mgr_)
+        , param(param_)
     {
     }
 
@@ -32,9 +32,20 @@ struct TaskConstructArg
     TaskParameter* param;
 };
 
+class TaskUserID
+{
+public:
+    TaskUserID():
+        mID(-1)
+    {
+    }
+
+    s32 mID;
+};
+
 typedef TaskBase* (*TaskFactory)(const TaskConstructArg&);
 
-template <typename T = TaskBase>
+template <typename T>
 TaskBase* TTaskFactory(const TaskConstructArg& arg)
 {
     return new (arg.heap_array->getPrimaryHeap()) T(arg);
@@ -51,15 +62,34 @@ public:
         cString = 3
     };
 
-    using IntTaskCreator = TaskBase* (*)(s32, const TaskConstructArg&);
-    using StringTaskCreator = TaskBase* (*)(const char*, const TaskConstructArg&);
+    typedef TaskBase* (*IntTaskCreator)(s32, const TaskConstructArg&);
+    typedef TaskBase* (*StringTaskCreator)(const char*, const TaskConstructArg&);
 
     TaskBase* create(const TaskConstructArg& arg) const;
 
-    TaskClassID(){ }
-    TaskClassID(s32 i) : mType(Type::cInt) { mID.mInt = i; }
-    TaskClassID(TaskFactory f) : mType(Type::cFactory) { mID.mFactory = f; }
-    TaskClassID(const char* s) : mType(Type::cString) { mID.mString = s; }
+    TaskClassID()
+        : mType(cInvalid)
+    {
+        mID.mInt = 0;
+    }
+
+    TaskClassID(s32 i)
+        : mType(cInt)
+    {
+        mID.mInt = i;
+    }
+
+    TaskClassID(TaskFactory f)
+        : mType(cFactory)
+    {
+        mID.mFactory = f;
+    }
+
+    TaskClassID(const char* s)
+        : mType(cString)
+    {
+        mID.mString = s;
+    }
 
     friend bool operator==(const TaskClassID& a, const TaskClassID& b)
     {
@@ -68,13 +98,13 @@ public:
 
         switch (a.mType)
         {
-            case TaskClassID::Type::cInt:
+            case cInt:
                 return a.mID.mInt == b.mID.mInt;
 
-            case TaskClassID::Type::cFactory:
+            case cFactory:
                 return a.mID.mFactory == b.mID.mFactory;
 
-            case TaskClassID::Type::cString:
+            case cString:
                 return SafeString(a.mID.mString) == SafeString(b.mID.mString);
 
             default:
@@ -83,23 +113,20 @@ public:
 
         return false;
     }
+
 private:
     static IntTaskCreator sIntTaskCreator;
     static StringTaskCreator sStringTaskCreator;
+
 public:
-    Type mType = Type::cInvalid;
+    Type mType;
+
     union
     {
         s32 mInt;
         TaskFactory mFactory;
-        const char* mString = nullptr;
+        const char* mString;
     } mID;
-};
-
-class TaskUserID
-{
-public:
-    s32 mID = -1;
 };
 
 }  // namespace sead

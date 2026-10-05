@@ -140,20 +140,203 @@ bool PtrArrayImpl::checkInsert(s32 pos, s32 num)
     return true;
 }
 
-// TODO: PtrArrayImpl::insertArray
-
 void PtrArrayImpl::sort(CompareCallbackImpl cmp)
 {
-    // Note: Nintendo did not use <algorithm>
-    std::sort(mPtrs, mPtrs + size(), [&](const void* a, const void* b) { return cmp(a, b) < 0; });
+    s32 top;
+    s32 bottom;
+    s32 lastSwap;
+    void* x;
+    void** ptrs = mPtrs;
+
+    if (mPtrNum < 2)
+    {
+        return;
+    }
+
+    top = 0;
+    bottom = mPtrNum - 1;
+
+    while (true)
+    {
+        lastSwap = top;
+        for (s32 i = top; i < bottom; i++)
+        {
+            if (cmp(ptrs[i], ptrs[i + 1]) > 0)
+            {
+                x = ptrs[i + 1];
+                ptrs[i + 1] = ptrs[i];
+                ptrs[i] = x;
+                lastSwap = i;
+            }
+        }
+
+        bottom = lastSwap;
+        if (top == bottom)
+        {
+            break;
+        }
+
+        lastSwap = bottom;
+        for (s32 i = bottom; i > top; i--)
+        {
+            if (cmp(ptrs[i], ptrs[i - 1]) < 0)
+            {
+                x = ptrs[i - 1];
+                ptrs[i - 1] = ptrs[i];
+                ptrs[i] = x;
+                lastSwap = i;
+            }
+        }
+
+        top = lastSwap;
+        if (top == bottom)
+        {
+            break;
+        }
+    }
 }
 
-// TODO: PtrArrayImpl::heapSort
+void PtrArrayImpl::heapSort(CompareCallbackImpl cmp)
+{
+    s32 i;
+    s32 k;
+    s32 t;
+    s32 n;
+    void* x;
+    void** ptrs;
 
-// TODO: PtrArrayImpl::compare
+    n = mPtrNum;
+    ptrs = mPtrs;
+    for (i = n / 2; i > 0; i--)
+    {
+        x = ptrs[i - 1];
 
-// TODO: PtrArrayImpl::uniq
+        k = i;
+        while (t = k * 2, t <= n)
+        {
+            if (t < n && cmp(ptrs[t - 1], ptrs[t]) < 0)
+            {
+                t++;
+            }
 
-// TODO: PtrArrayImpl::binarySearch
+            if (cmp(x, ptrs[t - 1]) >= 0)
+            {
+                break;
+            }
+
+            ptrs[k - 1] = ptrs[t - 1];
+            k = t;
+        }
+
+        ptrs[k - 1] = x;
+    }
+
+    while (n > 1)
+    {
+        x = ptrs[n - 1];
+        ptrs[n - 1] = ptrs[0];
+
+        n--;
+        k = 1;
+        while (t = k * 2, t <= n)
+        {
+            if (t < n && cmp(ptrs[t - 1], ptrs[t]) < 0)
+            {
+                t++;
+            }
+
+            if (cmp(x, ptrs[t - 1]) >= 0)
+            {
+                break;
+            }
+
+            ptrs[k - 1] = ptrs[t - 1];
+            k = t;
+        }
+
+        ptrs[k - 1] = x;
+    }
+}
+
+s32 PtrArrayImpl::compare(const PtrArrayImpl& o, CompareCallbackImpl cmp) const
+{
+    s32 result;
+    for (s32 i = 0; i < mPtrNum; i++)
+    {
+        if (i >= o.mPtrNum)
+        {
+            return 1;
+        }
+
+        result = cmp(mPtrs[i], o.mPtrs[i]);
+        if (result != 0)
+        {
+            return result;
+        }
+    }
+
+    return mPtrNum == o.mPtrNum ? 0 : -1;
+}
+
+void PtrArrayImpl::uniq(CompareCallbackImpl cmp)
+{
+    for (s32 i = 0; i < mPtrNum - 1; i++)
+    {
+        s32 k = i + 1;
+        while (k < mPtrNum)
+        {
+            if (cmp(mPtrs[i], mPtrs[k]) == 0)
+            {
+                erase(k);
+            }
+            else
+            {
+                k++;
+            }
+        }
+    }
+}
+
+s32 PtrArrayImpl::binarySearch(const void* ptr, CompareCallbackImpl cmp) const
+{
+    if (mPtrNum == 0)
+    {
+        return -1;
+    }
+
+    s32 left;
+    s32 right;
+    s32 mid;
+    s32 cmpRet;
+
+    left = 0;
+    right = mPtrNum - 1;
+    while (left < right)
+    {
+        mid = (left + right) / 2;
+
+        cmpRet = cmp(mPtrs[mid], ptr);
+        if (cmpRet == 0)
+        {
+            return mid;
+        }
+
+        if (cmpRet < 0)
+        {
+            left = mid + 1;
+        }
+        else
+        {
+            right = mid;
+        }
+    }
+
+    if (cmp(mPtrs[left], ptr) == 0)
+    {
+        return left;
+    }
+
+    return -1;
+}
 
 }  // namespace sead

@@ -45,8 +45,6 @@ set_property(
 
 add_subdirectory(addins/libms)
 
-target_include_directories(LibMessageStudio PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
 # Main Library
 
 add_library(sead OBJECT
@@ -109,11 +107,15 @@ add_library(sead OBJECT
 
   include/devenv/seadAssertConfig.h
   include/devenv/seadEnvUtil.h
-  include/devenv/seadGameConfig.h
+  include/devenv/seadFontMgr.h
+  #include/devenv/seadGameConfig.h
+  include/devenv/seadPrintConfig.h
+  include/devenv/seadSeadMenuMgr.h
   include/devenv/seadStackTrace.h
   modules/src/devenv/seadAssertConfig.cpp
   modules/src/devenv/seadFontMgr.cpp
-  modules/src/devenv/seadGameConfig.cpp
+  #modules/src/devenv/seadGameConfig.cpp
+  modules/src/devenv/seadPrintConfig.cpp
   modules/src/devenv/seadStackTrace.cpp
 
   include/filedevice/seadAnyFileDevice.h
@@ -129,6 +131,8 @@ add_library(sead OBJECT
   modules/src/filedevice/seadMainFileDevice.cpp
   modules/src/filedevice/seadPath.cpp
 
+  include/framework/seadDualScreenMethodTreeMgr.h
+  include/framework/seadDualScreenTask.h
   include/framework/seadCalculateTask.h
   include/framework/seadFaderTask.h
   include/framework/seadFramework.h
@@ -146,6 +150,8 @@ add_library(sead OBJECT
   include/framework/seadTaskID.h
   include/framework/seadTaskMgr.h
   include/framework/seadTaskParameter.h
+  modules/src/framework/seadDualScreenMethodTreeMgr.cpp
+  modules/src/framework/seadDualScreenTask.cpp
   modules/src/framework/seadCalculateTask.cpp
   modules/src/framework/seadFaderTask.cpp
   modules/src/framework/seadFramework.cpp
@@ -162,6 +168,9 @@ add_library(sead OBJECT
   modules/src/framework/seadTaskID.cpp
   modules/src/framework/seadTaskMgr.cpp
 
+  include/geom/seadLine.h
+  modules/src/geom/seadLine.cpp
+
   include/gfx/seadCamera.h
   include/gfx/seadColor.h
   include/gfx/seadDrawLockContext.h
@@ -169,6 +178,8 @@ add_library(sead OBJECT
   include/gfx/seadFrameBuffer.h
   include/gfx/seadGraphics.h
   include/gfx/seadGraphicsContext.h
+  include/gfx/seadPrimitiveDrawer.h
+  include/gfx/seadPrimitiveDrawMgrBase.h
   include/gfx/seadPrimitiveRenderer.h
   include/gfx/seadPrimitiveRendererUtil.h
   include/gfx/seadProjection.h
@@ -182,6 +193,7 @@ add_library(sead OBJECT
   modules/src/gfx/seadFrameBuffer.cpp
   modules/src/gfx/seadGraphics.cpp
   modules/src/gfx/seadGraphicsContext.cpp
+  modules/src/gfx/seadPrimitiveDrawer.cpp
   modules/src/gfx/seadPrimitiveRenderer.cpp
   modules/src/gfx/seadPrimitiveRendererUtil.cpp
   modules/src/gfx/seadProjection.cpp
@@ -223,6 +235,7 @@ add_library(sead OBJECT
   include/math/seadVectorFwd.h
   modules/src/math/seadBoundBox.cpp
   modules/src/math/seadMathCalcCommon.cpp
+  modules/src/math/seadMathNumbers.cpp
   modules/src/math/seadMatrix.cpp
   modules/src/math/seadQuat.cpp
   modules/src/math/seadVector.cpp
@@ -235,6 +248,7 @@ add_library(sead OBJECT
   include/prim/seadEndian.h
   include/prim/seadEnum.h
   include/prim/seadFormatPrint.h
+  include/prim/seadFormatPrint.hpp
   include/prim/seadLongBitFlag.h
   include/prim/seadMemUtil.h
   include/prim/seadNamable.h
@@ -253,6 +267,7 @@ add_library(sead OBJECT
   modules/src/prim/seadBitFlag.cpp
   modules/src/prim/seadEndian.cpp
   modules/src/prim/seadEnum.cpp
+  modules/src/prim/seadFormatPrint.cpp
   modules/src/prim/seadMemUtil.cpp
   modules/src/prim/seadSafeString.cpp
   modules/src/prim/seadStringBuilder.cpp
@@ -277,12 +292,14 @@ add_library(sead OBJECT
 
   include/stream/seadBufferStream.h
   include/stream/seadFileDeviceStream.h
+  include/stream/seadPrintStream.h
   include/stream/seadRamStream.h
   include/stream/seadStream.h
   include/stream/seadStreamFormat.h
   include/stream/seadStreamSrc.h
   modules/src/stream/seadBufferStream.cpp
   modules/src/stream/seadFileDeviceStream.cpp
+  modules/src/stream/seadPrintStream.cpp
   modules/src/stream/seadRamStream.cpp
   modules/src/stream/seadStream.cpp
   modules/src/stream/seadStreamFormat.cpp
@@ -312,6 +329,7 @@ add_library(sead OBJECT
   modules/src/time/seadDateTime.cpp
   modules/src/time/seadDateUtil.cpp
   modules/src/time/seadTickSpan.cpp
+  modules/src/time/seadTickTime.cpp
 )
 
 target_sources(sead PRIVATE
@@ -320,6 +338,8 @@ target_sources(sead PRIVATE
 )
 
 # Debug
+
+
 
 if(SEAD_DEBUG)
   target_sources(sead PRIVATE
@@ -340,14 +360,16 @@ if(SEAD_DEBUG)
     modules/src/hostio/seadHostIOCurve.cpp
     modules/src/hostio/seadHostIOEventListener.cpp
     modules/src/hostio/seadHostIOFramework.cpp
+    modules/src/hostio/seadHostIOMgr.cpp
     modules/src/hostio/seadHostIONode.cpp
     modules/src/hostio/seadHostIOReflexible.cpp
+    modules/src/hostio/seadHostIORoot.cpp
     modules/src/hostio/seadHostIOServer.cpp
     modules/src/hostio/seadHostIOThreadLock.cpp
   )
 endif()
 
-target_link_libraries(sead PUBLIC libms)
+target_link_libraries(sead PUBLIC LibMessageStudio)
 
 # PLATFORM: CTR
 
@@ -357,6 +379,14 @@ if(SEAD_PLATFORM STREQUAL "ctr")
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}../NintendoWare) # change depend on prj
   endif()
   target_link_libraries(sead PUBLIC CTR_SDK)
+
+  target_compile_definitions(sead PRIVATE SEAD_PLATFORM_CTR=1 SEAD_USE_NW4C=1)
+
+  if(SEAD_DEBUG)
+    add_compile_definitions(SEAD_DEBUG)
+  else()
+    add_compile_definitions(SEAD_RELEASE)
+  endif()
 
   target_sources(sead PRIVATE
     modules/src/basis/ctr/seadRawPrintCtr.cpp
@@ -387,22 +417,22 @@ if(SEAD_PLATFORM STREQUAL "ctr")
     #modules/src/filedevice/ctr/seadCtrHostIOFileDevice.cpp
     modules/src/filedevice/ctr/seadCtrSDFileDeviceCtr.cpp
 
-    include/framework/seadDualScreenMethodTreeMgr.h
-    include/framework/seadDualScreenTask.h
     include/framework/seadUlcdMethodTreeMgr.h
     include/framework/seadUlcdTask.h
     include/framework/ctr/seadConsoleFrameworkCtr.h
     include/framework/ctr_nw4c/seadGameFrameworkCtrNw4c.h
     include/framework/ctr_nw4c/seadDoubleCmdGameFrameworkCtrNw4c.h
+    include/framework/ctr_nw4c/seadSeriesGameFrameworkCtrNw4c.h
     include/framework/ctr_nw4c/seadUlcdDoubleCmdGameFrameworkCtrNw4c.h
-    modules/src/framework/seadDualScreenMethodTreeMgr.cpp
-    modules/src/framework/seadDualScreenTask.cpp
+    include/framework/ctr_nw4c/seadUlcdGameFrameworkCtrNw4c.h
     modules/src/framework/seadUlcdMethodTreeMgr.cpp
     modules/src/framework/seadUlcdTask.cpp
     modules/src/framework/ctr/seadConsoleFrameworkCtr.cpp
     modules/src/framework/ctr_nw4c/seadGameFrameworkCtrNw4c.cpp
     modules/src/framework/ctr_nw4c/seadDoubleCmdFrameworkCtrNw4c.cpp
+    modules/src/framework/ctr_nw4c/seadSeriesGameFrameworkCtrNw4c.cpp
     modules/src/framework/ctr_nw4c/seadUlcdDoubleCmdGameFrameworkCtrNw4c.cpp
+    modules/src/framework/ctr_nw4c/seadUlcdGameFrameworkCtrNw4c.cpp
 
     include/gfx/seadStereoCameraWrapper.h
     include/gfx/seadStereoUtil.h
@@ -429,7 +459,13 @@ if(SEAD_PLATFORM STREQUAL "ctr")
 
     modules/src/heap/ctr/seadArenaCtr.cpp
 
-    include/math/seadMathCalcCtr.hpp
+    include/math/ctr/seadMathCalcCtr.hpp
+    include/math/ctr/seadMatrixCalcCtr.h
+    include/math/ctr/seadQuatCalcCtr.h
+    include/math/ctr/seadQuatCalcCtr.hpp
+    include/math/ctr/seadVectorCalcCtr.h
+    include/math/ctr/seadVectorCalcCtr.hpp
+    modules/src/math/ctr/seadMatrixCalcCtr.cpp
 
     include/message/seadMessageSet.h
     modules/src/message/seadMessageSet.cpp
@@ -453,6 +489,7 @@ if(SEAD_PLATFORM STREQUAL "ctr")
 endif()
 
 target_include_directories(sead PUBLIC include/)
+target_include_directories(sead PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/addins/libms/include)
 
 if(SEAD_DEBUG)
   target_compile_definitions(sead PUBLIC SEAD_DEBUG=1)

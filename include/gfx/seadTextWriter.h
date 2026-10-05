@@ -27,20 +27,20 @@ public:
     void setScaleFromFontHeight(float fontHeight);
     void setProjectionAndCamera(const Projection* projection, const Camera* camera);
     void setLineSpaceFromLineHeight(float lineHeight);
-    void setFormatBuffer(char16_t*, int);
+    void setFormatBuffer(char16*, int);
     void setDrawContext();
     void beginDraw();
     void endDraw();
-    void printf(const char16_t* format, ...);
-    void vprintfImpl_(const char16_t*, std::va_list, bool, BoundBox2f*);
-    void printfWithCalcRect(BoundBox2f*, const char16_t*, ...);
+    void printf(const char16* format, ...);
+    void vprintfImpl_(const char16*, std::va_list, bool, BoundBox2f*);
+    void printfWithCalcRect(BoundBox2f*, const char16*, ...);
     void printf(const char* format, ...);
     void vprintfImpl_(const char*, std::va_list, bool, BoundBox2f*);
     void printfWithCalcRect(BoundBox2f*, const char*, ...);
-    void calcFormatStringRect(BoundBox2f*, const char16_t*, ...);
+    void calcFormatStringRect(BoundBox2f*, const char16*, ...);
     void calcFormatStringRect(BoundBox2f*, const char*, ...);
-    void printImpl_(const char16_t*, int, bool, BoundBox2f*, const Projection*, const Camera*);
-    void printImpl_(const char16_t*, int, bool, BoundBox2f*);
+    void printImpl_(const char16*, int, bool, BoundBox2f*, const Projection*, const Camera*);
+    void printImpl_(const char16*, int, bool, BoundBox2f*);
     void printImpl_(const char*, int, bool, BoundBox2f*);
 
 private:
@@ -56,7 +56,7 @@ private:
     BoundBox2f mBoundBox2;
     float _60;
     int _64;
-    char16_t* mFormatBuffer;
+    char16* mFormatBuffer;
     int mFormatBufferSize;
     bool mEndedDrawing;
     DrawContext* mDrawContext;

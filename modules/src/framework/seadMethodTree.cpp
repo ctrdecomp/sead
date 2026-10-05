@@ -85,7 +85,7 @@ void MethodTreeNode::call()
 void MethodTreeNode::callRec_()
 {
     if (!mPauseFlag.isOn(cPause_Self))
-        (*mDelegateHolder.data())();
+        mDelegate.invoke();
 
     TTreeNode<sead::MethodTreeNode *>* node = child();
     if (node && !mPauseFlag.isOn(cPause_Child))

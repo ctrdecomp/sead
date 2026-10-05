@@ -17,7 +17,7 @@ public:
     {
     };
 
-    using InfLoopEvent = DelegateEvent<const InfLoopParam&>;
+    typedef DelegateEvent<const InfLoopParam&> InfLoopEvent;
 
     explicit InfLoopChecker(const TaskConstructArg& arg);
     virtual ~InfLoopChecker();
@@ -77,8 +77,6 @@ protected:
     void onInfLoop_();
 
 private:
-    void onInfLoop_();
-
     u32 mLoopCounter;
     u32 mLoopThreshold;
     bool mEnable;

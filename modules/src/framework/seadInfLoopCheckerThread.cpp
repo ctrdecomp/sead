@@ -6,7 +6,7 @@ namespace sead
 {
 
 InfLoopCheckerThread::InfLoopCheckerThread(TickSpan span, Heap* heap, s32 platformPriority, s32 stackSize, s32 msgQueueSize): 
-    Thread("sead::InfLoopCheckerThread", heap, platformPriority, MessageQueue::BlockType::NonBlocking, cDefaultQuitMsg,
+    Thread("sead::InfLoopCheckerThread", heap, platformPriority, MessageQueue::cNoBlock, cDefaultQuitMsg,
         stackSize, msgQueueSize), 
     mSpan(span)
 {

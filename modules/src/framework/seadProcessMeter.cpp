@@ -121,8 +121,9 @@ void ProcessMeter::measureBeginFrame()
 
 void ProcessMeter::measureEndFrame()
 {
-    for (ProcessMeterBarBase& bar : mBarList)
+    for (OffsetList<ProcessMeterBarBase>::iterator it = mBarList.begin(); it != mBarList.end(); ++it)
     {
+        ProcessMeterBarBase& bar = *it;
         bar.onEndFrame();
     }
 
@@ -174,8 +175,9 @@ u32 ProcessMeter::calcMaxSectionNum_()
 {
     u32 sectionNum = static_cast<u32>(mFrameSpan.toS64() / mSectionTime.toS64()) + 1;
 
-    for (ProcessMeterBarBase& bar : mBarList)
+    for (OffsetList<ProcessMeterBarBase>::iterator it = mBarList.begin(); it != mBarList.end(); ++it)
     {
+        ProcessMeterBarBase& bar = *it;
         TickSpan span = bar.getLastFinalEnd() - mFrameBegin;
 
         if (span > 0)

@@ -39,7 +39,7 @@ CriticalSection* EnumUtil::getInitValueArrayCS_()
     return sEnumInitValueArrayCriticalSection.getObject();
 }
 
-void ParseFailed_([[maybe_unused]] char** text_ptr, [[maybe_unused]] int v)
+void ParseFailed_(char** text_ptr, int v)
 {
 #ifdef SEAD_DEBUG
     SEAD_PRINT("----------------------------------------\n");
@@ -47,6 +47,9 @@ void ParseFailed_([[maybe_unused]] char** text_ptr, [[maybe_unused]] int v)
         SEAD_PRINT("  text[%d] \"%s\"\n", i, text_ptr[i]);
     SEAD_PRINT("----------------------------------------\n");
     SEAD_ASSERT_MSG(false, "SEAD_ENUM failed to parse text. Is number of comma correct?");
+#else
+    SEAD_UNUSED(text_ptr);
+    SEAD_UNUSED(v);
 #endif
 }
 

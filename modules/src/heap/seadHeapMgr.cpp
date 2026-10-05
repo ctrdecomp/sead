@@ -4,38 +4,58 @@
 #include <prim/seadScopedLock.h>
 #include <thread/seadThread.h>
 #include <time/seadTickSpan.h>
-#include <utility>
 
 namespace sead
 {
-HeapMgr* HeapMgr::sInstancePtr = nullptr;
 
+HeapMgr* HeapMgr::sInstancePtr = nullptr;
 HeapMgr HeapMgr::sInstance;
+
+Arena* HeapMgr::sArena = nullptr;
 Arena HeapMgr::sDefaultArena;
+
+AtomicU32 HeapMgr::sHeapCheckTag;
+CriticalSection HeapMgr::sHeapTreeLockCS;
+
 HeapMgr::RootHeaps HeapMgr::sRootHeaps;
 HeapMgr::IndependentHeaps HeapMgr::sIndependentHeaps;
-CriticalSection HeapMgr::sHeapTreeLockCS;
-Atomic<u32> HeapMgr::sHeapCheckTag;
-TickSpan HeapMgr::sSleepSpanAtRemoveCacheFailure;
 
-HeapMgr::HeapMgr() = default;
-HeapMgr::~HeapMgr() = default;
+HeapMgr::HeapMgr():
+
+#if defined(SEAD_DEBUG)
+    mDebugFillHeapCreate(cDefaultDebugFillHeapCreate), 
+    mDebugFillAlloc(cDefaultDebugFillAlloc), 
+    mDebugFillFree(cDefaultDebugFillFree), 
+    mDebugFillHeapDestroy(cDefaultDebugFillHeapDestroy), 
+    mIsEnableDebugFillHeapCreate(false), 
+    mIsEnableDebugFillAlloc(true), 
+    mIsEnableDebugFillFree(true), 
+    mIsEnableDebugFillHeapDestroy(true), 
+    mAllocCallback(nullptr), 
+    mAllocFailedCallback(nullptr), 
+    mFreeCallback(nullptr), 
+    mCreateCallback(nullptr), 
+    mDestroyCallback(nullptr),
+#else
+    mAllocFailedCallback(nullptr),
+#endif // SEAD_DEBUG
+    mAllocFromNotSeadThreadHeap(nullptr)
+{
+}
+
+HeapMgr::~HeapMgr()
+{
+}
 
 void HeapMgr::initialize(size_t size)
 {
     sHeapTreeLockCS.lock();
+
     sArena = &sDefaultArena;
     sDefaultArena.initialize(size);
     initializeImpl_();
-    sHeapTreeLockCS.unlock();
-}
 
-void HeapMgr::initializeImpl_()
-{
-    sInstance.mAllocFailedCallback = nullptr;
-    sSleepSpanAtRemoveCacheFailure = TickSpan::makeFromMicroSeconds(10);
-    createRootHeap_();
-    sInstancePtr = &sInstance;
+    sHeapTreeLockCS.unlock();
 }
 
 void HeapMgr::initialize(Arena* arena)
@@ -44,15 +64,56 @@ void HeapMgr::initialize(Arena* arena)
     initializeImpl_();
 }
 
+void HeapMgr::initializeImpl_()
+{
+#if defined(SEAD_DEBUG)
+    sInstance.mAllocCallback = nullptr;
+    sInstance.mAllocFailedCallback = nullptr;
+    sInstance.mFreeCallback = nullptr;
+    sInstance.mCreateCallback = nullptr;
+    sInstance.mDestroyCallback = nullptr;
+#else
+    sInstance.mAllocFailedCallback = nullptr;
+#endif // SEAD_DEBUG
+
+    HeapMgr::createRootHeap_();
+
+    sInstancePtr = &sInstance;
+}
+
 void HeapMgr::createRootHeap_()
 {
-    ExpHeap* expHeap = ExpHeap::tryCreate(sArena->mStart, sArena->mSize, "RootHeap", false);
+    ExpHeap* expHeap =
+        ExpHeap::tryCreate(sArena->mStart, sArena->mSize, "RootHeap", false);
+
     sRootHeaps.pushBack(expHeap);
+}
+
+Heap* HeapMgr::findContainHeap(const void* memBlock) const
+{
+    ScopedLock<CriticalSection> lock(&sHeapTreeLockCS);
+
+    for (RootHeaps::iterator it_end = sRootHeaps.end(), it = sRootHeaps.begin(); it != it_end; ++it)
+    {
+        Heap* found = it->findContainHeap_(memBlock);
+        if (found != nullptr)
+            return found;
+    }
+
+    for (IndependentHeaps::iterator it_end = sIndependentHeaps.end(), it = sIndependentHeaps.begin(); it != it_end; ++it)
+    {
+        Heap* found = it->findContainHeap_(memBlock);
+        if (found != nullptr)
+            return found;
+    }
+
+    return nullptr;
 }
 
 void HeapMgr::destroy()
 {
     sHeapTreeLockCS.lock();
+
     sInstance.mAllocFailedCallback = nullptr;
 
     while (!sIndependentHeaps.isEmpty())
@@ -68,39 +129,18 @@ void HeapMgr::destroy()
     }
 
     sInstancePtr = nullptr;
+
     sArena->destroy();
     sArena = nullptr;
+
     sHeapTreeLockCS.unlock();
 }
 
-void HeapMgr::initHostIO() {}
-
-bool HeapMgr::isContainedInAnyHeap(const void* ptr)
+void HeapMgr::initHostIO()
 {
-    for (Heap& heap : sRootHeaps)
-    {
-        if (heap.isInclude(ptr))
-            return true;
-    }
-    for (Heap& heap : sIndependentHeaps)
-    {
-        if (heap.isInclude(ptr))
-            return true;
-    }
-    return false;
-}
-void HeapMgr::dumpTreeYAML(WriteStream& stream)
-{
-    sHeapTreeLockCS.lock();
-    for (Heap& heap : sRootHeaps)
-    {
-        heap.dumpTreeYAML(stream, 0);
-    }
-    for (Heap& heap : sIndependentHeaps)
-    {
-        heap.dumpTreeYAML(stream, 0);
-    }
-    sHeapTreeLockCS.unlock();
+#if defined(SEAD_DEBUG)
+    hostio::AddNode(HostIOMgr::instance()->getSeadRoot(), "HeapMgr", this, "$SEAD_META_HEAPMGR");
+#endif // SEAD_DEBUG
 }
 
 void HeapMgr::setAllocFromNotSeadThreadHeap(Heap* heap)
@@ -108,63 +148,13 @@ void HeapMgr::setAllocFromNotSeadThreadHeap(Heap* heap)
     mAllocFromNotSeadThreadHeap = heap;
 }
 
-void HeapMgr::removeFromFindContainHeapCache_(Heap* heap)
-{
-    ThreadMgr* threadMgr = ThreadMgr::instance();
-    if (!threadMgr)
-        return;
-
-    Thread* mainThread = threadMgr->getMainThread();
-    if (mainThread)
-    {
-        while (!mainThread->getFindContainHeapCache()->tryRemoveHeap(heap))
-            Thread::sleep(sSleepSpanAtRemoveCacheFailure);
-    }
-
-    while (threadMgr->tryRemoveFromFindContainHeapCache(heap))
-        Thread::sleep(sSleepSpanAtRemoveCacheFailure);
-}
-
-Heap* HeapMgr::findHeapByName(const sead::SafeString& name, int index) const
-{
-    ScopedLock<sead::CriticalSection> lock = makeScopedLock(sHeapTreeLockCS);
-    for (Heap& heap : sRootHeaps)
-    {
-        Heap* found = findHeapByName_(&heap, name, &index);
-        if (found)
-            return found;
-    }
-    for (Heap& heap : sIndependentHeaps)
-    {
-        Heap* found = findHeapByName_(&heap, name, &index);
-        if (found)
-            return found;
-    }
-    return nullptr;
-}
-
-Heap* HeapMgr::findHeapByName_(Heap* heap, const SafeString& name, int* index)
-{
-    if (heap->getName() == name)
-    {
-        if (*index == 0)
-            return heap;
-        --*index;
-    }
-    for (Heap& child : heap->mChildren)
-    {
-        Heap* found = findHeapByName_(&child, name, index);
-        if (found)
-            return found;
-    }
-    return nullptr;
-}
-
 Heap* HeapMgr::getCurrentHeap() const
 {
     Thread* currentThread = ThreadMgr::instance()->getCurrentThread();
+
     if (currentThread)
         return currentThread->getCurrentHeap();
+
     return mAllocFromNotSeadThreadHeap;
 }
 
@@ -177,7 +167,9 @@ void HeapMgr::removeRootHeap(Heap* heap)
 {
     if (sRootHeaps.size() < 1)
         return;
+
     s32 index = sRootHeaps.indexOf(heap);
+
     if (index != -1)
         sRootHeaps.erase(index);
 }
@@ -185,16 +177,10 @@ void HeapMgr::removeRootHeap(Heap* heap)
 HeapMgr::IAllocFailedCallback*
 HeapMgr::setAllocFailedCallback(HeapMgr::IAllocFailedCallback* callback)
 {
-    return std::exchange(mAllocFailedCallback, callback);
+    IAllocFailedCallback* old = mAllocFailedCallback;
+    mAllocFailedCallback = callback;
+
+    return old;
 }
 
-FindContainHeapCache::FindContainHeapCache() = default;
-
-bool FindContainHeapCache::tryRemoveHeap(Heap* heap)
-{
-    uintptr_t original;
-    if (mHeap.compareExchange(uintptr_t(heap), 0, &original))
-        return true;
-    return (original & ~1u) != uintptr_t(heap);
-}
 }  // namespace sead

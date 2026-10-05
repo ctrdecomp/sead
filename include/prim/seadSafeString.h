@@ -70,7 +70,7 @@ public:
         s32 cutOffGetAndForward(BufferedSafeStringBase<T>* out);
 
     private:
-        const SafeStringBase mDelimiter;
+        const SafeStringBase<T>& mDelimiter;
     };
 
     SafeStringBase() : mStringTop(&cNullChar) {}

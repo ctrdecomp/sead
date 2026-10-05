@@ -4,9 +4,11 @@
 #include <basis/seadTypes.h>
 #include <math/seadMathNumbers.h>
 
-namespace sead {
+namespace sead 
+{
 template <typename T>
-class MathCalcCommon {
+class MathCalcCommon 
+{
 public:
     static const u32 cQuarterRoundIdx = 0x40000000;  //  90 degrees, PI/2 radians
     static const u32 cHalfRoundIdx = 0x80000000;     // 180 degrees, PI   radians
@@ -33,19 +35,19 @@ public:
         T log_delta;
     };
 
-    static T piHalf() { return numbers::pi_v / static_cast<T>(2); }
+    static T piHalf() { return numbers::pi / static_cast<T>(2); }
 
-    static T pi() { return numbers::pi_v; }
+    static T pi() { return numbers::pi; }
 
-    static T pi2() { return numbers::pi_v * static_cast<T>(2); }
+    static T pi2() { return numbers::pi * static_cast<T>(2); }
 
     static T zero() { return static_cast<T>(0); }
 
     static T one() { return static_cast<T>(1); }
 
-    static T ln2() { return numbers::ln2_v; }
+    static T ln2() { return numbers::ln2; }
 
-    static T ln2Inv() { return numbers::log2e_v; }
+    static T ln2Inv() { return numbers::log2e; }
 
     static T neg(T t);
     static T inv(T t);
@@ -96,13 +98,12 @@ public:
     static T infinity();
     static T nan();
 
-    /*static T epsilon() { return std::numeric_limits<T>::epsilon(); }
-
-    static bool equalsEpsilon(T lhs, T rhs, T eps = epsilon())
+    static T epsilon();
+    
+    static bool equalsEpsilon(T a, T b, T eps = epsilon())
     {
-        const T diff = lhs - rhs;
-        return -eps <= diff && diff <= eps;
-    }*/
+        return abs(a - b) <= eps;
+    }
 
     static T abs(T x) { return x > 0 ? x : -x; }
 
@@ -129,9 +130,10 @@ public:
     static s32 floor(T);
     static s32 ceil(T);
     static T roundUp(T x, s32 multNumber);
+    static T roundUpN(T x, s32 multNumber);
     static s32 roundUpPow2(T x, s32 y);
-    static s32 roundDownN(T val, s32 multNumber);
-    static s32 roundDownPow2(T x, s32 y);
+    static s32 roundDownN(T x, s32 multNumber);
+    static u32 roundDownPow2(u32 val, s32 y);
     static T clampMax(T val, T max_);
     static T clampMin(T val, T min_);
     static T clamp2(T min_, T val, T max_);  // is this the same function?

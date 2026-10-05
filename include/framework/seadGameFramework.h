@@ -4,8 +4,6 @@
 #include <framework/seadProcessMeterBar.h>
 #include <gfx/seadGraphics.h>
 
-#include <nw/ut.h>
-
 namespace sead
 {
 class InfLoopCheckerThread;
@@ -22,7 +20,7 @@ public:
         cShow
     };
 
-    using ProcDrawCallback = void (*)(bool);
+    typedef void (*ProcDrawCallback)(bool);
 
     static void initialize(const Framework::InitializeArg&);
 

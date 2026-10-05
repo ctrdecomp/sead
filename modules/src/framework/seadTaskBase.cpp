@@ -15,8 +15,8 @@ TaskBase::CreateArg::CreateArg():
     src_task(nullptr), 
     created_task(nullptr), 
     create_callback(nullptr), 
-    user_id(), 
-    tag(TaskBase::Tag::cApp), 
+    user_id(),
+    tag(TaskBase::cApp), 
     instance_cb(nullptr)
 {
 }
@@ -31,7 +31,7 @@ TaskBase::CreateArg::CreateArg(const TaskClassID& classID):
     created_task(nullptr), 
     create_callback(nullptr), 
     user_id(), 
-    tag(TaskBase::Tag::cApp), 
+    tag(TaskBase::cApp), 
     instance_cb(nullptr)
 {
 }
@@ -76,7 +76,7 @@ TaskBase::MgrTaskArg::MgrTaskArg(const TaskClassID& classID):
 TaskBase::SystemMgrTaskArg::SystemMgrTaskArg(const TaskClassID& classID): 
     MgrTaskArg(classID)
 {
-    this->tag = Tag::cSystem;
+    this->tag = cSystem;
 }
 
 TaskBase::TaskBase(const TaskConstructArg& arg): 
@@ -131,7 +131,7 @@ TaskBase::~TaskBase()
         }
     }
 
-    mState = State::cDead;
+    mState = cDead;
 
     detachAll();
     mTaskListNode.erase();
@@ -311,7 +311,7 @@ void TaskBase::adjustHeap(s32 heapIndex)
 
 void TaskBase::adjustHeapAll()
 {
-    ScopedLock(&mTaskMgr->mCriticalSection);
+    ScopedLock<CriticalSection> lock(&mTaskMgr->mCriticalSection);
     for(s32 index = 0; index < HeapMgr::getRootHeapNum(); index++)
     {
         adjustHeapWithSlackWithoutLock_(index, 0);
@@ -320,18 +320,13 @@ void TaskBase::adjustHeapAll()
 
 void TaskBase::adjustHeapWithSlack(s32 index, size_t size)
 {
-    ScopedLock(&mTaskMgr->mCriticalSection);
+    ScopedLock<CriticalSection> lock(&mTaskMgr->mCriticalSection);
     adjustHeapWithSlackWithoutLock_(index, size);
 }
 
 void TaskBase::onDestroy()
 {
     TaskBase::doneDestroy();
-}
-
-void TaskBase::doneDestroy()
-{
-    setFlag_(cRunning);
 }
 
 void TaskBase::adjustHeapWithSlackWithoutLock_(s32 index, size_t size)
@@ -368,9 +363,3 @@ void TaskBase::doneDestroy()
     setFlag_(4);
 }
 }  // namespace sead
-
-// For any openEAD Members: Luigifan27 on discord, YOUR PLATFORM SUCKS BOOTY CHEEKS COMPARED TO CTR MWAHAHAHAHAHHAHAHAHAHAHAHAHAHGAHAHAHAHAHAHAHAHHAHA
-//
-// Also, Mario 3D Land IS better than Oddyessy, fight me.
-//
-// (All jokes!)

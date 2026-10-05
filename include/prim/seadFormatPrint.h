@@ -1,165 +1,182 @@
 #pragma once
 
-#include "basis/seadTypes.h"
-#include "prim/seadSafeString.h"
-#include "stream/seadBufferStream.h"
+#include <basis/seadTypes.h>
+#include <prim/seadSafeString.h>
+#include <stream/seadBufferStream.h>
+#include <stream/seadPrintStream.h>
 
-namespace sead
-{
+namespace sead {
+
 class PrintFormatter;
-class StreamSrc;
 
-// region Print outputs
 class PrintOutput
 {
 public:
-    virtual ~PrintOutput(){ }
-    virtual void write(const char* string, s32 size) = 0;
+    virtual ~PrintOutput()
+    {
+    }
+
+    virtual void write(const char* str, s32 len) = 0;
     void writeLineBreak();
-    PrintFormatter& operator<<(PrintFormatter& formatter);
-};
 
-class StringPrintOutput : public PrintOutput
-{
-public:
-    explicit StringPrintOutput(BufferedSafeString* buffer);
-    virtual ~StringPrintOutput(){ }
-    virtual void write(const char* string, s32 size);
-
-protected:
-    BufferedSafeString* mBuffer;
-    s32 mPos;
-};
-
-class StringCutOffPrintOutput : public PrintOutput
-{
-public:
-    explicit StringCutOffPrintOutput(BufferedSafeString* buffer);
-    virtual ~StringCutOffPrintOutput() { }
-    virtual void write(const char* string, s32 size);
-
-protected:
-    BufferedSafeString* mBuffer;
-    s32 mPos;
-};
-
-class StreamPrintOutput : public PrintOutput
-{
-public:
-    explicit StreamPrintOutput(StreamSrc* src);
-    virtual ~StreamPrintOutput();
-    virtual void write(const char* string, s32 size);
-
-protected:
-    StreamSrc* mSrc;
+    PrintFormatter& operator<<(PrintFormatter& f);
 };
 
 class BufferingPrintOutput : public PrintOutput
 {
 public:
-    BufferingPrintOutput(char* buffer, u32 buffer_size);
+    BufferingPrintOutput(void* start, u32 size): 
+        PrintOutput(), 
+        mStreamSrc(PrintStreamSrc::instance(), start, size)
+    {
+    }
+
     virtual ~BufferingPrintOutput();
-    virtual void write(const char* string, s32 size);
+
+    virtual void write(const char* str, s32 len);
 
 protected:
-    BufferMultiByteNullTerminatedTextWriteStreamSrc mSrc;
+    BufferMultiByteNullTerminatedTextWriteStreamSrc mStreamSrc;
 };
-// endregion
-
-// region Print formatters
 
 class PrintFormatter
 {
-public:
-    template <typename T, template <typename> class Class>
+protected:
+    template <typename T, template <typename> class TClass>
     class OutImpl
     {
     public:
-        static void out(const Class<T>&, const char*, PrintOutput* output);
+        static void out(const TClass<T>& obj, const char* option, PrintOutput* output);
     };
 
-    PrintFormatter(const char*, PrintOutput* output);
+public:
+    PrintFormatter(const char* formatStr, PrintOutput* output);
 
-    void setPrintOutput(PrintOutput* output);
+    void setPrintOutput(PrintOutput* output)
+    {
+        mPrintOutput = output;
+    }
 
     void flush();
     void flushWithLineBreak();
 
-    PrintFormatter& operator,(s8);
-    PrintFormatter& operator,(u8);
-    PrintFormatter& operator,(s16);
-    PrintFormatter& operator,(u16);
-    PrintFormatter& operator,(s32);
-    PrintFormatter& operator,(u32);
-    PrintFormatter& operator<<(char*);
-    PrintFormatter& operator<<(const char*);
+    PrintFormatter& operator,(const s8 obj)
+    {
+        return operator<<(obj);
+    }
 
-    PrintFormatter& operator<<(PrintFormatter& (&fn)(PrintFormatter&)) { return fn(*this); }
+    PrintFormatter& operator,(const u8 obj)
+    {
+        return operator<<(obj);
+    }
+
+    PrintFormatter& operator,(const s16 obj)
+    {
+        return operator<<(obj);
+    }
+
+    PrintFormatter& operator,(const u16 obj)
+    {
+        return operator<<(obj);
+    }
+
+    PrintFormatter& operator,(const s32 obj)
+    {
+        return operator<<(obj);
+    }
+
+    PrintFormatter& operator,(const u32 obj)
+    {
+        return operator<<(obj);
+    }
 
     template <typename T>
-    PrintFormatter& operator,(const T&);
+    PrintFormatter& operator,(const T& obj)
+    {
+        return operator<<(obj);
+    }
+
+    PrintFormatter& operator<<(char* str)
+    {
+        return operator<<(const_cast<const char*>(str));
+    }
+
+    PrintFormatter& operator<<(const char* str);
 
     template <typename T>
-    void out(const T&, const char*, PrintOutput* output);
+    PrintFormatter& operator<<(const T& obj)
+    {
+        char option[cOptionBufSize];
+
+        bool end = proceedToFormatMark_(option);
+        if (end)
+            PrintFormatter::out<T>(obj, option[0] != '\0' ? option : nullptr, mPrintOutput);
+
+        return *this;
+    }
+
+    template <typename T>
+    static void out(const T& obj, const char* option, PrintOutput* output);
+
+    template <typename T, template <typename> class TClass>
+    static void out(const TClass<T>& obj, const char* option, PrintOutput* output)
+    {
+        OutImpl<T, TClass>::out(obj, option, output);
+    }
+
+    static const u32 cOptionLengthMax = 31;
+    static const u32 cOptionBufSize = cOptionLengthMax + 1;
 
 protected:
-    bool proceedToFormatMark_(char*);
-    static void outputString_(const char*, PrintOutput*, const char*, s32);
-    static void outputPtr_(const char*, PrintOutput*, uintptr_t);
+    bool proceedToFormatMark_(char* option);
 
+    static void outputString_(const char* option, PrintOutput* output, const char* str, s32 strLen);
+    static void outputPtr_(const char* option, PrintOutput* output, uintptr_t ptr);
+
+    static bool isQualification_(char c)
+    {
+        return c == '+' || c == '-' || c == ' ' || c == '#' || c == 'h' || c == 'l' || c == 'L' || c == '.' || c > '/' && c < ':';
+    }
+
+    template <typename T>
+    static void outSimpleObject_(const char* defaultOption, const char* userOption, PrintOutput* output, const T& obj)
+    {
+        FixedSafeString<cOptionBufSize> str;
+
+        s32 strLen = 0;
+        if (userOption)
+            strLen = str.format(userOption, obj);
+        else
+            strLen = str.format(defaultOption, obj);
+
+        output->write(str.cstr(), strLen);
+    }
+
+protected:
     const char* mFormatStr;
-    class PrintOutput* mPrintOutput;
+    PrintOutput* mPrintOutput;
     s32 mPos;
     s32 mFormatStrLength;
-    bool mX;
-};
-
-inline PrintFormatter& flush(PrintFormatter& formatter)
-{
-    formatter.flush();
-    return formatter;
-}
-
-class StringPrintFormatter : public PrintFormatter
-{
-public:
-    explicit StringPrintFormatter(BufferedSafeString* string);
-    StringPrintFormatter(BufferedSafeString* string, const char*);
-
-protected:
-    StringPrintOutput mOutput;
-};
-
-class StringCutOffPrintFormatter : public PrintFormatter
-{
-public:
-    explicit StringCutOffPrintFormatter(BufferedSafeString* string);
-    StringCutOffPrintFormatter(BufferedSafeString* string, const char*);
-
-protected:
-    StringCutOffPrintOutput mOutput;
-};
-
-class StreamPrintFormatter : public PrintFormatter
-{
-public:
-    explicit StreamPrintFormatter(StreamSrc* src);
-    StreamPrintFormatter(StreamSrc* src, const char*);
-    void flushAndWriteNullChar();
-
-protected:
-    StreamPrintOutput mOutput;
+    bool mIsFormatRestAll;
 };
 
 class BufferingPrintFormatter : public PrintFormatter
 {
 public:
     BufferingPrintFormatter();
-    explicit BufferingPrintFormatter(const char*);
+    explicit BufferingPrintFormatter(const char* formatStr);
+
+    static const u32 cBufferSize = 128;
 
 protected:
     BufferingPrintOutput mOutput;
-    char mBuffer[128];
+    char mBuffer[cBufferSize];
 };
-// endregion
-}  // namespace sead
+
+}
+
+#ifdef __cplusplus
+
+#include <prim/seadFormatPrint.hpp>
+
+#endif

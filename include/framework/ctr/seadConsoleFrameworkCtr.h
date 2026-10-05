@@ -14,8 +14,9 @@ public:
 
     ConsoleFrameworkCtr();
     virtual ~ConsoleFrameworkCtr();
+    virtual FrameBuffer* getMethodFrameBuffer(s32) const{ return NULL; }
+    virtual void runImpl();
 protected:
-    virtual void runImpl_();
     virtual MethodTreeMgr* createMethodTreeMgr_(Heap* heap);
 };
 }

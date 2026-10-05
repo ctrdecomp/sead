@@ -12,6 +12,10 @@
     #error "No graphics backend defined"
 #endif
 
+#if defined(NN_SWITCH_ENABLE_MEMBER_NAME_SHORTCUT)
+    #define SEAD_USE_ANONYMOUS_STRUCT
+#endif
+
 #if defined(__clang__)
     #define SEAD_COMPILER_ARM_CLANG
 #elif defined(__CC_ARM)

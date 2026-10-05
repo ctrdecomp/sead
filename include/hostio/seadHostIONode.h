@@ -10,7 +10,7 @@ namespace hostio
 class Node : public Reflexible
 {
 public:
-    NodeClassType getNodeClassType() const override { return Reflexible::NodeClassType::cNode; }
+    virtual NodeClassType getNodeClassType() const { return Reflexible::cNode; }
 
 #ifdef SEAD_DEBUG
 public:
@@ -48,7 +48,8 @@ private:
     void calcURLImpl_(BufferedSafeString* url, bool) const;
 
     TTreeNode<Node*> mTreeNode;
-#endif
+#endif // SEAD_DEBUG
 };
+
 }  // namespace hostio
 }  // namespace sead

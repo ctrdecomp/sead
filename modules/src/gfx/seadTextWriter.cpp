@@ -8,7 +8,7 @@ public:
     GraphicsContextForTextWriter(): 
         sead::GraphicsContext()
     {
-        setCullingMode(sead::Graphics::CullingMode::cNone);
+        setCullingMode(sead::Graphics::cNoneCulling);
         setDepthEnable(false, false);
     }
 };

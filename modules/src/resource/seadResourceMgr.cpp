@@ -83,9 +83,12 @@ ResourceFactory* ResourceMgr::setDefaultFactory(ResourceFactory* factory)
 
 ResourceFactory* ResourceMgr::findFactory(const SafeString& name)
 {
-    for (ResourceFactory* factory : mFactoryList)
+    for (TList<ResourceFactory*>::iterator it = mFactoryList.begin(); it != mFactoryList.end(); ++it)
+    {
+        ResourceFactory* factory = *it;
         if (factory->getExt() == name)
             return factory;
+    }
 
     return mDefaultResourceFactory;
 }
@@ -110,9 +113,12 @@ void ResourceMgr::unregisterDecompressor(Decompressor* decompressor)
 
 Decompressor* ResourceMgr::findDecompressor(const SafeString& name)
 {
-    for (Decompressor* decompressor : mDecompList)
+    for (TList<Decompressor*>::iterator it = mDecompList.begin(); it != mDecompList.end(); ++it)
+    {
+        Decompressor* decompressor = *it;
         if (decompressor->getName() == name)
             return decompressor;
+    }
 
     return nullptr;
 }

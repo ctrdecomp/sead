@@ -8,6 +8,8 @@
 
 namespace sead
 {
+bool Arena::sIsUsingDeviceMemory = false;
+
 Arena::Arena():
     mStart(NULL), mSize(0), mInitWithStartAddress(false)
 {

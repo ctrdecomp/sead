@@ -26,7 +26,7 @@ public:
     virtual bool isConnecting() const = 0;
     virtual void lock() { }
     virtual void unlock() { }
-    virtual Thread* getThread() { return nullptr; }
+    virtual Thread* getThread() { return NULL; }
 };
 
 struct PacketHeader

@@ -81,12 +81,12 @@ void DirectPrintCtr::checkBufferIsNotOnVRAM_()
 {
     if((PtrUtil::isInclude(
         mStringTop, 
-        reinterpret_cast<const void*>(GetVramStartAddr(VramArea::MEM_VRAMA)), 
-        reinterpret_cast<const void*>(GetVramEndAddr(VramArea::MEM_VRAMA))) )||
+        reinterpret_cast<const void*>(GetVramStartAddr(MEM_VRAMA)), 
+        reinterpret_cast<const void*>(GetVramEndAddr(MEM_VRAMA))) )||
         (PtrUtil::isInclude(
         mStringTop,
-        reinterpret_cast<const void*>(GetVramStartAddr(VramArea::MEM_VRAMB)), 
-        reinterpret_cast<const void*>(GetVramEndAddr(VramArea::MEM_VRAMB)))))
+        reinterpret_cast<const void*>(GetVramStartAddr(MEM_VRAMB)), 
+        reinterpret_cast<const void*>(GetVramEndAddr(MEM_VRAMB)))))
     {
         SEAD_PRINT("!!! Target display-buffer is on VRAM. DirectPrint failed. !!!\n");
         SEAD_HALT();
@@ -101,21 +101,25 @@ void DirectPrintCtr::convertPositionUserOriginToDeviceOrigin_(Vector2i* org, Vec
 
 void DirectPrintCtr::flush()
 {
-    u32 byteFmt =  getByteByDot_(mStringByte);
+    u32 byteFmt = getByteByDot_(mStringByte);
     nn::dsp::CTR::Initialize();
     nn::dsp::CTR::FlushDataCache(mStringByte, mBufferSize.x * byteFmt * mBufferSize.y);
 }
 
 void DirectPrintCtr::printf(Vector2i const& bufSize, const char* msg, ...)
 {
-    SafeString string(msg);
-    vprintf(bufSize, msg, string);
+    va_list list;
+    va_start(list, msg);
+    vprintf(bufSize, msg, list);
+    va_end(list);
 }
 
 void DirectPrintCtr::printf(Vector2i const& bufSize, bool autoWrap, bool drawDot, const char* msg, ...)
 {
-    SafeString string(msg);
-    vprintf(bufSize, autoWrap, drawDot, msg, string);
+    va_list list;
+    va_start(list, msg);
+    vprintf(bufSize, autoWrap, drawDot, msg, list);
+    va_end(list);
 }
 
 void DirectPrintCtr::vprintf(Vector2i const& bufSize, SafeString const& msg, std::__va_list list)
@@ -276,6 +280,50 @@ void DirectPrintCtr::clear(BoundBox2i const& box)
 
             putDot_(pos, bgColor, byte);
         }
+    }
+}
+
+void DirectPrintCtr::convertColorFormat_(u8* dst, const Color4u8& color, u32 format)
+{
+    switch (format)
+    {
+    case GL_RGBA8_OES:
+        dst[0] = color.r;
+        dst[1] = color.g;
+        dst[2] = color.b;
+        dst[3] = color.a;
+        break;
+
+    case GL_RGB8_OES:
+        dst[0] = (color.g & 0xf0) | (color.r >> 4);
+        dst[1] = (color.a & 0xf0) | (color.b >> 4);
+        break;
+
+    case GL_RGBA4:
+        dst[0] = color.g;
+        dst[1] = color.b;
+        dst[2] = color.a;
+        break;
+
+    case GL_RGB5_A1:
+        dst[0] = ((color.r & 0x80) >> 7)
+               | ((color.g & 0xf8) >> 2)
+               | ((color.b & 0x03) << 6);
+
+        dst[1] = (color.a & 0xf8)
+               | ((color.b & 0x38) >> 3);
+        break;
+
+    case GL_RGB565:
+        dst[0] = ((color.b & 0x1c) << 5)
+               | (color.g >> 3);
+
+        dst[1] = (color.a & 0xf8)
+               | ((color.b & 0xe0) >> 5);
+        break;
+
+    default:
+        SEAD_ASSERT_MSG(false, "Undefined format.");
     }
 }
 }

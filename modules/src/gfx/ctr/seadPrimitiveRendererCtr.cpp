@@ -20,10 +20,10 @@ u32* makeUniformCommand_(u32* command, u32 symbol, sead::Color4f const& color)
     *command++ = symbol | 0x80000000;
     *command++ = 0x804F02C0;
 
-    *command++ = nn::math::F32AsU32(color.r);
-    *command++ = nn::math::F32AsU32(color.g);
-    *command++ = nn::math::F32AsU32(color.b);
-    *command++ = nn::math::F32AsU32(color.a);
+    *command++ = nn::math::F32AsU32(color.cl.r);
+    *command++ = nn::math::F32AsU32(color.cl.g);
+    *command++ = nn::math::F32AsU32(color.cl.b);
+    *command++ = nn::math::F32AsU32(color.cl.a);
 
     return command;
 }
@@ -37,7 +37,7 @@ PrimitiveRendererCtr::Shape::Shape():
 {
 }
 
-PrimitiveRendererCtr::PrimitiveRendererCtr():
+PrimitiveRendererCtr::PrimitiveRendererCtr(Heap* /* heap */):
     mCache3D(),
     mSymbolWVP_3D(),
     mSymbolUser_3D(),
@@ -150,8 +150,8 @@ void PrimitiveRendererCtr::prepareFromBinaryImpl(Heap* heap, const void* bin_dat
     /* Cache Ram for 2D */
 
     mCache2D.initialize(heap, 0);
-    u32* command = reinterpret_cast<u32*>(mCache2D.getTopPtr());
-    size_t cache = *shader->MakeFullCommand(command);
+    command = reinterpret_cast<u32*>(mCache2D.getTopPtr());
+    cache = *shader->MakeFullCommand(command);
     mCache2D.adjust(heap, cache);
 
     loadQuadVertex_(heap);
@@ -207,12 +207,12 @@ void PrimitiveRendererCtr::setProjectionImpl(const Projection& projection)
 void PrimitiveRendererCtr::beginImpl()
 {
     mMode = cDrawMax;
-    mCurrentList = 0;
+    mCurrentVertex = NULL;
     mCtrTexture = nullptr;
 
-    nngxGetCmdlistParameteri(NN_GX_CMDLIST_CURRENT_BUFADDR, mListCommand);
+    nngxGetCmdlistParameteri(NN_GX_CMDLIST_CURRENT_BUFADDR, (GLint*)mListCommand);
     mListCommand[1] = mListCommand[0];
-    mListCommand[0] = *nn::gr::CTR::Vertex::MakeDisableCommand((u32*)mListCommand);
+    mListCommand = nn::gr::CTR::Vertex::MakeDisableCommand(mListCommand);
     s32 ctop;
     nngxGetCmdlistParameteri(NN_GX_CMDLIST_TOP_BUFADDR, &ctop);
     s32 caddr = 0;
@@ -228,9 +228,9 @@ void PrimitiveRendererCtr::endImpl()
 void PrimitiveRendererCtr::drawQuadImpl(const Matrix34f& model_mtx, const Color4f& colorL, const Color4f& colorR)
 {
     setup_(cDraw3D, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_3D.symbolType, colorL);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor1_3D.symbolType, colorR);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_3D.symbolType, colorL);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor1_3D.symbolType, colorR);
     drawShape_(mSphere4x8);
 }
 
@@ -239,125 +239,121 @@ void PrimitiveRendererCtr::drawQuadImpl(const Matrix34f& model_mtx, Texture cons
 {
     const TextureCtr* ctrTex = DynamicCast<TextureCtr const>(&texture);
     setup_(cDrawTexture, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_3D.symbolType, colorL);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor1_3D.symbolType, colorR);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_3D.symbolType, colorL);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor1_3D.symbolType, colorR);
 
-    {
-        mListCommand[0] = *mSymbolUvSrc_3D.MakeUniformCommand((u32*)mListCommand, Vector4f(colorL.r, colorL.g, 0.0f, 0.0f));
-    }
+    mListCommand = mSymbolUvSrc_3D.MakeUniformCommand(mListCommand, Vector4f(colorL.cl.r, colorL.cl.g, 0.0f, 0.0f));
+    mListCommand = mSymbolUvSize_3D.MakeUniformCommand(mListCommand, Vector4f(colorR.cl.r, colorR.cl.g, 0.0f, 0.0f));
 
-    {
-        mListCommand[0] = *mSymbolUvSize_3D.MakeUniformCommand((u32*)mListCommand, Vector4f(colorR.r, colorR.g, 0.0f, 0.0f));
-    }
     drawShape_(mBox);
 }
 
 void PrimitiveRendererCtr::drawBoxImpl(const Matrix34f& model_mtx, const Color4f& colorL, const Color4f& colorR)
 {
     setup_(cDraw2D, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_2D.symbolType, colorL);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor1_2D.symbolType, colorR);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_2D.symbolType, colorL);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor1_2D.symbolType, colorR);
     drawShape_(mBox);
 }
 
 void PrimitiveRendererCtr::drawCubeImpl(const Matrix34f& model_mtx, const Color4f& c0, const Color4f& c1)
 {
     setup_(cDraw3D, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_3D.symbolType, c0);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor1_3D.symbolType, c1);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_3D.symbolType, c0);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor1_3D.symbolType, c1);
     drawShape_(mBox);
 }
 
 void PrimitiveRendererCtr::drawWireCubeImpl(const Matrix34f& model_mtx, const Color4f& c0, const Color4f& c1)
 {
     setup_(cDraw2D, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_3D.symbolType, c0);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor1_3D.symbolType, c1);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_3D.symbolType, c0);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor1_3D.symbolType, c1);
     drawShape_(mBox);
 }
 
 void PrimitiveRendererCtr::drawLineImpl(const Matrix34f& model_mtx, const Color4f& c0, const Color4f& c1)
 {
     setup_(cDraw2D, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_2D.symbolType, c0);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor1_2D.symbolType, c1);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_2D.symbolType, c0);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor1_2D.symbolType, c1);
     drawShape_(mLine);
 }
 
 void PrimitiveRendererCtr::drawSphere4x8Impl(const Matrix34f& model_mtx, const Color4f& north, const Color4f& south)
 {
     setup_(cDraw3D, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_3D.symbolType, north);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_3D.symbolType, south);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_3D.symbolType, north);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_3D.symbolType, south);
     drawShape_(mSphere4x8);
 }
 
 void PrimitiveRendererCtr::drawSphere8x16Impl(const Matrix34f& model_mtx, const Color4f& north, const Color4f& south)
 {
     setup_(cDraw3D, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_3D.symbolType, north);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor1_3D.symbolType, south);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_3D.symbolType, north);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor1_3D.symbolType, south);
     drawShape_(mSphere8x16);
 }
 
 void PrimitiveRendererCtr::drawDisk16Impl(const Matrix34f& model_mtx, const Color4f& center, const Color4f& edge)
 {
     setup_(cDraw3D, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_3D.symbolType, center);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor1_3D.symbolType, edge);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_3D.symbolType, center);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor1_3D.symbolType, edge);
     drawShape_(mDisk16);
 }
 
 void PrimitiveRendererCtr::drawDisk32Impl(const Matrix34f& model_mtx, const Color4f& center, const Color4f& edge)
 {
     setup_(cDraw3D, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_3D.symbolType, center);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor1_3D.symbolType, edge);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_3D.symbolType, center);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor1_3D.symbolType, edge);
     drawShape_(mDisk32);
 }
 
 void PrimitiveRendererCtr::drawCircle16Impl(const Matrix34f& model_mtx, const Color4f& edge)
 {
     setup_(cDraw2D, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_2D.symbolType, edge);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor1_2D.symbolType, edge);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_2D.symbolType, edge);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor1_2D.symbolType, edge);
     drawShape_(mDisk16, mCircle16Index.mIndexStream);
 }
 
 void PrimitiveRendererCtr::drawCircle32Impl(const Matrix34f& model_mtx, const Color4f& edge)
 {
     setup_(cDraw2D, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_2D.symbolType, edge);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor1_2D.symbolType, edge);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_2D.symbolType, edge);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor1_2D.symbolType, edge);
     drawShape_(mDisk32, mCircle32Index.mIndexStream);
 }
 
 void PrimitiveRendererCtr::drawCylinder16Impl(const Matrix34f& model_mtx, const Color4f& top, const Color4f& btm)
 {
     setup_(cDraw3D, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_3D.symbolType, top);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor1_3D.symbolType, btm);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_3D.symbolType, top);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor1_3D.symbolType, btm);
     drawShape_(mCylinder16);
 }
 
 void PrimitiveRendererCtr::drawCylinder32Impl(const Matrix34f& model_mtx, const Color4f& top, const Color4f& btm)
 {
     setup_(cDraw3D, nullptr);
-    mListCommand[0] = *mSymbolUser_3D.MakeUniformCommand((u32*)mListCommand, model_mtx);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor0_3D.symbolType, top);
-    mListCommand[0] = *makeUniformCommand_((u32*)mListCommand, mSymbolColor1_3D.symbolType, btm);
+    mListCommand = mSymbolUser_3D.MakeUniformCommand(mListCommand, model_mtx);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor0_3D.symbolType, top);
+    mListCommand = makeUniformCommand_(mListCommand, mSymbolColor1_3D.symbolType, btm);
     drawShape_(mCylinder32);
 }
 
@@ -367,7 +363,7 @@ void PrimitiveRendererCtr::copyAndSetupVtx_(PrimitiveRendererCtr::Shape* shape, 
     {
         shape->mShapePos[i]   = vtx[i].pos;
         shape->mShapeUV[i]    = vtx[i].uv;
-        shape->mShapeColor[i] = vtx->color.c[i];
+        shape->mShapeColor[i] = vtx->color.c.c[i];
     }
 
     nngxUpdateBuffer(&shape->mShapePos,   size3D * sizeof(Vector3f));
@@ -529,5 +525,28 @@ void PrimitiveRendererCtr::loadWireCubeIndex_(Heap* heap)
 void PrimitiveRendererCtr::checkCmdlist_()
 {
     SEAD_ASSERT_MSG(PtrUtil::diff((u32*)mListCommand, mCmdlistBufSize) < 0, "cmdlist buffer overrun.");
+}
+
+void PrimitiveRendererCtr::drawShape_(const Shape& shape)
+{
+    drawShape_(shape, shape.mShapeIndex.mIndexStream);
+}
+
+void PrimitiveRendererCtr::drawShape_(const nn::gr::CTR::Vertex& vert, const nn::gr::CTR::Vertex::IndexStream& vertIndex){ 
+    if(mCurrentVertex != &vert)
+    {
+        if(mCurrentVertex != NULL)
+        {
+            mListCommand = mCurrentVertex->MakeDisableCommand(mListCommand);
+        }
+
+        mListCommand = vert.MakeEnableAttrCommand(mListCommand);
+    }
+
+    mListCommand = vert.MakeDrawCommand(mListCommand, vertIndex);
+
+    mCurrentVertex = &vert;
+
+    checkCmdlist_();
 }
 }

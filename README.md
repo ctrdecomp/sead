@@ -85,13 +85,17 @@ Platform-specific files are usually placed into a subdirectory that is called:
 
 ## ctr
 
-* **ctr/ConsoleFrameWorkCtr** — Basic CTR application framework. Only initializes one screen for the device.
+* **ctr/ConsoleFrameworkCtr** — Basic CTR application framework. Only initializes one screen for the device.
 
-* **ctr_nw4c/GameFrameworkCtrNw4c** — Base game framework with compatability with the **Nw4c** engine. Builds upon `GameFramework` and provides groundwork for using Nw4c with CTR. 
+* **ctr_nw4c/GameFrameworkCtrNw4c** — Base game framework with compatability with the **Nw4c** graphics engine. Builds upon `GameFramework` and provides groundwork for using Nw4c with CTR. 
 
 * **ctr_nw4c/DoubleCmdGameFrameworkCtrNw4c** — Dual-screen game framework. Extends `GameFrameworkCtrNw4c` to initialize and manage both the top and bottom screens, including their respective frame buffers and presentation.
 
+* **ctr_nw4c/UlcdGameFrameworkCtrNw4c** - ULCD dual-screen framework. Extends `GameFrameworkCtrNw4c` to initialize and manage both left and right screens only. This class is very simliar to `UlcdDoubleCmdGameFrameworkCtrNw4c` but, it doesnt include **presentTop_()** and **presentBtm_()**
+
 * **ctr_nw4c/UlcdDoubleCmdGameFrameworkCtrNw4c** — ULCD dual-screen framework. Extends `DoubleCmdGameFrameworkCtrNw4c` and adapts its display handling for a left/right screen configuration, primarily presenting and managing the left and right displays.
+
+* **ctr_nw4c/SeriesGameFrameworkCtrNw4c** - The simliar to `ConsoleFrameworkCtr`, except its compatable with the **Nw4c** graphics engine.
 
 ### Version specific source
 
@@ -122,8 +126,8 @@ sead can be configured with several compile-time defines:
 * `SEAD_DEBUG`: enables assertions and HostIO code.
 
 #### Platforms
-* `CTRSDK` : Platform for CTR
-* `WINDOWS_CTR` : Platform for Windows emulating CTR
+* `SEAD_PLATFORM_CTR` : Platform for CTR
+* `SEAD_PLATFORM_WINCTR` : Platform for Windows emulating CTR
 
 Other platforms (generic Unix, iOS, Android, NX, and cafe) are not supported.
 

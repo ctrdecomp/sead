@@ -12,10 +12,10 @@ class StreamSrc;
 class Stream
 {
 public:
-    enum class Modes
+    enum Modes
     {
-        Binary = 0,
-        Text = 1,
+        Binary,
+        Text,
     };
 
     Stream();
@@ -37,13 +37,14 @@ public:
     StreamSrc* getSrc() const { return mSrc; }
 
 protected:
-    static StreamFormat* BASIC_STREAM_FORMAT[2];
+    static StreamFormat* BASIC_STREAM_FORMAT[1]; // TODO: ADD TextStreamFormat
 
     void setSrc(StreamSrc* src) { mSrc = src; }
+    void setSrcStream_(StreamSrc* src) { mSrc = src; }
 
-    StreamFormat* mFormat = nullptr;
-    StreamSrc* mSrc = nullptr;
-    Endian::Types mEndian = Endian::getHostEndian();
+    StreamFormat* mFormat;
+    StreamSrc* mSrc;
+    Endian::Types mEndian;
 };
 
 class ReadStream : public Stream

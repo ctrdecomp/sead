@@ -10,7 +10,17 @@ class HashCRC16
 public:
     struct Context
     {
-        u32 hash = 0;
+        Context():
+            hash(0)
+        {
+        }
+
+        Context(u32 hash):
+            hash(hash)
+        {
+        }
+        
+        u32 hash;
     };
 
     static u32 calcHash(const void* ptr, u32 size);

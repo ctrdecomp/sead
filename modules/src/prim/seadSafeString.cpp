@@ -31,14 +31,14 @@ template <>
 void BufferedSafeStringBase<char>::assureTerminationImpl_() const
 {
     BufferedSafeString* mutableSafeString = const_cast<BufferedSafeStringBase<char>*>(this);
-    mutableSafeString->getMutableStringTop_()[mBufferSize - 1] = cNullChar;
+    mutableSafeString->getMutableStringTop_()[mBufferSize - 1] = SafeStringBase<char>::cNullChar;
 }
 
 template <>
 void BufferedSafeStringBase<char16>::assureTerminationImpl_() const
 {
     BufferedSafeStringBase* mutableSafeString = const_cast<BufferedSafeStringBase<char16>*>(this);
-    mutableSafeString->getMutableStringTop_()[mBufferSize - 1] = cNullChar;
+    mutableSafeString->getMutableStringTop_()[mBufferSize - 1] = SafeStringBase<char16>::cNullChar;
 }
 
 template <>
@@ -99,7 +99,7 @@ template <>
 s32 BufferedSafeStringBase<char>::appendWithFormatV(const char* format, std::va_list args)
 {
     char* mutableString = getMutableStringTop_();
-    const s32 len = calcLength();
+    const s32 len = this->calcLength();
     return formatImpl_(mutableString + len, mBufferSize - len, format, args) + len;
 }
 
@@ -107,7 +107,7 @@ template <>
 s32 BufferedSafeStringBase<char16>::appendWithFormatV(const char16* format, std::va_list args)
 {
     char16* mutableString = getMutableStringTop_();
-    const s32 len = calcLength();
+    const s32 len = this->calcLength();
     return formatImpl_(mutableString + len, mBufferSize - len, format, args) + len;
 }
 

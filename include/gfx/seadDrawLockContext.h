@@ -16,8 +16,8 @@ public:
     void genMessage(hostio::Context* context);
 
 private:
-    [[maybe_unused]] u32 _8 = 0;
-    CriticalSection mCriticalSection{};
+    u32 _8;
+    CriticalSection mCriticalSection;
 };
 
 }  // namespace sead

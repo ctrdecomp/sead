@@ -23,7 +23,8 @@ public:
     void lock();
     bool tryLock();
     void unlock();
-
+    
+protected:
     nn::os::CriticalSection mCriticalSectionInner;
 };
 

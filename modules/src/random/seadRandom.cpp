@@ -6,7 +6,7 @@ namespace sead
 void Random::init()
 {
     TickTime now;
-    init(static_cast<u32>(now.toTicks()));
+    init(static_cast<u32>(now.toU64()));
 }
 
 void Random::init(u32 seed)
