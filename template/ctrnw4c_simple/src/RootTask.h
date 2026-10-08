@@ -21,7 +21,7 @@ class RootTask : public TaskBase
 public:
     explicit RootTask(const TaskConstructArg& arg);
 
-    void calc();
+    virtual void calc();
 };
 
 #endif // ROOT_TASK_H_

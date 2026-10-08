@@ -26,6 +26,7 @@ typedef UlcdGameFrameworkCtrNw4c AppFramework;
 
 void nnMain()
 {
+    //* Initialize SEAD application framework.
     {
         sead::Framework::InitializeArg arg;
         arg.heap_size = nn::os::GetDeviceMemorySize();
@@ -35,19 +36,20 @@ void nnMain()
 
     sead::Heap* heap = sead::HeapMgr::instance()->getRootHeap(0);
 
+    //* Creating app heap.
     {
-        /* Choose your own memory size. */
-        ExpHeap* h = sead::ExpHeap::tryCreate(50 * 1024 * 1024, "FrameworkHeap", heap, Heap::cHeapDirection_Forward, true);
-        sead::HeapMgr::instance()->setAllocFromNotSeadThreadHeap(h);
+        ExpHeap* h = sead::ExpHeap::tryCreate(nn::os::GetDeviceMemorySize(), "RootHeap", heap, Heap::cHeapDirection_Forward, true);
+        ScopedCurrentHeapSetter heap(h);
     }
 
+    //* Creating the graphics system used for the device, by setting up its args for initializeGraphicsSystem()
     AppFramework* fw;
     {
         AppFramework::CreateArg arg;
-        /* Standard 3DS Console */
-        arg.widthTop = cWidthTop;
+
+        arg.widthTop  = cWidthTop;
         arg.heightTop = cHeightTop;
-        arg.widthBtm = cWidthBtm;
+        arg.widthBtm  = cWidthBtm;
         arg.heightBtm = cHeightBtm;
         arg.physW_Top = 0;
         arg.physH_Top = 0;
@@ -74,6 +76,7 @@ void nnMain()
         fw->initializeGraphicsSystem(heap, Vector2f(cWidthTop, cWidthBtm), Vector2f(cHeightTop, cHeightBtm));
     }
 
+    //* Creating our task. In this case, RootTask.
     {
         sead::TaskBase::CreateArg taskArg(&sead::TTaskFactory<RootTask>);
         sead::Framework::RunArg runArg;

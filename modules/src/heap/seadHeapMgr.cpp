@@ -143,11 +143,6 @@ void HeapMgr::initHostIO()
 #endif // SEAD_DEBUG
 }
 
-void HeapMgr::setAllocFromNotSeadThreadHeap(Heap* heap)
-{
-    mAllocFromNotSeadThreadHeap = heap;
-}
-
 Heap* HeapMgr::getCurrentHeap() const
 {
     Thread* currentThread = ThreadMgr::instance()->getCurrentThread();

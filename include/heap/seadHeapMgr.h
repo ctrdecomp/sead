@@ -50,7 +50,6 @@ public:
     void initHostIO();
 
     Heap* findContainHeap(const void* ptr) const;
-    void setAllocFromNotSeadThreadHeap(Heap* heap);
 
     Heap* getCurrentHeap() const;
 
