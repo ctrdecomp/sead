@@ -50,64 +50,76 @@ FileDevice* CtrFileStreamFileDevice::doOpen_(FileHandle* handle, const SafeStrin
     bool isExist = false;
     if(doIsExistFile_(&isExist, path) == false)
     {
-        this == NULL;
+        return NULL;
     }
-    else if(flag == cFileOpenFlag_Create && isExist)
-    {
-        this == NULL;
-    }
-    else
-    {
-        FileStreamFileHandle* p = new(getFileStreamFileHandle_(handle)) FileStreamFileHandle();
-        nn_result = openFileStreamImpl_(p, getArchiveName_(), path, nn::fs::OPEN_MODE_READ);
 
-        if(nn_result.IsFailure())
-        {
-            this == NULL;
-        }
-        else
-        {
-            p->mFlag = flag;
-        }
+    if(flag == cFileOpenFlag_Create && isExist)
+    {
+        return NULL;
     }
+
+    FileStreamFileHandle* p = new(getFileStreamFileHandle_(handle)) FileStreamFileHandle();
+    nn_result = openFileStreamImpl_(&p->mStream, getArchiveName_(), path, nn::fs::OPEN_MODE_READ);
+
+    if(nn_result.IsFailure())
+    {
+        return NULL;
+    }
+
+    p->mFlag = flag;
 
     return this;
 }
 
 bool CtrFileStreamFileDevice::doClose_(FileHandle* handle)
 {
-    bool res = true;
-    FileStreamFileHandle* h = getFileStreamFileHandle_(handle);
-    if(h->mFlag == cFileOpenFlag_WriteOnly && h->mFlag == cFileOpenFlag_ReadWrite)
-    {
-        nn_result = h->TryFlush();
-        res = nn_result.IsSuccess();
-    }
+    #if defined(SEAD_CTRFILESTREAM_DOCLOSE_FLUSH)
+        FileStreamFileHandle* h = getFileStreamFileHandle_(handle);
+        if(h->mFlag == cFileOpenFlag_WriteOnly && h->mFlag == cFileOpenFlag_ReadWrite)
+        {
+            nn_result = h->mStream.TryFlush();
+            return nn_result.IsSuccess();
+        }
 
-    h->Finalize();
-    h->FileStreamFileHandle::~FileStreamFileHandle();
+        h->mStream.Finalize();
+        h->~FileStreamFileHandle();
 
-    return res;
+        return true;
+    #else
+        FileStreamFileHandle* h = getFileStreamFileHandle_(handle);
+        if(h->mFlag == cFileOpenFlag_WriteOnly && h->mFlag == cFileOpenFlag_ReadWrite)
+        {
+            h->Finalize();
+            return h->mFlag = cFileOpenFlag_ReadOnly;
+        }
+
+        h->FileStreamFileHandle::~FileStreamFileHandle();
+
+        return true;
+    #endif
 }
 
 bool CtrFileStreamFileDevice::doRead_(u32* bytesRead, FileHandle* handle, 
                 u8* outBuffer, u32 bytesToRead)
 {
     FileStreamFileHandle *fileHandle = getFileStreamFileHandle_(handle);
+    fileHandle = reinterpret_cast<FileStreamFileHandle*>(handle);
 
-    SEAD_ASSERT_MSG(fileHandle->mFlag == cFileOpenFlag_WriteOnly 
-        || fileHandle->mFlag == cFileOpenFlag_Create, 
-        "file was opened as write or create only");
+    if(fileHandle->mFlag == cFileOpenFlag_WriteOnly || fileHandle->mFlag == cFileOpenFlag_Create)
+    {
+        SEAD_ASSERT_MSG(false, "file was opened as write or create only");
+        return false;
+    }
 
-    s32 bytesR = 0;
+    s32 read_bytes = 0;
 
-    nn_result = fileHandle->TryRead(&bytesR, outBuffer, bytesToRead);
+    nn_result = fileHandle->mStream.TryRead(&read_bytes, outBuffer, bytesToRead);
 
-    if(bytesR < 0)
+    if(read_bytes < 0)
         return false;
     
     if(bytesRead != NULL)
-        *bytesRead = bytesR;
+        *bytesRead = read_bytes;
     
     return nn_result.IsSuccess();
 }
@@ -116,17 +128,22 @@ bool CtrFileStreamFileDevice::doWrite_(u32* bytesWritten, FileHandle* handle, co
                   u32 bytesToWrite)
 {
     FileStreamFileHandle *fileHandle = getFileStreamFileHandle_(handle);
+    fileHandle = reinterpret_cast<FileStreamFileHandle*>(handle);
 
-    SEAD_ASSERT_MSG(fileHandle->mFlag == cFileOpenFlag_ReadOnly, 
-        "file was opened as read only");
-    s32 bytesW = 0;
-    nn_result = fileHandle->TryWrite(&bytesW, inBuffer, bytesToWrite,mDoFlush);
+    if(fileHandle->mFlag == cFileOpenFlag_ReadOnly)
+    {
+        SEAD_ASSERT_MSG(false, "file was opened as write or create only");
+        return false;
+    }
 
-    if(bytesW < 0)
+    s32 wrote_writes = 0;
+    nn_result = fileHandle->mStream.TryWrite(&wrote_writes, inBuffer, bytesToWrite, mDoFlush);
+
+    if(wrote_writes < 0)
         return false;
     
     if(bytesWritten != NULL)
-        *bytesWritten = bytesW;
+        *bytesWritten = wrote_writes;
     
     return nn_result.IsSuccess();
 }
@@ -153,7 +170,7 @@ bool CtrFileStreamFileDevice::doSeek_(FileHandle *handle, int offset,
 
     FileStreamFileHandle *fileHandle = getFileStreamFileHandle_(handle);
 
-    nn_result = fileHandle->FileStream::TrySeek(offset, positionBase);
+    nn_result = fileHandle->mStream.TrySeek(offset, positionBase);
 
     return nn_result.IsSuccess();
 }
@@ -163,7 +180,7 @@ bool CtrFileStreamFileDevice::doGetCurrentSeekPos_(u32* seekPos, FileHandle *han
     FileStreamFileHandle *fileHandle = getFileStreamFileHandle_(handle);
 
     s64 position = 0;
-    nn_result = fileHandle->FileStream::TryGetPosition(&position);
+    nn_result = fileHandle->mStream.TryGetPosition(&position);
 
     if (position < 0)
         return false;
@@ -192,9 +209,15 @@ bool CtrFileStreamFileDevice::doGetFileSize_(u32* fileSize, const SafeString& pa
 bool CtrFileStreamFileDevice::doGetFileSize_(u32* fileSize, FileHandle* handle)
 {
     FileStreamFileHandle* h = getFileStreamFileHandle_(handle);
+
     s64 size = 0;
-    nn_result = h->FileStream::TryGetSize(&size);
-    *fileSize = 0;
+    nn_result = h->mStream.TryGetSize(&size);
+
+    if (size < 0)
+        return false;
+
+    *fileSize = size;
+
     return nn_result.IsSuccess();
 }
 
@@ -219,17 +242,13 @@ bool CtrFileStreamFileDevice::doIsExistFile_(bool* exists, const SafeString& pat
             *exists = false;
             return false;
         }
-        else
-        {
-            *exists = true;
-            return true;
-        }
-    }
-    else
-    {
-        *exists = false;
+
+        *exists = true;
         return true;
     }
+
+    *exists = false;
+    return true;
 }
 
 bool CtrFileStreamFileDevice::doIsExistDirectory_(bool* exists, const SafeString& path)
@@ -253,17 +272,13 @@ bool CtrFileStreamFileDevice::doIsExistDirectory_(bool* exists, const SafeString
             *exists = false;
             return false;
         }
-        else
-        {
-            *exists = true;
-            return true;
-        }
-    }
-    else
-    {
-        *exists = false;
+        
+        *exists = true;
         return true;
     }
+
+    *exists = false;
+    return true;
 }
 
 FileDevice* CtrFileStreamFileDevice::doOpenDirectory_(DirectoryHandle* handle, const SafeString& path)
@@ -345,7 +360,7 @@ void CtrFileStreamFileDevice::doResolvePath_(BufferedSafeString* out, const Safe
 }
 
 nn::Result CtrFileStreamFileDevice::openFileStreamImpl_(nn::fs::FileStream* fs, SafeString const& pathInner, 
-                    SafeString const& pathOutter, u32 mode)
+                                    SafeString const& pathOutter, u32 mode)
 {
     SEAD_ASSERT(fs);
     WFixedSafeString<256> sstring;
@@ -357,7 +372,7 @@ nn::Result CtrFileStreamFileDevice::openFileStreamImpl_(nn::fs::FileStream* fs, 
 }
 
 nn::Result CtrFileStreamFileDevice::openDirectryImpl_(nn::fs::Directory* dr, SafeString const& pathInner, 
-                    SafeString const& pathOutter)
+                                    SafeString const& pathOutter)
 {
     SEAD_ASSERT(dr);
     WFixedSafeString<256> sstring;

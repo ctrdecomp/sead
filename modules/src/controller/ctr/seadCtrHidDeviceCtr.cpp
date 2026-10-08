@@ -32,7 +32,7 @@ CtrHidDevice::CtrHidDevice(ControllerMgr* mgr):
 
 void CtrHidDevice::calc()
 {
-    if (mPadReaderPtr->ReadLatest(&mPadStatus))
+    if (mPadReaderPtr->ReadLatest(&mPadStatus) != false)
     {
         mFlags |= cPadReader;
     }
@@ -41,7 +41,7 @@ void CtrHidDevice::calc()
         mFlags &= ~cPadReader;
     }
 
-    if (mTouchPanelReaderPtr->ReadLatest(&mTouchPanelStatus))
+    if (mTouchPanelReaderPtr->ReadLatest(&mTouchPanelStatus) != false)
     {
         mFlags |= cTouchPanel;
     }
@@ -52,7 +52,7 @@ void CtrHidDevice::calc()
 
     if (mAccelerometerReaderPtr != nullptr)
     {
-        if (mAccelerometerReaderPtr->ReadLatest(&mAccelerometerStatus))
+        if (mAccelerometerReaderPtr->ReadLatest(&mAccelerometerStatus) != false)
         {
             mFlags |= cAccelerometer;
 
@@ -63,14 +63,10 @@ void CtrHidDevice::calc()
             mFlags &= ~cAccelerometer;
         }
     }
-    else
-    {
-        mFlags &= ~cAccelerometer;
-    }
 
     if (mGyroscopeReaderPtr != nullptr)
     {
-        if (mGyroscopeReaderPtr->ReadLatest(&mGyroscopeStatus))
+        if (mGyroscopeReaderPtr->ReadLatest(&mGyroscopeStatus) != false)
         {
             mFlags |= cGyroscope;
         }
@@ -79,14 +75,10 @@ void CtrHidDevice::calc()
             mFlags &= ~cGyroscope;
         }
     }
-    else
-    {
-        mFlags &= ~cGyroscope;
-    }
 #ifdef SEAD_DEBUG
     if (mDebugPadReaderPtr != nullptr)
     {
-        if (mDebugPadReaderPtr->ReadLatest(&mDebugPadStatus))
+        if (mDebugPadReaderPtr->ReadLatest(&mDebugPadStatus) != false)
         {
             mFlags |= cDebugPadReader;
         }
@@ -94,10 +86,6 @@ void CtrHidDevice::calc()
         {
             mFlags &= ~cDebugPadReader;
         }
-    }
-    else
-    {
-        mFlags &= ~cDebugPadReader;
     }
 #endif
 }

@@ -66,7 +66,7 @@ s32 DefaultGfxMemoryMgrCtr::allocate(size_t area, u32 alignment, u32 size, Heap*
 
     if (alignment == 0)
     {
-        if (area == 0x10000)
+        if (area == NN_GX_MEM_FCRAM)
         {
             if (size != 0)
                 mMemVramAStart += size;

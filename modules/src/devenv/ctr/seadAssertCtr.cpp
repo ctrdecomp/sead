@@ -23,6 +23,7 @@ namespace sead
 namespace system
 {
 
+    
 static char tmp[0x800];
 
 void Halt()

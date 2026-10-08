@@ -37,7 +37,7 @@ public:
     StreamSrc* getSrc() const { return mSrc; }
 
 protected:
-    static StreamFormat* BASIC_STREAM_FORMAT[1]; // TODO: ADD TextStreamFormat
+    static StreamFormat* BASIC_STREAM_FORMAT[2];
 
     void setSrc(StreamSrc* src) { mSrc = src; }
     void setSrcStream_(StreamSrc* src) { mSrc = src; }

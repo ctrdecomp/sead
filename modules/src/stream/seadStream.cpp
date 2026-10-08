@@ -1,24 +1,18 @@
 #include "stream/seadStream.h"
 
 #include "stream/seadStreamFormat.h"
+#include "stream/seadTextStreamFormat.h"
 #include "stream/seadStreamSrc.h"
 
 namespace sead
 {
-// TODO: ADD TextStreamFormat
 
-/*BinaryStreamFormat sBinaryStreamInstance;
+BinaryStreamFormat sBinaryStreamInstance;
 TextStreamFormat sTextStreamInstance;
 
 StreamFormat* Stream::BASIC_STREAM_FORMAT[2] = {
     &sBinaryStreamInstance,
     &sTextStreamInstance,
-};*/
-
-BinaryStreamFormat sBinaryStreamInstance;
-
-StreamFormat* Stream::BASIC_STREAM_FORMAT[1] = {
-    &sBinaryStreamInstance,
 };
 
 Stream::Stream():

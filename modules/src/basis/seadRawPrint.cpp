@@ -27,7 +27,8 @@ void PrintV(const char* format, va_list list)
     char buf[256];
     int len = vsnprintf(buf, sizeof(buf), format, list);
 
-    if (256 < len) {
+    if (256 < len) 
+    {
         len = 256;
     }
 

@@ -13,7 +13,10 @@ namespace sead
 {
 SEAD_SINGLETON_DISPOSER_IMPL(FileDeviceMgr)
 
-FileDeviceMgr::FileDeviceMgr()
+FileDeviceMgr::FileDeviceMgr():
+    mDeviceList(),
+    mDefaultFileDevice(NULL),
+    mMainFileDevice(NULL)
 {
     if (HeapMgr::sInstancePtr == NULL)
     {
@@ -22,7 +25,13 @@ FileDeviceMgr::FileDeviceMgr()
     }
 
     Heap* const heap = HeapMgr::instance()->findContainHeap(this);
-    mount_(heap);
+
+    nn::fs::Initialize();
+    int romArchiveSize = nn::fs::GetRomRequiredMemorySize(16, 16, true);
+    SEAD_ASSERT_MSG(0 <= romArchiveSize, "Cannot mount rom archive.(%d)", romArchiveSize);
+    mRomMemory = new (heap) u8[romArchiveSize];
+
+    MountRom(16, 16, mRomMemory, romArchiveSize, true);
 
     mMainFileDevice = new (heap) MainFileDevice(heap);
     mount(mMainFileDevice);
@@ -37,20 +46,9 @@ FileDeviceMgr::~FileDeviceMgr()
         delete mMainFileDevice;
         mMainFileDevice = NULL;
     }
-    unmount_();
-}
-
-void FileDeviceMgr::mount_(Heap* heap)
-{
-    nn::fs::Initialize();
-    int archiveSize = nn::fs::GetRomRequiredMemorySize(16, 16, true);
-    SEAD_ASSERT_MSG(0 < archiveSize, "Cannot mount rom archive.(%d)", archiveSize);
-}
-
-void FileDeviceMgr::unmount_()
-{
     Result ret = nn::fs::Unmount("rom");
     SEAD_ASSERT(ret.IsSuccess());
+    delete[] mRomMemory;
 }
 
 void FileDeviceMgr::traceFilePath(const SafeString& path) const

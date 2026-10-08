@@ -1,6 +1,8 @@
 #include "controller/seadControllerMgr.h"
 #include "basis/seadNew.h"
 #include "controller/ctr/seadCtrHidDeviceCtr.h"
+#include "controller/ctr/seadCtrController.h"
+#include "controller/ctr/seadCtrAccelerometerAddon.h"
 #include "controller/seadControlDevice.h"
 #include "framework/seadTaskID.h"
 #include "prim/seadDelegate.h"
@@ -54,13 +56,20 @@ void ControllerMgr::finalize()
 
 void ControllerMgr::initializeDefault(Heap* heap)
 {
-    s32 controller_max;
+    initialize(1, heap);
 
-    controller_max = 1;
+    {
+        CtrHidDevice* device = new (heap) CtrHidDevice(this);
 
-    initialize(controller_max, heap);
+        mDevices.pushBack(device);
+    }
 
-    mDevices.pushBack(new (heap) CtrHidDevice(this));
+    {
+        CtrController* controller = new(heap) CtrController(this);
+        
+        mControllers.pushBack(controller);
+        controller->mAddons.pushBack(new(heap) CtrAccelerometerAddon(controller));
+    }
 }
 
 void ControllerMgr::finalizeDefault()
@@ -96,7 +105,7 @@ Controller* ControllerMgr::getControllerByOrder(ControllerDefine::ControllerId i
 
 ControlDevice* ControllerMgr::getControlDevice(ControllerDefine::DeviceId id) const
 {
-    for (OffsetList<sead::ControlDevice>::iterator it = mDevices.begin(); it != mDevices.end(); ++it)
+    for (OffsetList<ControlDevice>::iterator it = mDevices.begin(); it != mDevices.end(); ++it)
     {
         ControlDevice* device = &*it;
         if (device->mId == id)

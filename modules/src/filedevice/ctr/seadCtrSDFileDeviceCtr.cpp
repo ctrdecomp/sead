@@ -16,6 +16,7 @@ bool CtrSDFileDevice::doIsExistFile_(bool* exists, const SafeString& path)
         exists = NULL;
         return true;
     }
+    
     if(nn::fs::ResultNotFound().Includes(nn_result))
     {
         FileStream fstream;

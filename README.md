@@ -2,20 +2,13 @@
 
 This is a decompilation of sead, the standard C++ library for first-party Nintendo games.
 
-Unlike the [sead cafe decompilation project](https://github.com/aboood40091/sead) & [sead NX decompilation project](https://github.com/open-ead/sead) & [sead windows project](https://github.com/stupidestmodder/sead/tree/main), which this repo derives from, this project targets the 3DS version of sead.
+Unlike other sead projects for different platforms such as: [WiiUcafe](https://github.com/aboood40091/sead), [SwitchNX](https://github.com/open-ead/sead) and the [windows port](https://github.com/stupidestmodder/sead/tree/main), which this repo takes implementations from, this project targets the 3DS version of sead.
 
-The objective is to recreate the standard library as accurately as possible, so that interoperability can eventually be achieved by adding support for other platforms and by making it easier to create projects that interact with sead games.
+The objective is to recreate the standard library as accurately as possible, so that interoperability can eventually be achieved by adding support for a windows-3ds hybrid framework.
+
+For information about `szs` format / building / disasmebling visit [theawesomecoder61's SZS tool.](https://github.com/theawesomecoder61/SZS-Tool/tree/master)
 
 Because sead is statically linked in games (and only in games), acquiring the original sead requires legally owning at least one recent first-party Nintendo game. Picking a game that ships with debugging symbols is strongly recommended:
-
--NX-
-
-* Super Mario Odyssey (version 1.0.0) ([buy it here](https://www.nintendo.com/games/detail/super-mario-odyssey-switch/))
-* Splatoon 2 (version <= 3.1.0) ([buy it here](https://www.nintendo.com/games/detail/splatoon-2-switch/))
-* [Nintendo Labo](https://labo.nintendo.com/) (the pilot build has symbols, file names and assertions)
-* Any other title that has symbols and uses sead
-
--CTR-
 
 * Mario Kart 7 (Download Play all regions except Chinese) ([purchase discontinued](https://www.nintendo.com/au/games/nintendo-3ds/mario-kart-7/))
 * Animal Crossing: New Leaf Welcome Amiibo(version 1.2 and above, RTTI) ([purchase Discontinued](https://www.nintendo.com/au/games/nintendo-3ds/animal-crossing-new-leaf-welcome-amiibo/))
@@ -37,6 +30,8 @@ Note that many names (especially for inlined, templated functions) are just plai
 
 *    |____ **modules/src** - Module source code.
 
+*    |____ **packages/ptcl** - Particle effect package.
+
 *    |____ **template/ctr_nw4c** - Template files for the **ctr_nw4c** framework. Used by games using the *sead* engine. (Such as code, shaders, etc.)
 
 ## Addins
@@ -45,7 +40,7 @@ Note that many names (especially for inlined, templated functions) are just plai
 
 ## Libraries
 
-* **CtrSDK** - The standard Software Development Kit for 3DS.
+* **CTR_SDK** - The standard Software Development Kit for 3DS.
 * **Nw4cEngine** - The NintendoWare4Ctr (NW4C) Graphics and Sound engine.
 
 ## Modules
@@ -70,7 +65,7 @@ For progress, refer to [the GitHub project page](https://github.com/LoigiFan72/s
 * **random** - Random number generator
 * **resource** - Resource (loading, decompressing, etc.)
 * **stream** - Stream IO
-* **tentative** - Tentative resources (Bitmap handler)
+* **tentative** - Tentative resources (Such as bitmap handling)
 * **thread** - Thread utilities (threads, critical sections, message queues, etc.)
 * **time** - Time utilities
 
@@ -79,7 +74,6 @@ For progress, refer to [the GitHub project page](https://github.com/LoigiFan72/s
 Platform-specific files are usually placed into a subdirectory that is called:
 
 * **ctr** for 3Ds
-* **winctr** for CTR Emulated Windows
 
 ### Platform Frameworks
 
@@ -115,8 +109,9 @@ Presets and features for more games can be added if desired.
 Building this project requires:
 
 - ARM C++ Complier (ARMCC) Version 4.0/4.1/5.0 [which can be found here.](https://github.com/RE-Pepper/data/releases/tag/dasdasdsa)
-- The Nintendo 3DS Software Development Kit hooked to your project [which can be found here.](https://github.com/LoigiFan72/CTRSDK).
-- The Nintendo 3DS NintendoWare Graphics / Sound engine hooked to your project [which can be found here.](https://github.com/LoigiFan72/NW4C). (*required* for **audio**, **gfx**, **framework/ctr_nw4c** libraries.)
+- The Nintendo 3DS Software Development Kit hooked to your project [which can be found here.](https://github.com/ctrdecomp/CTR_SDK).
+- The Nintendo 3DS NintendoWare Graphics / Sound engine hooked to your project [which can be found here.](https://github.com/ctrdecomp/NintendoWare4Ctr). (*required* for **audio**, **gfx**, **framework/ctr_nw4c** libraries.)
+
 - **Note:** Compiler is the same has your games version. i.e. MK7 Uses 894, so **sead** will use the same.
 
 ### Configuration
@@ -150,10 +145,6 @@ For **header-only utilities** (like container classes), use pilot/debug builds, 
 Also note that introducing inlined functions is sometimes necessary to get the desired codegen.
 
 If a function is inlined, you should try as hard as possible to make it match perfectly. For inlined functions, it is better to use weird code or small hacks to force a match as differences would otherwise appear in every single function that inlines the non-matching code, which drastically complicates matching other functions. If a hack is used, wrap it inside a `#ifdef MATCHING_HACK_{PLATFORM}` (see above for a list of defines).
-
-## Planned Devices ##
-
-* **winctr** - Allow a Windows Device to Emulate the CTR Platform.
 
 ### Tentative PR Contributing rules
 The `ctrdecomp` organization follows a set of standards to maintain consistency and quality across our projects. To help contributors meet these standards, our team has established the following guidelines:

@@ -532,7 +532,8 @@ void PrimitiveRendererCtr::drawShape_(const Shape& shape)
     drawShape_(shape, shape.mShapeIndex.mIndexStream);
 }
 
-void PrimitiveRendererCtr::drawShape_(const nn::gr::CTR::Vertex& vert, const nn::gr::CTR::Vertex::IndexStream& vertIndex){ 
+void PrimitiveRendererCtr::drawShape_(const nn::gr::CTR::Vertex& vert, const nn::gr::CTR::Vertex::IndexStream& vertIndex)
+{ 
     if(mCurrentVertex != &vert)
     {
         if(mCurrentVertex != NULL)

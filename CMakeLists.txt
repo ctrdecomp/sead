@@ -67,6 +67,7 @@ add_library(sead OBJECT
   include/codec/seadBase64.h
   include/codec/seadHashCRC16.h
   include/codec/seadHashCRC32.h
+  modules/src/codec/seadBase64.cpp
   modules/src/codec/seadHashCRC16.cpp
   modules/src/codec/seadHashCRC32.cpp
 
@@ -297,12 +298,14 @@ add_library(sead OBJECT
   include/stream/seadStream.h
   include/stream/seadStreamFormat.h
   include/stream/seadStreamSrc.h
+  include/stream/seadTextStreamFormat.h
   modules/src/stream/seadBufferStream.cpp
   modules/src/stream/seadFileDeviceStream.cpp
   modules/src/stream/seadPrintStream.cpp
   modules/src/stream/seadRamStream.cpp
   modules/src/stream/seadStream.cpp
   modules/src/stream/seadStreamFormat.cpp
+  modules/src/stream/seadTextStreamFormat.cpp
 
   include/thread/seadAtomic.h
   include/thread/seadCriticalSection.h

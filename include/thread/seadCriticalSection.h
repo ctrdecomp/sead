@@ -14,11 +14,7 @@ class CriticalSection : public IDisposer
 {
 public:
     CriticalSection();
-    explicit CriticalSection(Heap* disposer_heap);
-    CriticalSection(const CriticalSection&){ };
     virtual ~CriticalSection();
-
-    CriticalSection& operator=(const CriticalSection&){ };
 
     void lock();
     bool tryLock();

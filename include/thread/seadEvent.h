@@ -14,10 +14,7 @@ class Event : public IDisposer
 public:
     Event();
     explicit Event(bool manual_reset);
-    explicit Event(Heap* disposer_heap);
-    Event(Heap* disposer_heap, bool manual_reset);
-    Event(Heap* disposer_heap, IDisposer::HeapNullOption heap_null_option);
-    Event(Heap* disposer_heap, IDisposer::HeapNullOption heap_null_option, bool manual_reset);
+    
     virtual ~Event();
 
     void initialize(bool manual_reset);

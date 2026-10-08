@@ -13,12 +13,7 @@ class Mutex : public IDisposer
 {
 public:
     Mutex();
-    explicit Mutex(Heap* disposer_heap);
-    Mutex(Heap* disposer_heap, HeapNullOption heap_null_option);
     virtual ~Mutex();
-
-    Mutex(const Mutex&){ };
-    Mutex& operator=(const Mutex&){ };
 
     void lock();
     bool tryLock();

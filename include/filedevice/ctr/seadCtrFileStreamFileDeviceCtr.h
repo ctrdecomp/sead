@@ -34,16 +34,16 @@ protected:
     virtual void doResolvePath_(BufferedSafeString* out, const SafeString& path) const;
     virtual const char* getArchiveName_() const = 0;
 
-    struct FileStreamFileHandle : public FileStream
+    struct FileStreamFileHandle
     {
     public:
-        FileStreamFileHandle():
-            FileStream()
+        FileStreamFileHandle()
         {
         }
 
         ~FileStreamFileHandle(){ }
 
+        FileStream mStream;
         FileOpenFlag mFlag;
     };
 protected:

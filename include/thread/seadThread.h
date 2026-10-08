@@ -70,7 +70,7 @@ public:
     bool isDone() const { return mState == cTerminated || mState == cReleased; }
     bool isActive() const { return mState == cRunning || mState == cQuitting; }
 
-    uptr GetStackBottom() const { return (uptr)PtrUtil::addOffset(mStackTop, mStackSize); }
+    uptr GetStackBottom() const { return (uptr)PtrUtil::addOffset(mStackTopForCheck, mStackSize); }
 
     static void yield();
     static void sleep(TickSpan howLong);

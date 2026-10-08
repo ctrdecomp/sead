@@ -53,12 +53,10 @@ public:
 private:
     typedef TList<FileDevice*> DeviceList;
 
-    void mount_(Heap* heap);
-    void unmount_();
-
     DeviceList mDeviceList;
     FileDevice* mDefaultFileDevice;
     MainFileDevice* mMainFileDevice;
+    u8* mRomMemory;
 };
 
 inline FileDevice* FileDeviceMgr::open(FileHandle* handle, const SafeString& filename, FileDevice::FileOpenFlag flag, u32 divNum)
