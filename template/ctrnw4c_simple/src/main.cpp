@@ -3,13 +3,12 @@
 *
 * @author "SA" Luigifan27
 *
-* @brief Primitive Example for Ulcd GameFrameworks.
+* @brief Primitive Example for GameFrameworkCtr for sead.
 *
-* @date 10/7/2026
+* @date 10/8/2026
 */
 
-#include "framework/ctr_nw4c/seadUlcdDoubleCmdGameFrameworkCtrNw4c.h"
-#include "framework/ctr_nw4c/seadUlcdGameFrameworkCtrNw4c.h"
+#include "framework/ctr_nw4c/seadGameFrameworkCtrNw4c.h"
 #include "heap/seadExpHeap.h"
 #include "RootTask.h"
 
@@ -18,11 +17,7 @@ const s32 cWidthBtm = 416;
 const s32 cHeightTop = 256;
 const s32 cHeightBtm = 320;
 
-#ifdef SEAD_TEST_USE_DUAL_SCREEN
-typedef UlcdDoubleCmdGameFrameworkCtrNw4c AppFramework;
-#else
-typedef UlcdGameFrameworkCtrNw4c AppFramework;
-#endif
+typedef GameFrameworkCtrNw4c AppFramework;
 
 void nnMain()
 {

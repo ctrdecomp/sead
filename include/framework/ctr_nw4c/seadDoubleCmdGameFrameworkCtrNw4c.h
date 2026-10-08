@@ -29,19 +29,19 @@ protected:
 
     static DoubleCmdGameFrameworkCtrNw4c* sInstance;
 protected:
-    s32 _2068; // 0x2068
-    u32 mDoubleBuf[2]; // 0x206C
-    GLuint mDoubleBufferTop[3]; // 0x2074
-    GLuint mDoubleBufferBtm[3]; // 0x2080
-    u32 mDoubleDispBufList; // 0x208C
-    u32 mDoubleDispBufState; // 0x2090
-    u32 _2094;
-    TickTime mLastDoubleTick; // 0x2098
-    u8 mProcessMeterBar; // 0x20A0
-    bool mWaitCmdlistDone; // 0x20A1
-    bool mLastCmdlistDone; // 0x20A2
-    bool mWaitForVBlink; // 0x20A3
-    GLint mDoubleCmdParam[3]; // 0x20A4;
+    s32 _2068;
+    u32 mDoubleBuf[2];
+    GLuint mDoubleBufferTop[3];
+    GLuint mDoubleBufferBtm[3];
+    u32 mDoubleDispBufList;
+    u32 mDoubleDispBufState;
+    u32 mDoubleDispBufFrameBuffer;
+    TickTime mLastDoubleTick;
+    u8 mProcessMeterBar;
+    bool mWaitCmdlistDone;
+    bool mLastCmdlistDone;
+    bool mWaitForVBlink;
+    GLint mDoubleCmdParam[3];
 };
 
 }

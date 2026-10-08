@@ -20,6 +20,7 @@ DoubleCmdGameFrameworkCtrNw4c::DoubleCmdGameFrameworkCtrNw4c(const CreateArg& ar
     GameFrameworkCtrNw4c(arg),
     mDoubleDispBufList(0),
     mDoubleDispBufState(cHide),
+    mDoubleDispBufFrameBuffer(0),
     mLastDoubleTick(),
     mProcessMeterBar(0),
     mWaitCmdlistDone(false),
@@ -46,7 +47,7 @@ void DoubleCmdGameFrameworkCtrNw4c::initialize(const Framework::InitializeArg& a
 // FIX ME
 void DoubleCmdGameFrameworkCtrNw4c::initializeGraphicsSystem(Heap* heap, const Vector2f& topFbSize, const Vector2f& btmFbSize)
 {
-    if(mGameArg.mMemoryMgrCtr == NULL)
+    if(mGameArg.memoryMgrCtr == NULL)
     {
         {
             ExpHeap* gfxHeap = ExpHeap::create(mGameArg.cmdMemSize, "sead::DefaultGfxMemoryMgrCtr", heap);
@@ -59,14 +60,14 @@ void DoubleCmdGameFrameworkCtrNw4c::initializeGraphicsSystem(Heap* heap, const V
     }
     else
     {
-        mGameArg.mMemoryMgrCtr->setInitialize(true);
-        initNngx_(mGameArg.mMemoryMgrCtr);
-        mGameArg.mMemoryMgrCtr->setInitialize(false);
+        mGameArg.memoryMgrCtr->setInitialize(true);
+        initNngx_(mGameArg.memoryMgrCtr);
+        mGameArg.memoryMgrCtr->setInitialize(false);
     }
 
     for(s32 disp = 0; disp < 2; disp++)
     {
-        mDoubleBuf[disp] = createCmdlist_(mGameArg.cmdBufSize, mGameArg.cmdBufRequest);
+        mDoubleBuf[disp] = createCmdlist_(mGameArg.cmdBufSize, mGameArg.cmdRequestCount);
     }
 
     for(s32 disp = 0; disp < 2; disp++)

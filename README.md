@@ -119,10 +119,10 @@ Building this project requires:
 sead can be configured with several compile-time defines:
 
 * `SEAD_DEBUG`: enables assertions and HostIO code.
+* `SEAD_DRAW_EXCEPTION`: Enables **sead::ExceptionScreenCtr**
 
 #### Platforms
 * `SEAD_PLATFORM_CTR` : Platform for CTR
-* `SEAD_PLATFORM_WINCTR` : Platform for Windows emulating CTR
 
 Other platforms (generic Unix, iOS, Android, NX, and cafe) are not supported.
 

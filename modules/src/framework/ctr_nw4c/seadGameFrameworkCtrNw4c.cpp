@@ -97,11 +97,11 @@ GameFrameworkCtrNw4c::GameFrameworkCtrNw4c(CreateArg const& arg):
     mBtmFrameBuffer(nullptr),
     mFrameBufferNo(),
     mScreenshotBuf(nullptr),
-    mCurrentScreenshot(mGameArg.mScreenShotBuff),
+    mCurrentScreenshot(mGameArg.screenshot_buffer),
 
-#ifdef SEAD_DEBUG
+#ifdef SEAD_DRAW_EXCEPTION
     mExceptionScreen(nullptr),
-#endif
+#endif // SEAD_DRAW_EXCEPTION
     mGLDispParam(nullptr)
 {
 }
@@ -111,10 +111,9 @@ void GameFrameworkCtrNw4c::initialize(const Framework::InitializeArg& arg)
     GameFramework::initialize(arg);
 }
 
-// FIX ME
 void GameFrameworkCtrNw4c::initializeGraphicsSystem(Heap* heap, const Vector2f& topFbSize, const Vector2f& btmFbSize)
 {
-    if(mGameArg.mMemoryMgrCtr == NULL)
+    if(mGameArg.memoryMgrCtr == NULL)
     {
         {
             ExpHeap* gfxHeap = ExpHeap::create(mGameArg.cmdMemSize, "sead::DefaultGfxMemoryMgrCtr", heap);
@@ -127,11 +126,11 @@ void GameFrameworkCtrNw4c::initializeGraphicsSystem(Heap* heap, const Vector2f& 
     }
     else
     {
-        mGameArg.mMemoryMgrCtr->setInitialize(true);
-        initNngx_(mGameArg.mMemoryMgrCtr);
-        mGameArg.mMemoryMgrCtr->setInitialize(false);
+        mGameArg.memoryMgrCtr->setInitialize(true);
+        initNngx_(mGameArg.memoryMgrCtr);
+        mGameArg.memoryMgrCtr->setInitialize(false);
     }
-    mGameArg.cmdBufSize = createCmdlist_(mGameArg.cmdBufSize, mGameArg.cmdBufRequest);
+    mGameArg.cmdBufSize = createCmdlist_(mGameArg.cmdBufSize, mGameArg.cmdRequestCount);
 
     createDisplayBuffers_(mBufferSizeTop, 2, NN_GX_DISPLAY0, mGameArg.format, mGameArg.widthTop, mGameArg.heightTop, NN_GX_MEM_FCRAM);
     createDisplayBuffers_(mBufferSizeBtm, 2, NN_GX_DISPLAY1, mGameArg.format, mGameArg.widthTop, mGameArg.heightTop, NN_GX_MEM_FCRAM);
@@ -169,7 +168,7 @@ void GameFrameworkCtrNw4c::initializeGraphicsSystem(Heap* heap, const Vector2f& 
 void GameFrameworkCtrNw4c::runImpl_()
 {
     waitStartDisplayLoop_();
-#ifdef SEAD_DEBUG
+#ifdef SEAD_DRAW_EXCEPTION
     if(mExceptionScreen != nullptr)
     {
         mExceptionScreen->enableAssertCallback();
@@ -238,16 +237,7 @@ void GameFrameworkCtrNw4c::createFramebuffer_(nn::gr::CTR::FrameBuffer* buffer, 
 
 void GameFrameworkCtrNw4c::initRun_(Heap* heap)
 {
-#ifdef SEAD_DEBUG
-    if(mGameArg.mScreenShotBuff != NULL)
-    {
-        {
-            ExpHeap* ssHeap = ExpHeap::create(0, "sead::ScreenShotBuffer", heap);
-
-            mScreenshotBuf = new (ssHeap) char[mGameArg.mScreenShotBuff];
-            ssHeap->adjust();
-        }
-    }
+#ifdef SEAD_DRAW_EXCEPTION
     if(mExceptionScreen == NULL)
     {
         {
@@ -295,7 +285,7 @@ void GameFrameworkCtrNw4c::saveScreenShotToFileHandle_(FileHandle* handle, void*
     }
 
     FileDeviceWriteStream fileStream(handle, false);
-    BufferWriteStream bufferStream(static_cast<WriteStream*>(&fileStream), mCurrentScreenshot, reinterpret_cast<u32>(mGameArg.mScreenShotBuff));
+    BufferWriteStream bufferStream(static_cast<WriteStream*>(&fileStream), mCurrentScreenshot, reinterpret_cast<u32>(mGameArg.screenshot_buffer));
 
     BitmapBuilder bitmap(&bufferStream, width, height);
 
@@ -463,7 +453,7 @@ void GameFrameworkCtrNw4c::swapBuffer_()
     nngxStopCmdlist();
     nngxClearCmdlist();
     mFrameBufferNo[0] = -mFrameBufferNo[0];
-#ifdef SEAD_DEBUG
+#ifdef SEAD_DRAW_EXCEPTION
     if(mExceptionScreen)
     {
         mExceptionScreen->getDirectPrint()->changeDisplaybuffer();

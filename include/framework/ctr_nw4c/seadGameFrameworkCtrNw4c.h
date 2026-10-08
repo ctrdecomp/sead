@@ -37,12 +37,11 @@ public:
         u32 wait_vblank;
         Color4f clearColor;
         u32 cmdBufSize;
-        u32 cmdBufRequest;
-        DefaultGfxMemoryMgrCtr* mMemoryMgrCtr;
+        u32 cmdRequestCount;
+        DefaultGfxMemoryMgrCtr* memoryMgrCtr;
         u32 cmdMemSize;
         GLenum format;
-        u32* _48;
-        void* mScreenShotBuff;
+        void* screenshot_buffer;
         s32 vsync_buf;
     };
 
@@ -91,25 +90,23 @@ protected:
     void requestTransferRenderImage_(u32 displayBuffer, nn::gr::CTR::FrameBuffer* frameBuffer, s32 x, s32 y, f32 scaleX, f32 scaleY);
 protected:
 // this struct is BIG, so i label offsets
-    CreateArg mGameArg; // 0x1F94
-    u32 mVblinkBuf; // 0x1FD4
-    TickSpan mLastUpdateTime; // 0x1FD8
-    TickTime mFrameNow; // 0x1FE0
-    TickTime mLastDiffTime; //0x1FE8
-    GLuint* mBufferSizeTop; // 0x1FF4
-    u32 mDispBufA; // 0x1FF8
-    GLuint* mBufferSizeBtm; // 0x1FFC
-    u32 mDispBufB; // 0x2000
-    nn::gr::CTR::FrameBuffer mBuffer; // 0x2004
-    FrameBufferCtr* mTopFrameBuffer; // 0x204C
-    FrameBufferCtr* mBtmFrameBuffer; // 0x2050
-    u32 mFrameBufferNo[1]; // 0x2054
-    const char* mScreenshotBuf; // 0x2058
-    void* mCurrentScreenshot; // 0x205C
-#ifdef SEAD_DEBUG
-    ExceptionScreenCtr* mExceptionScreen; // 0x2060
+    CreateArg mGameArg;
+    u32 mVblinkBuf;
+    TickSpan mLastUpdateTime;
+    TickTime mFrameNow;
+    TickTime mLastDiffTime;
+    GLuint mBufferSizeTop[2];
+    GLuint mBufferSizeBtm[2];
+    nn::gr::CTR::FrameBuffer mBuffer;
+    FrameBufferCtr* mTopFrameBuffer;
+    FrameBufferCtr* mBtmFrameBuffer;
+    u32 mFrameBufferNo[1];
+    const char* mScreenshotBuf;
+    void* mCurrentScreenshot;
+#ifdef SEAD_DRAW_EXCEPTION
+    ExceptionScreenCtr* mExceptionScreen;
 #endif
-    GLint* mGLDispParam; // 0x2064
+    GLint* mGLDispParam;
 };
 
 inline float GameFrameworkCtrNw4c::calcFps()
