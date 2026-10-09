@@ -41,3 +41,4 @@ struct RemovePointer<T*>
 };
 
 #endif  // SEAD_NEW_H_
+

@@ -310,3 +310,4 @@ Color4u8& Color4u8::operator&=(u8 x)
     return *this;
 }
 }  // namespace sead
+

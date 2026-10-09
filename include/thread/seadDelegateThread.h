@@ -23,3 +23,4 @@ protected:
 };
 
 }  // namespace sead
+

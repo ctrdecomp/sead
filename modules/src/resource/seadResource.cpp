@@ -224,3 +224,4 @@ Resource* IndirectResourceFactoryBase::tryCreateWithDecomp(const ResourceMgr::Lo
 }
 
 }  // namespace sead
+

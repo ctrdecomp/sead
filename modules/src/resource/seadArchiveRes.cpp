@@ -8,3 +8,4 @@ void ArchiveRes::doCreate_(u8* buf, u32, Heap*)
 }
 
 }  // namespace sead
+

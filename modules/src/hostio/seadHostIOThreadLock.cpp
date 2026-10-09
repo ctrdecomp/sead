@@ -5,7 +5,7 @@ namespace sead
 {
 namespace hostio
 {
-Atomic<u32> ThreadLock::sLockCnt{0u};
+Atomic<u32> ThreadLock::sLockCnt;
 
 ThreadLock::ThreadLock()
 {
@@ -36,3 +36,4 @@ CriticalSection& ThreadLock::getCS()
 }
 }  // namespace hostio
 }  // namespace sead
+

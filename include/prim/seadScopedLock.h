@@ -69,3 +69,4 @@ inline ConditionalScopedLock<T> makeScopedLock(T& lock, bool do_lock)
     return ConditionalScopedLock<T>(&lock, do_lock);
 }
 }  // namespace sead
+

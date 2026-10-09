@@ -39,3 +39,4 @@ private:
     Graphics::DevicePosture mDevicePosture;
 };
 }  // namespace sead
+

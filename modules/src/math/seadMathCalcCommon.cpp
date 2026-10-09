@@ -690,3 +690,4 @@ template u64 MathCalcCommon<u64>::gcd(u64 x, u64 y);
 template u64 MathCalcCommon<u64>::lcm(u64 x, u64 y);
 
 }  // namespace sead
+

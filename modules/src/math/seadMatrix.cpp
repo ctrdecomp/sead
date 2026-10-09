@@ -55,3 +55,4 @@ template <>
 const Matrix44<f64> Matrix44<f64>::ident(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
 }  // namespace sead
+

@@ -116,3 +116,4 @@ private:
 }  // namespace sead
 
 #endif  // SEAD_RESOURCEMGR_H_
+

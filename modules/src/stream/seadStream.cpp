@@ -294,3 +294,4 @@ void WriteStream::writeF64BitImpl_(f64 value, u32 integerBits, u32 fractionalBit
     writeBit(&rawValue, integerBits + fractionalBits);
 }
 }  // namespace sead
+

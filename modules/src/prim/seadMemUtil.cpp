@@ -59,3 +59,4 @@ bool MemUtil::checkFillType(const void* ptr_, size_t size)
 // TODO: MemUtil::dumpMemoryBinary
 
 }  // namespace sead
+

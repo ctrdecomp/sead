@@ -90,3 +90,4 @@ inline bool FileDeviceMgr::save(FileDevice::SaveArg& arg)
 }  // namespace sead
 
 #endif  // SEAD_FILEDEVICEMGR_H_
+

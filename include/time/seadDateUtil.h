@@ -18,3 +18,4 @@ CalendarTime::Week calcWeekDay(const CalendarTime::Year& year, const CalendarTim
 void calcSecondToCalendarSpan(CalendarSpan* out_span, u64 seconds);
 }  // namespace DateUtil
 }  // namespace sead
+

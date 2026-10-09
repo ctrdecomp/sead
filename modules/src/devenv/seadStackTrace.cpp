@@ -82,3 +82,4 @@ u32 StackTraceBase::findThreadStackBottomByStackAddr_(uptr addr)
     return 0;
 }
 }
+

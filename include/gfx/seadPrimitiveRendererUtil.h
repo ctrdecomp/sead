@@ -52,3 +52,4 @@ inline s32 calcCylinderIndexNum(s32 divNum){ return calcDiskIndexNum(divNum) * 2
 }  // namespace sead
 
 #endif  // SEAD_PRIMITIVE_RENDERER_UTIL_H_
+

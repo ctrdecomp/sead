@@ -26,3 +26,4 @@ uintptr_t ThreadUtil::GetCurrentStackPointer()
     return x;
 }
 }  // namespace sead
+

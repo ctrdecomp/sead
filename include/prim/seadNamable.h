@@ -21,3 +21,4 @@ private:
 }  // namespace sead
 
 #endif  // SEAD_NAMABLE_H_
+

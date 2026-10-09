@@ -99,3 +99,4 @@ void MethodTreeNode::callRec_()
 }
 
 }  // namespace sead
+

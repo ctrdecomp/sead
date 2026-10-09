@@ -21,3 +21,4 @@ public:
 }  // namespace sead
 
 #endif  // SEAD_TEXTURE_H_
+

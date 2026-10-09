@@ -17,3 +17,4 @@ public:
     virtual ~StreamSrc(){ }
 };
 }  // namespace sead
+

@@ -17,7 +17,7 @@ public:
     static CriticalSection* getParseTextCS_();
     static CriticalSection* getInitValueArrayCS_();
 
-    static const int countValues(const char* text_all, size_t text_all_len)
+    static int countValues(const char* text_all, size_t text_all_len)
     {
         int count = 1;
         for (size_t i = 0; i < text_all_len; ++i)

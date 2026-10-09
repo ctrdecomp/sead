@@ -786,3 +786,4 @@ void FileDevice::doResolvePath_(BufferedSafeString* out, const SafeString& path)
 }
 
 }  // namespace sead
+

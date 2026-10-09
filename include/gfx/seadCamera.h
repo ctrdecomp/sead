@@ -124,3 +124,4 @@ public:
     void setRotation(float rotation);
 };
 }  // namespace sead
+

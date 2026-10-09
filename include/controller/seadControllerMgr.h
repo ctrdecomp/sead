@@ -120,3 +120,4 @@ T ControllerMgr::getControllerAddonAs(s32 index) const
 }
 
 }  // namespace sead
+

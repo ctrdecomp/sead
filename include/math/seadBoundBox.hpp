@@ -297,3 +297,4 @@ inline void BoundBox3<T>::scaleZ(T sz)
 }
 
 }  // namespace sead
+

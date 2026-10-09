@@ -212,3 +212,4 @@ private:
 }  // namespace sead
 
 #endif  // SEAD_PRIMITIVE_RENDERER_H_
+

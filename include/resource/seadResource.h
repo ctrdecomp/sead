@@ -136,3 +136,4 @@ public:
 }  // namespace sead
 
 #endif  // SEAD_RESOURCE_H_
+

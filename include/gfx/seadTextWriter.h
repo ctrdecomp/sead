@@ -62,3 +62,4 @@ private:
     DrawContext* mDrawContext;
 };
 }  // namespace sead
+

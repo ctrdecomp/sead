@@ -74,3 +74,4 @@ bool PatternRumbleAddon::calc()
 }
 
 }  // namespace sead
+

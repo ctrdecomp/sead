@@ -116,3 +116,4 @@ protected:
     size_t mFreeSize; // MAYBE HERE..?
 };
 }  // namespace sead
+

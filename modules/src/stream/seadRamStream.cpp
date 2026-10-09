@@ -91,3 +91,4 @@ RamWriteStream::~RamWriteStream()
 }
 
 }  // namespace sead
+

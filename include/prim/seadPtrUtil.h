@@ -64,3 +64,4 @@ public:
     static bool isAlignedN(const void* ptr, s32 n) { return uintptr_t(ptr) % n == 0; }
 };
 }  // namespace sead
+

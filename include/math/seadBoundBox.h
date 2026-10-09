@@ -112,3 +112,4 @@ typedef BoundBox3<s32> BoundBox3i;
 #define SEAD_MATH_BOUND_BOX_H_
 #include <math/seadBoundBox.hpp>
 #undef SEAD_MATH_BOUND_BOX_H_
+

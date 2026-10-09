@@ -94,3 +94,4 @@ public:
     virtual bool flush();
 };
 }  // namespace sead
+

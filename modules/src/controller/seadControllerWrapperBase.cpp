@@ -73,3 +73,4 @@ bool ControllerWrapperBase::isIdle_()
 }
 
 }  // namespace sead
+

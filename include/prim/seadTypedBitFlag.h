@@ -117,3 +117,4 @@ protected:
     Storage mBits;
 };
 }  // namespace sead
+

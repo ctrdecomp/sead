@@ -289,3 +289,4 @@ bool SharcArchiveRes::prepareArchive_(const void* archive)
     return true;
 }
 }  // namespace sead
+

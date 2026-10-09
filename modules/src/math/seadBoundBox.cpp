@@ -48,3 +48,4 @@ const BoundBox3<f32> BoundBox3<f32>::cUndefined = getUndefined3<f32>();
 template <>
 const BoundBox3<f64> BoundBox3<f64>::cUndefined = getUndefined3<f64>();
 }  // namespace sead
+

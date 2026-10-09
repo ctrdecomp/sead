@@ -345,3 +345,4 @@ private:
     T mData[N];
 };
 }  // namespace sead
+

@@ -276,3 +276,4 @@ void setCylinderVertex(Vertex* vtx, u16* idx, s32 div)
 
 }  // namespace PrimitiveRendererUtil
 }  // namespace sead
+

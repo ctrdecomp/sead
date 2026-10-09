@@ -203,3 +203,4 @@ DateTime operator+(DateTime time, DateSpan span)
     return DateTime(time.getUnixTime() + span.getSpan());
 }
 }  // namespace sead
+

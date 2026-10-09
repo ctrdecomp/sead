@@ -380,3 +380,4 @@ bool operator!=(const Matrix34<T>& lhs, const Matrix34<T>& rhs);
 #define SEAD_MATH_MATRIX_H_
 #include <math/seadMatrix.hpp>
 #undef SEAD_MATH_MATRIX_H_
+

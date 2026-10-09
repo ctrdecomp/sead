@@ -77,3 +77,4 @@ void Controller::setIdle_()
 }
 
 }  // namespace sead
+

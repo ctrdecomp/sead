@@ -20,3 +20,4 @@ private:
     static IDelegate1<char const*>* sFinalCallback;
 };
 }  // namespace sead
+

@@ -88,6 +88,8 @@ public:
 
     SafeStringBase& operator=(const SafeStringBase& other)
     {
+        //this->copy(other);
+        return *this;
     }
 
     friend bool operator==(const SafeStringBase<T>& lhs, const SafeStringBase<T>& rhs){ return lhs.isEqual(rhs); }
@@ -581,3 +583,4 @@ inline WSafeString operator""_str(const char16* str, std::size_t /*len*/)
 #define SEAD_PRIM_SAFE_STRING_H_
 #include <prim/seadSafeString.hpp>
 #undef SEAD_PRIM_SAFE_STRING_H_
+

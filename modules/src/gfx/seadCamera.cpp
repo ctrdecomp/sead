@@ -172,3 +172,4 @@ void DirectCamera::doUpdateMatrix(Matrix34f* dst) const
 }
 
 }  // namespace sead
+

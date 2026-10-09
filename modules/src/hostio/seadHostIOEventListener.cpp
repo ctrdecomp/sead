@@ -88,3 +88,4 @@ void LifeCheckable::disposeHostIOImpl_()
 #endif
 }  // namespace hostio
 }  // namespace sead
+

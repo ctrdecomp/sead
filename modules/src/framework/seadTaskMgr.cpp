@@ -26,7 +26,7 @@ TaskCreateContext::TaskCreateContext():
 }
 
 TaskMgr::TaskCreateContextMgr::TaskCreateContextMgr(s32 size, Heap* heap): 
-    ObjList()
+    ObjList<TaskCreateContext>()
 {
     allocBuffer(size, heap);
 }
@@ -845,3 +845,4 @@ bool TaskMgr::destroyable_(TaskBase* task)
     return true;
 }
 }  // namespace sead
+

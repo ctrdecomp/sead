@@ -234,3 +234,4 @@ public:
 }  // namespace sead
 
 #endif  // SEAD_TASKBASE_H_
+

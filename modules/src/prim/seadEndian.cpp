@@ -58,3 +58,4 @@ const Endian::ConvFuncTable Endian::cConvFuncTable = {
 };
 
 }  // namespace sead
+

@@ -131,3 +131,4 @@ detail::ContainerWrapper<T> stdIterator(T& container)
     return detail::ContainerWrapper<T>(container);
 }
 }  // namespace sead
+

@@ -54,3 +54,4 @@ struct PaletteEvent
 
 } // namespace hostio
 } // namespace sead
+

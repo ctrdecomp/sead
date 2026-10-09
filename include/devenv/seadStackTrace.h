@@ -54,3 +54,4 @@ private:
     s32 mSize;
 };
 }  // namespace sead
+

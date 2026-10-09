@@ -76,7 +76,7 @@ void Heap::genInformation_(hostio::Context* context)
     {
         BufferedSafeString buf(static_cast<char*>(ctxBuf->getBuffer()), ctxBuf->getMaxSize());
         buf.format(
-            "<font face=\"ï¼­ï¼³ ã‚´ã‚·ãƒƒã‚¯\"><table><tr><th>Name</th><td>%s</td></tr><tr><th>Range</th><td>" SEAD_FMT_UINTPTR " - " SEAD_FMT_UINTPTR "</td></tr><tr><th>Parent</th><td>%s (0x%08X)</td></tr><tr><th>Direction</th><td>%s</td></tr><tr><th>Size</th><td>%d</td></tr><tr><th>FreeSize</th><td>%d</td></tr><tr><th>MaxAllocatableSize</th><td>%d</td></tr></table></font>",
+            "<font face=\"‚l‚r ƒSƒVƒbƒN\"><table><tr><th>Name</th><td>%s</td></tr><tr><th>Range</th><td>" SEAD_FMT_UINTPTR " - " SEAD_FMT_UINTPTR "</td></tr><tr><th>Parent</th><td>%s (0x%08X)</td></tr><tr><th>Direction</th><td>%s</td></tr><tr><th>Size</th><td>%d</td></tr><tr><th>FreeSize</th><td>%d</td></tr><tr><th>MaxAllocatableSize</th><td>%d</td></tr></table></font>",
 
             getName().cstr(), getStartAddress(), getEndAddress(), getParent() ? getParent()->getName().cstr() : "--", getParent(),
             getDirection() == HeapDirection::eForward ? "Forward" : "Reverse", getSize(), getFreeSize(), getMaxAllocatableSize()
@@ -182,3 +182,4 @@ void Heap::removeDisposer_(IDisposer* disposer)
 
 
 }  // namespace sead
+

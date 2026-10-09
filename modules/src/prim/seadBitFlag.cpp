@@ -57,3 +57,4 @@ int BitFlagUtil::findOnBitFromRight64(u64 x, int num)
 }
 
 }  // namespace sead
+

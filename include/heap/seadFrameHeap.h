@@ -62,3 +62,4 @@ protected:
     State mState;
 };
 }  // namespace sead
+

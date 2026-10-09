@@ -949,3 +949,4 @@ inline s32 BufferedSafeStringBase<T>::convertFromWideCharString(const SafeString
 }
 
 }  // namespace sead
+

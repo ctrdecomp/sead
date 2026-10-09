@@ -137,3 +137,4 @@ inline int LongBitFlag<N>::countRightOnBit(int bit) const
 }
 
 }  // namespace sead
+

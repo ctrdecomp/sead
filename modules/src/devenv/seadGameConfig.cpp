@@ -18,3 +18,4 @@ void GameConfig::FileWriteCallback::save()
     FileDeviceMgr::instance()->tryOpen(&handle, "dummy", FileDevice::cFileOpenFlag_WriteOnly, 0);
 }
 }  // namespace sead
+

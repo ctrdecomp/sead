@@ -122,3 +122,4 @@ u32 ControllerWrapper::createPadMaskFromControllerPadMask_(u32 controller_mask) 
 }
 
 }  // namespace sead
+
