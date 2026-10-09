@@ -170,3 +170,4 @@ public:
 }  // namespace sead
 
 #endif  // SEAD_HEAPMGR_H_
+

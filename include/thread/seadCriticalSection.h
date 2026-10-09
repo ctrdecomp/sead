@@ -27,3 +27,4 @@ protected:
 }  // namespace sead
 
 #endif  // SEAD_CRITICAL_SECTION_H_
+

@@ -69,3 +69,4 @@ protected:
     u32 mMaxSectionSeparatorNum;
 };
 }  // namespace sead
+

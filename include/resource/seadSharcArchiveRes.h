@@ -80,3 +80,4 @@ protected:
 }  // namespace sead
 
 #endif  // SEAD_SHARC_ARCHIVE_RES_H_
+

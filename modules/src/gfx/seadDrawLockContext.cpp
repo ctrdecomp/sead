@@ -20,3 +20,4 @@ void DrawLockContext::unlock()
 void DrawLockContext::genMessage(hostio::Context*) {}
 
 }  // namespace sead
+

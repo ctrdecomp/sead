@@ -80,3 +80,4 @@ private:
     s64 mSpan;
 };
 }  // namespace sead
+

@@ -187,3 +187,4 @@ void ResourceMgr::unload(Resource* res)
         delete res;
 }
 }  // namespace sead
+

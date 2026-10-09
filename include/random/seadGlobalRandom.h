@@ -13,3 +13,4 @@ class GlobalRandom : public Random
     }
 };
 }  // namespace sead
+

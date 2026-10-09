@@ -456,3 +456,4 @@ struct DirectoryEntry
 }  // namespace sead
 
 #endif  // SEAD_FILEDEVICE_H_
+

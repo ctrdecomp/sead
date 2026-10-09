@@ -135,3 +135,4 @@ inline int TypedLongBitFlag<N, Enum, Storage>::countOnBit() const
 }
 
 }  // namespace sead
+

@@ -123,3 +123,4 @@ protected:
 }  // namespace sead
 
 #endif  // SEAD_FRAMEWORK_H_
+

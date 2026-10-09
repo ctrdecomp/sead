@@ -178,3 +178,4 @@ void Path::changeDelimiter(BufferedSafeString* out, char delimiter)
     }
 }
 }  // namespace sead
+

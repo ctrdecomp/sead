@@ -27,3 +27,4 @@ void AssertConfig::execCallbacks(const char* assertMessage)
         sFinalCallback->invoke(assertMessage);
 }
 }  // namespace sead
+

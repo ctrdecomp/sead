@@ -94,3 +94,4 @@ DateSpan operator-(DateTimeUtc lhs, DateTimeUtc rhs);
 DateTimeUtc operator-(DateTimeUtc time, DateSpan span);
 DateTimeUtc operator+(DateTimeUtc time, DateSpan span);
 }  // namespace sead
+

@@ -45,3 +45,4 @@ public:
     static s32 resolveEnvronmentVariable(BufferedSafeString* out, const SafeString& str);
 };
 }  // namespace sead
+

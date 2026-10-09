@@ -212,3 +212,4 @@ void BinaryStreamFormat::rewind(StreamSrc* src)
     src->rewind();
 }
 }  // namespace sead
+

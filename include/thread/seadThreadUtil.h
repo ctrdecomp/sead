@@ -12,3 +12,4 @@ public:
     static uintptr_t GetCurrentStackPointer();
 };
 }  // namespace sead
+

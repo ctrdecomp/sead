@@ -233,3 +233,4 @@ bool BufferMultiByteNullTerminatedTextWriteStreamSrc::flush()
 }
 
 }  // namespace sead
+

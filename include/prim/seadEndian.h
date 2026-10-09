@@ -113,3 +113,4 @@ private:
 }  // namespace sead
 
 #endif  // SEAD_ENDIAN_H_
+

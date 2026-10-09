@@ -190,3 +190,4 @@ BufferFileDeviceReadStream::BufferFileDeviceReadStream(FileHandle* fileHandle, S
 }
 
 }  // namespace sead
+

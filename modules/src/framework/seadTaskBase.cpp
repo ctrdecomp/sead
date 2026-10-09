@@ -80,7 +80,7 @@ TaskBase::SystemMgrTaskArg::SystemMgrTaskArg(const TaskClassID& classID):
 }
 
 TaskBase::TaskBase(const TaskConstructArg& arg): 
-    TTreeNode(this), 
+    TTreeNode<TaskBase*>(this), 
     IDisposer(), 
     INamable(), 
     mParameter(arg.param), 
@@ -101,7 +101,7 @@ TaskBase::TaskBase(const TaskConstructArg& arg):
 }
 
 TaskBase::TaskBase(const TaskConstructArg& arg, const char* name): 
-    TTreeNode(this), 
+    TTreeNode<TaskBase*>(this), 
     IDisposer(), 
     INamable(), 
     mParameter(arg.param), 
@@ -363,3 +363,4 @@ void TaskBase::doneDestroy()
     setFlag_(4);
 }
 }  // namespace sead
+

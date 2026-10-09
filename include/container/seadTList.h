@@ -202,6 +202,7 @@ public:
 
     struct RobustRange
     {
+        explicit RobustRange(const TList& list) : mList(list) {}
         robustIterator begin() const { return mList.robustBegin(); }
         robustIterator end() const { return mList.robustEnd(); }
         const TList& mList;
@@ -266,3 +267,4 @@ public:
 }  // namespace sead
 
 #endif  // SEAD_TLIST_H_
+

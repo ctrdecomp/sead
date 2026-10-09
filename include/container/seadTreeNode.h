@@ -65,3 +65,4 @@ protected:
 }  // namespace sead
 
 #endif  // SEAD_TREENODE_H_
+

@@ -350,3 +350,4 @@ inline void StringBuilderBase<T>::clear()
     mLength = 0;
 }
 }  // namespace sead
+

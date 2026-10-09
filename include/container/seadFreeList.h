@@ -89,3 +89,4 @@ inline void FreeList::free(void* ptr)
     mFree = new (ptr) Node(mFree);
 }
 }  // namespace sead
+

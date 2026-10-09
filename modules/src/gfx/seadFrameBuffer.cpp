@@ -21,3 +21,4 @@ void FrameBuffer::bind() const
     bindImpl_();
 }
 }  // namespace sead
+

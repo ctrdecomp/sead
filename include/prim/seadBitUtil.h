@@ -44,3 +44,4 @@ inline void bitCastWrite(const From& value, To* ptr)
 }
 }  // namespace BitUtil
 }  // namespace sead
+

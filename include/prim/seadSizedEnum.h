@@ -19,3 +19,4 @@ struct SizedEnum
     Storage mValue;
 };
 }  // namespace sead
+

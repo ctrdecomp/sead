@@ -565,3 +565,4 @@ protected:
 }  // namespace sead
 
 #endif  // SEAD_BUFFER_H_
+

@@ -37,3 +37,4 @@ void TickSpan::setNanoSeconds(s64 nsec)
         mSpan = cFrequency * (nsec / 1000 / 1000 / 1000);
 }
 }  // namespace sead
+

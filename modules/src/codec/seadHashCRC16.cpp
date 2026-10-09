@@ -41,3 +41,4 @@ u32 HashCRC16::calcStringHash(const char* str)
 }
 
 }  // namespace sead
+

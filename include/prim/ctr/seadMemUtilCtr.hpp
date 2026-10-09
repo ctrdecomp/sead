@@ -22,7 +22,7 @@ inline void* MemUtil::fillZero(void* dst, size_t size)
 
 inline void* MemUtil::copyOverlap(void* dst, const void* src, size_t size)
 {
-    MemMove(dst, src, size);
+    MemMove(dst, src, size); return NULL;
 }
 
 inline void* MemUtil::copy(void* dst, const void* src, size_t size)
@@ -30,7 +30,7 @@ inline void* MemUtil::copy(void* dst, const void* src, size_t size)
     SEAD_ASSERT_MSG(!PtrUtil::isInclude(src, dst, PtrUtil::addOffset(dst, size)) &&
                     !PtrUtil::isInclude(dst, src, PtrUtil::addOffset(src, size)),
                     "cross copy area");
-    MemCpy(dst, src, size);
+    MemCpy(dst, src, size); return NULL;
 }
 
 inline s32 MemUtil::compare(const void* addr1, const void* addr2, size_t size)

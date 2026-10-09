@@ -105,3 +105,4 @@ inline bool Random::getBool()
 }
 
 }  // namespace sead
+

@@ -180,8 +180,9 @@ void CalendarTime::Date::calcWeek()
 
 void CalendarTime::makeWeekDayNameLabel_(BufferedSafeString* out_str, CalendarTime::Week week)
 {
-    static const SafeArray<const char*, 7> labels = {{"æ—¥", "æœˆ", "ç«", "æ°´", "æœ¨", "é‡‘", "åœŸ"}};
-    out_str->format("æ›œæ—¥:%s", labels[s32(week)]);
+    static const SafeArray<const char*, 7> labels = {{"“ú", "ŒŽ", "‰Î", "…", "–Ø", "‹à", "“y"}};
+    out_str->format("—j“ú:%s", labels[s32(week)]);
 }
 
 }  // namespace sead
+

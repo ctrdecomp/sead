@@ -36,3 +36,4 @@ protected:
 }  // namespace sead
 
 #endif  // SEAD_DECOMPRESSOR_H_
+

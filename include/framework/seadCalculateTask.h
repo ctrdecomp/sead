@@ -34,3 +34,4 @@ protected:
     MethodTreeNode mCalcNode;
 };
 }  // namespace sead
+

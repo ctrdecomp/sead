@@ -340,3 +340,4 @@ s32 PtrArrayImpl::binarySearch(const void* ptr, CompareCallbackImpl cmp) const
 }
 
 }  // namespace sead
+

@@ -39,3 +39,4 @@ s64 DateSpan::setTimeImpl_(s32 d, s32 h, s32 m, s32 s)
 }
 
 }  // namespace sead
+

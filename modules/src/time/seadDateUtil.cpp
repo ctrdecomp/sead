@@ -43,3 +43,4 @@ void calcSecondToCalendarSpan(CalendarSpan* out_span, u64 sec)
 }
 }  // namespace DateUtil
 }  // namespace sead
+

@@ -266,3 +266,4 @@ SafeArray<T, N> toArray(T (&a)[N])
 }
 #endif
 }  // namespace sead
+

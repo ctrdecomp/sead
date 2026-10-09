@@ -35,3 +35,4 @@ private:
     static bool sInitialized;
 };
 }  // namespace sead
+

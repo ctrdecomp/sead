@@ -937,3 +937,4 @@ s32 StringBuilderBase<T>::prepend(T c, s32 num)
 template s32 StringBuilder::prepend(char c, s32 length);
 //template s32 WStringBuilder::prepend(char16_t c, s32 length);
 }  // namespace sead
+

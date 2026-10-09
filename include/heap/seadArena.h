@@ -25,3 +25,4 @@ public:
 }  // namespace sead
 
 #endif  // SEAD_ARENA_H_
+

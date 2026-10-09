@@ -133,3 +133,4 @@ public:                                                                         
     }
 
 #endif  // SEAD_RUNTIMETYPEINFO_H_
+

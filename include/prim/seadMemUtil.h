@@ -36,3 +36,4 @@ public:
 #undef SEAD_PRIM_MEM_UTIL_H_
 
 #endif  // SEAD_MEM_UTIL_H_
+

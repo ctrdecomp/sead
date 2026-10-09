@@ -90,3 +90,4 @@ protected:
 }  // namespace sead
 
 #endif  // SEAD_ARCHIVE_RES_H_
+

@@ -141,3 +141,4 @@ MethodTreeNode* CalculateTask::getMethodTreeNode(s32 methodType)
 }
 
 }  // namespace sead
+

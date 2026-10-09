@@ -29,3 +29,4 @@ typedef Vector4<u32> Vector4u;
 typedef Vector4<f32> Vector4f;
 
 }  // namespace sead
+

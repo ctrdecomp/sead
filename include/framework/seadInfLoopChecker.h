@@ -84,3 +84,4 @@ private:
     sead::Atomic<u32> mDisableCounter;
 };
 }  // namespace sead
+

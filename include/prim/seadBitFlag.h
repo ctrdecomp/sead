@@ -124,3 +124,4 @@ typedef BitFlag<u32> BitFlag32;
 typedef BitFlag<u64> BitFlag64;
 
 }  // namespace sead
+

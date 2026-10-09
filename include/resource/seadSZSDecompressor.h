@@ -80,3 +80,4 @@ public:
 }  // namespace sead
 
 #endif  // SEAD_SZS_DECOMPRESSOR_H_
+

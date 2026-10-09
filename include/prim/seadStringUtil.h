@@ -82,3 +82,4 @@ void toLowerCapitalFirstCharactor(WBufferedSafeString* str);
 }  // namespace sead
 
 #endif  // SEAD_STRING_UTIL_H_
+

@@ -46,3 +46,4 @@ void MainFileDevice::resolveDirectoryPath(BufferedSafeString* out, const SafeStr
     mFileDevice->FileDevice::resolveDirectoryPath(out, path);
 }
 }  // namespace sead
+

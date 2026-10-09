@@ -298,3 +298,4 @@ u32 ControllerBase::createStickCrossMask_()
 }
 
 }  // namespace sead
+

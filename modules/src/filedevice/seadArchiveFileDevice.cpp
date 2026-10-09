@@ -478,3 +478,4 @@ s32 ArchiveFileDevice::doGetLastRawError_() const
     return 0;
 }
 }  // namespace sead
+

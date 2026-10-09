@@ -19,10 +19,10 @@ inline void AllocFailAssert(Heap*, size_t, u32) {}
 #endif
 }  // namespace sead
 
-void* operator new(size_t size);
-void* operator new[](size_t size);
-void* operator new(size_t size, const std::nothrow_t&);
-void* operator new[](size_t size, const std::nothrow_t&);
+void* operator new(size_t size) throw(std::bad_alloc);
+void* operator new[](size_t size) throw(std::bad_alloc);
+void* operator new(size_t size, const std::nothrow_t&) throw();
+void* operator new[](size_t size, const std::nothrow_t&) throw();
 
 void* operator new(size_t size, s32 alignment);
 void* operator new[](size_t size, s32 alignment);
@@ -37,10 +37,10 @@ void* operator new[](size_t size, sead::Heap* heap, s32 alignment = sizeof(void*
 void* operator new(size_t size, sead::Heap* heap, s32 alignment, const std::nothrow_t&);
 void* operator new[](size_t size, sead::Heap* heap, s32 alignment, const std::nothrow_t&);
 
-void operator delete(void* ptr);
-void operator delete[](void* ptr);
-void operator delete(void* ptr, const std::nothrow_t&);
-void operator delete[](void* ptr, const std::nothrow_t&);
+void operator delete(void* ptr) throw();
+void operator delete[](void* ptr) throw();
+void operator delete(void* ptr, const std::nothrow_t&) throw();
+void operator delete[](void* ptr, const std::nothrow_t&) throw();
 
 void operator delete(void* ptr, s32);
 void operator delete[](void* ptr, s32);

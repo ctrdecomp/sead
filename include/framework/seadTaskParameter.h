@@ -9,3 +9,4 @@ class TaskParameter
     SEAD_RTTI_BASE(TaskParameter)
 };
 }  // namespace sead
+

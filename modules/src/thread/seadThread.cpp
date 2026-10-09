@@ -240,3 +240,4 @@ void ThreadMgr::genMessage(hostio::Context* context)
 }
 #endif
 }  // namespace sead
+

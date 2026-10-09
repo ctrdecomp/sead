@@ -389,3 +389,4 @@ s32 SZSDecompressor::decomp(void* dst, u32 dstSize, const void* src, u32 src_siz
 }
 
 }  // namespace sead
+

@@ -232,3 +232,4 @@ protected:                                                  \
         if (mIsSetAsSingleton_)                                 \
             CLASS::sInstance = nullptr;                         \
     }
+

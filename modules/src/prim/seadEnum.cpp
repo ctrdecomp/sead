@@ -124,3 +124,4 @@ void EnumUtil::skipToWordStart_(char** p_ptr)
 }
 
 }  // namespace sead
+

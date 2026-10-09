@@ -36,7 +36,7 @@ public:
     }
 
     explicit MethodTreeNode(CriticalSection* cs) : 
-        TTreeNode(this), 
+        TTreeNode<MethodTreeNode*>(this), 
         INamable(), 
         IDisposer(), 
         mDelegate(),
@@ -92,3 +92,4 @@ private:
 }  // namespace sead
 
 #endif  // SEAD_METHODTREE_H_
+

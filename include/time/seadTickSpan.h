@@ -119,3 +119,4 @@ private:
 }  // namespace sead
 
 #endif  // SEAD_TICKSPAN_H_
+

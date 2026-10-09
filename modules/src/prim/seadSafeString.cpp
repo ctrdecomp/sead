@@ -296,3 +296,4 @@ template s32 replaceStringImpl_<char16>(char16* buffer, s32* length, s32 buffer_
                                         bool* is_buffer_overflow);
 
 }  // namespace sead
+

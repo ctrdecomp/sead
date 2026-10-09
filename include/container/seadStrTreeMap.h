@@ -186,3 +186,4 @@ inline void StrTreeMap<N, Value>::eraseNodeForClear_(typename MapImpl::Node* nod
     mFreeList.free(node);
 }
 }  // namespace sead
+

@@ -147,13 +147,13 @@ public:
     Delegate() {}
     Delegate(T* instance, PTMF fn) : Base(instance, fn) {}
 
-    void invoke() { operator()(); }
+    virtual void invoke() { operator()(); }
     void operator()() const
     {
         if (this->mInstance && this->mFunctionPtr)
             return (this->mInstance->*(this->mFunctionPtr))();
     }
-    Delegate* clone(Heap* heap) const { return new (heap) Delegate(*this); }
+    virtual Delegate* clone(Heap* heap) const { return new (heap) Delegate(*this); }
 };
 
 /// @tparam T  Class type
@@ -167,14 +167,14 @@ public:
     DelegateR() {}
     DelegateR(T* instance, R (T::*fn)()) : Base(instance, fn) {}
 
-    R invoke() { return operator()(); }
+    virtual R invoke() { return operator()(); }
     R operator()() const
     {
         if (this->mInstance && this->mFunctionPtr)
             return (this->mInstance->*(this->mFunctionPtr))();
         return R();
     }
-    DelegateR* clone(Heap* heap) const { return new (heap) DelegateR(*this); }
+    virtual DelegateR* clone(Heap* heap) const { return new (heap) DelegateR(*this); }
 };
 
 /// Delegate for a member function with one argument.
@@ -189,13 +189,13 @@ public:
     Delegate1() {}
     Delegate1(T* instance, void (T::*fn)(A1)) : Base(instance, fn) {}
 
-    void invoke(A1 a1) { operator()(a1); }
+    virtual void invoke(A1 a1) { operator()(a1); }
     void operator()(A1 a1) const
     {
         if (this->mInstance && this->mFunctionPtr)
             return (this->mInstance->*(this->mFunctionPtr))(a1);
     }
-    Delegate1* clone(Heap* heap) const { return new (heap) Delegate1(*this); }
+    virtual Delegate1* clone(Heap* heap) const { return new (heap) Delegate1(*this); }
 };
 
 /// @tparam T  Class type
@@ -210,14 +210,14 @@ public:
     Delegate1R() {}
     Delegate1R(T* instance, R (T::*fn)(A1)) : Base(instance, fn) {}
 
-    R invoke(A1 a1) { return operator()(a1); }
+    virtual R invoke(A1 a1) { return operator()(a1); }
     R operator()(A1 a1) const
     {
         if (this->mInstance && this->mFunctionPtr)
             return (this->mInstance->*(this->mFunctionPtr))(a1);
         return R();
     }
-    Delegate1R* clone(Heap* heap) const { return new (heap) Delegate1R(*this); }
+    virtual Delegate1R* clone(Heap* heap) const { return new (heap) Delegate1R(*this); }
 };
 
 /// Delegate for a member function with two arguments.
@@ -233,13 +233,13 @@ public:
     Delegate2() {}
     Delegate2(T* instance, void (T::*fn)(A1, A2)) : Base(instance, fn) {}
 
-    void invoke(A1 a1, A2 a2) { return operator()(a1, a2); }
+    virtual void invoke(A1 a1, A2 a2) { return operator()(a1, a2); }
     void operator()(A1 a1, A2 a2) const
     {
         if (this->mInstance && this->mFunctionPtr)
             return (this->mInstance->*(this->mFunctionPtr))(a1, a2);
     }
-    Delegate2* clone(Heap* heap) const { return new (heap) Delegate2(*this); }
+    virtual Delegate2* clone(Heap* heap) const { return new (heap) Delegate2(*this); }
 };
 
 /// @tparam T  Class type
@@ -255,14 +255,14 @@ public:
     Delegate2R() {}
     Delegate2R(T* instance, R (T::*fn)(A1, A2)) : Base(instance, fn) {}
 
-    R invoke(A1 a1, A2 a2) { return operator()(a1, a2); }
+    virtual R invoke(A1 a1, A2 a2) { return operator()(a1, a2); }
     R operator()(A1 a1, A2 a2) const
     {
         if (this->mInstance && this->mFunctionPtr)
             return (this->mInstance->*(this->mFunctionPtr))(a1, a2);
         return R();
     }
-    Delegate2R* clone(Heap* heap) const { return new (heap) Delegate2R(*this); }
+    virtual Delegate2R* clone(Heap* heap) const { return new (heap) Delegate2R(*this); }
 };
 
 class DelegateFunc : public DelegateBase<void, void (*)(), IDelegate>
@@ -273,13 +273,13 @@ public:
     DelegateFunc() {}
     explicit DelegateFunc(void (*fn)()) : Base(fn) {}
 
-    void invoke() { operator()(); }
+    virtual void invoke() { operator()(); }
     void operator()() const
     {
         if (this->mFunctionPtr)
             return (*this->mFunctionPtr)();
     }
-    DelegateFunc* clone(Heap* heap) const { return new (heap) DelegateFunc(*this); }
+    virtual DelegateFunc* clone(Heap* heap) const { return new (heap) DelegateFunc(*this); }
 };
 
 template <typename R>
@@ -291,14 +291,14 @@ public:
     DelegateRFunc() {}
     explicit DelegateRFunc(R (*fn)()) : Base(fn) {}
 
-    R invoke() { return operator()(); }
+    virtual R invoke() { return operator()(); }
     R operator()() const
     {
         if (this->mFunctionPtr)
             return (*this->mFunctionPtr)();
         return R();
     }
-    DelegateRFunc* clone(Heap* heap) const { return new (heap) DelegateRFunc(*this); }
+    virtual DelegateRFunc* clone(Heap* heap) const { return new (heap) DelegateRFunc(*this); }
 };
 
 template <typename A1>
@@ -310,13 +310,13 @@ public:
     Delegate1Func() {}
     explicit Delegate1Func(void (*fn)(A1)) : Base(fn) {}
 
-    void invoke(A1 a1) { operator()(a1); }
+    virtual void invoke(A1 a1) { operator()(a1); }
     void operator()(A1 a1) const
     {
         if (this->mFunctionPtr)
             return (*this->mFunctionPtr)(a1);
     }
-    Delegate1Func* clone(Heap* heap) const { return new (heap) Delegate1Func(*this); }
+    virtual Delegate1Func* clone(Heap* heap) const { return new (heap) Delegate1Func(*this); }
 };
 
 template <typename A1, typename R>
@@ -328,14 +328,14 @@ public:
     Delegate1RFunc() {}
     explicit Delegate1RFunc(R (*fn)(A1)) : Base(fn) {}
 
-    R invoke(A1 a1) { return operator()(a1); }
+    virtual R invoke(A1 a1) { return operator()(a1); }
     R operator()(A1 a1) const
     {
         if (this->mFunctionPtr)
             return (*this->mFunctionPtr)(a1);
         return R();
     }
-    Delegate1RFunc* clone(Heap* heap) const { return new (heap) Delegate1RFunc(*this); }
+    virtual Delegate1RFunc* clone(Heap* heap) const { return new (heap) Delegate1RFunc(*this); }
 };
 
 template <typename A1, typename A2>
@@ -347,13 +347,13 @@ public:
     Delegate2Func() {}
     explicit Delegate2Func(void (*fn)(A1, A2)) : Base(fn) {}
 
-    void invoke(A1 a1, A2 a2) { return operator()(a1, a2); }
+    virtual void invoke(A1 a1, A2 a2) { return operator()(a1, a2); }
     void operator()(A1 a1, A2 a2) const
     {
         if (this->mFunctionPtr)
             return (*this->mFunctionPtr)(a1, a2);
     }
-    Delegate2Func* clone(Heap* heap) const { return new (heap) Delegate2Func(*this); }
+    virtual Delegate2Func* clone(Heap* heap) const { return new (heap) Delegate2Func(*this); }
 };
 
 template <typename A1, typename A2, typename R>
@@ -365,14 +365,14 @@ public:
     Delegate2RFunc() {}
     explicit Delegate2RFunc(R (*fn)(A1, A2)) : Base(fn) {}
 
-    R invoke(A1 a1, A2 a2) { return operator()(a1, a2); }
+    virtual R invoke(A1 a1, A2 a2) { return operator()(a1, a2); }
     R operator()(A1 a1, A2 a2) const
     {
         if (this->mFunctionPtr)
             return (*this->mFunctionPtr)(a1, a2);
         return R();
     }
-    Delegate2RFunc* clone(Heap* heap) const { return new (heap) Delegate2RFunc(*this); }
+    virtual Delegate2RFunc* clone(Heap* heap) const { return new (heap) Delegate2RFunc(*this); }
 };
 
 template <typename Lambda>
@@ -384,7 +384,7 @@ public:
     virtual void invoke() { mLambda(); }
     void operator()() const { mLambda(); }
 
-    LambdaDelegate* clone(Heap* heap) const
+    virtual LambdaDelegate* clone(Heap* heap) const
     {
         return new (heap) LambdaDelegate(*this);
     }
@@ -399,10 +399,10 @@ class LambdaDelegateR : public IDelegateR<R>
 public:
     explicit LambdaDelegateR(Lambda l) : mLambda(l) {}
 
-    R invoke() { return mLambda(); }
+    virtual R invoke() { return mLambda(); }
     R operator()() const { return mLambda(); }
 
-    LambdaDelegateR* clone(Heap* heap) const
+    virtual LambdaDelegateR* clone(Heap* heap) const
     {
         return new (heap) LambdaDelegateR(*this);
     }
@@ -417,10 +417,10 @@ class LambdaDelegate1 : public IDelegate1<A1>
 public:
     explicit LambdaDelegate1(Lambda l) : mLambda(l) {}
 
-    void invoke(A1 a1) { mLambda(a1); }
+    virtual void invoke(A1 a1) { mLambda(a1); }
     void operator()(A1 a1) const { mLambda(a1); }
 
-    LambdaDelegate1* clone(Heap* heap) const
+    virtual LambdaDelegate1* clone(Heap* heap) const
     {
         return new (heap) LambdaDelegate1(*this);
     }
@@ -435,10 +435,10 @@ class LambdaDelegate1R : public IDelegate1R<A1, R>
 public:
     explicit LambdaDelegate1R(Lambda l) : mLambda(l) {}
 
-    R invoke(A1 a1) { return mLambda(a1); }
+    virtual R invoke(A1 a1) { return mLambda(a1); }
     R operator()(A1 a1) const { return mLambda(a1); }
 
-    LambdaDelegate1R* clone(Heap* heap) const
+    virtual LambdaDelegate1R* clone(Heap* heap) const
     {
         return new (heap) LambdaDelegate1R(*this);
     }
@@ -453,10 +453,10 @@ class LambdaDelegate2 : public IDelegate2<A1, A2>
 public:
     explicit LambdaDelegate2(Lambda l) : mLambda(l) {}
 
-    void invoke(A1 a1, A2 a2) { mLambda(a1, a2); }
+    virtual void invoke(A1 a1, A2 a2) { mLambda(a1, a2); }
     void operator()(A1 a1, A2 a2) const { mLambda(a1, a2); }
 
-    LambdaDelegate2* clone(Heap* heap) const
+    virtual LambdaDelegate2* clone(Heap* heap) const
     {
         return new (heap) LambdaDelegate2(*this);
     }
@@ -471,10 +471,10 @@ class LambdaDelegate2R : public IDelegate2R<A1, A2, R>
 public:
     explicit LambdaDelegate2R(Lambda l) : mLambda(l) {}
 
-    R invoke(A1 a1, A2 a2) { return mLambda(a1, a2); }
+    virtual R invoke(A1 a1, A2 a2) { return mLambda(a1, a2); }
     R operator()(A1 a1, A2 a2) const { return mLambda(a1, a2); }
 
-    LambdaDelegate2R* clone(Heap* heap) const
+    virtual LambdaDelegate2R* clone(Heap* heap) const
     {
         return new (heap) LambdaDelegate2R(*this);
     }
@@ -580,7 +580,7 @@ public:
     class UnbindDummy : public Base::Interface_
     {
     public:
-        void invoke() {}
+        virtual void invoke() {}
     };
 
     AnyDelegate() : Base() {}
@@ -598,7 +598,7 @@ public:
         return *this;
     }
 
-    void invoke()
+    virtual void invoke()
     {
         if (getDelegate())
             getDelegate()->invoke();
@@ -624,7 +624,7 @@ public:
     class UnbindDummy : public Base::Interface_
     {
     public:
-        R invoke() { return R(); }
+        virtual R invoke() { return R(); }
     };
 
     AnyDelegateR() : Base() {}
@@ -656,7 +656,7 @@ public:
     class UnbindDummy : public Base::Interface_
     {
     public:
-        void invoke(A1) {}
+        virtual void invoke(A1) {}
     };
 
     AnyDelegate1() : Base() {}
@@ -694,7 +694,7 @@ public:
     class UnbindDummy : public Base::Interface_
     {
     public:
-        R invoke(A1) { return R(); }
+        virtual R invoke(A1) { return R(); }
     };
 
     AnyDelegate1R() : Base() {}
@@ -726,7 +726,7 @@ public:
     class UnbindDummy : public Base::Interface_
     {
     public:
-        void invoke(A1, A2) {}
+        virtual void invoke(A1, A2) {}
     };
 
     AnyDelegate2() : Base() {}
@@ -758,7 +758,7 @@ public:
     class UnbindDummy : public Base::Interface_
     {
     public:
-        R invoke(A1, A2) { return R(); }
+        virtual R invoke(A1, A2) { return R(); }
     };
 
     AnyDelegate2R() : Base() {}
@@ -777,3 +777,4 @@ public:
 };
 
 }  // namespace sead
+
