@@ -363,4 +363,3 @@ void TaskBase::doneDestroy()
     setFlag_(4);
 }
 }  // namespace sead
-
